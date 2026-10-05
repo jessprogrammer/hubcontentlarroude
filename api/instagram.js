@@ -5,16 +5,30 @@ import { pool, cached, iso, mondayOf } from '../lib/util.js';
 
 const SM = 'https://api.supermetrics.com/v2/query/data/json';
 const ACC = config.instagramAccount;
+// aceita a chave pura ou um trecho copiado do link do Query Manager (com %22, aspas, espaços...)
+function apiKey() {
+  let v = String(process.env.SUPERMETRICS_API_KEY || '');
+  try { v = decodeURIComponent(v) } catch (e) {}
+  const m = v.match(/api_[A-Za-z0-9_-]{20,}/);
+  if (m) return m[0];
+  const runs = (v.match(/[A-Za-z0-9_-]{20,}/g) || []).sort((x, y) => y.length - x.length);
+  return runs[0] ? (runs[0].startsWith('api_') ? runs[0] : 'api_' + runs[0]) : v.trim();
+}
+// descreve o formato da chave salva, sem mostrar a chave
+function keyShape() {
+  const v = String(process.env.SUPERMETRICS_API_KEY || '');
+  return `chave salva: ${v.length} caracteres, começa com "${v.slice(0, 4)}", tem %: ${v.includes('%')}, tem aspas: ${/["']/.test(v)}, tem espaço: ${/\s/.test(v)}`;
+}
 
 async function sm(fields, report_type, range) {
-  const q = { ds_id: 'IGI', ds_accounts: ACC, fields, settings: { report_type }, max_rows: 5000, api_key: process.env.SUPERMETRICS_API_KEY, ...range };
+  const q = { ds_id: 'IGI', ds_accounts: ACC, fields, settings: { report_type }, max_rows: 5000, api_key: apiKey(), ...range };
   q.ds_user = process.env.IG_DS_USER || ACC;
   for (let k = 0; k < 3; k++) {
     const r = await fetch(SM + '?json=' + encodeURIComponent(JSON.stringify(q)));
     const j = await r.json().catch(() => ({}));
     if (r.ok && Array.isArray(j.data)) return j.data.slice(1); // linha 0 = cabeçalho
     if (r.status === 429 || r.status >= 500) { await new Promise(z => setTimeout(z, 1500 * (k + 1))); continue }
-    throw new Error('Supermetrics ' + r.status + ' ' + JSON.stringify(j.error || j.meta || '').slice(0, 300));
+    throw new Error('Supermetrics ' + r.status + ' ' + JSON.stringify(j.error || j.meta || '').slice(0, 300) + ' | ' + keyShape());
   }
   throw new Error('Supermetrics sem resposta');
 }
