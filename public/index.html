@@ -445,9 +445,6 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <nav class="navsec" aria-label="Painéis">
       <span class="lbl">Painéis</span>
       <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta US</a>
-    </nav>
-    <nav class="navsec" aria-label="Ideias de conteúdo">
-      <span class="lbl">Ideias de conteúdo</span>
       <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
     </nav>
@@ -648,10 +645,20 @@ function renderSummary(list){
   <div class="dist"><span class="lbl">Por tipo</span><div class="bar" role="img" aria-label="Distribuição por tipo">${obBar}</div><div class="legend">${obLeg}</div></div>`;
 }
 function stClass(s){s=(s||'').toLowerCase(); if(s==='live')return'st-live'; if(s==='delivered')return'st-delivered'; if(s==='on hold'||s==='needs approval')return'st-hold'; return'st-other'}
+window.keyOf = n => {
+  const p = String(n || '').toLowerCase().replace(/\.(mp4|mov|jpe?g|png|gif)$/, '').split('_').filter(Boolean);
+  if (p.length < 4) return '';
+  const ai = p.findIndex((t, i) => i > 0 && /aware|no-copy|nocopy/.test(t));
+  if (ai < 0) return '';
+  let j = ai + 1, ang = [], num = '';
+  for (; j < p.length; j++) { const m = p[j].match(/^v?(\d{1,3})$/); if (m) { num = String(+m[1]); break } ang.push(p[j]) }
+  if (!num) num = '1';
+  return 'k:' + p[0] + '|' + p[ai].replace(/[^a-z]/g, '') + '|' + ang.join('').replace(/[^a-z0-9]/g, '') + '|' + num;
+};
 function perf(x){
   const A=window.ADS;if(!A)return `<div class="pf pf-load"><span class="mono">Meta…</span></div>`;
-  const ids=new Set();(x.files||[]).forEach(n=>(A.names[n]||[]).forEach(i=>ids.add(i)));
-  if(!ids.size){const vid=(x.fx||[]).some(e=>e==='mp4'||e==='mov');return `<div class="pf pf-none"><span class="pfs">${vid?'Não encontrado na Meta':'Static: sem vínculo automático'}</span></div>`}
+  const ids=new Set();(x.files||[]).forEach(n=>{(A.names[n]||[]).forEach(i=>ids.add(i));const k=keyOf(n);if(k)(A.names[k]||[]).forEach(i=>ids.add(i))});
+  if(!ids.size){return `<div class="pf pf-none"><span class="pfs">Não encontrado na Meta</span></div>`}
   const L=[...ids].map(i=>A.ads[i]).filter(Boolean);
   const live=L.filter(a=>a.st==='ACTIVE').length;
   const sum=(k,f)=>L.reduce((s,a)=>s+((a[k]&&a[k][f])||0),0);
