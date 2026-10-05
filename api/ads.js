@@ -6,7 +6,7 @@ import { pool } from '../lib/util.js';
 
 const GRAPH = 'https://graph.facebook.com/v23.0';
 const ACCOUNTS = [{ id: '2047856822417350', name: 'Larroudé US' }, { id: '929449929417505', name: 'PRE-ORDER US' }];
-const KEY = 'ads:meta4';
+const KEY = 'ads:meta5';
 const FRESH_MS = 60 * 60e3;
 const SINCE = '2026-08-01'; // período considerado para "total"
 
@@ -57,13 +57,14 @@ const PURCH = ['purchase', 'omni_purchase', 'offsite_conversion.fb_pixel_purchas
 
 async function account(acc, today) {
   const since = Math.floor(Date.parse(SINCE) / 1000);
-  const [videos, ads, ins, ins7] = await Promise.all([
+  const [videos, ads, ins, ins7, images] = await Promise.all([
     all('/act_' + acc.id + '/advideos', { fields: 'id,title', limit: '500' }, 6),
-    all('/act_' + acc.id + '/ads', { fields: 'id,name,effective_status,creative{object_type,effective_object_story_id,video_id,asset_feed_spec{videos{video_id}},object_story_spec{video_data{video_id},link_data{child_attachments{video_id}}}}', limit: '200', updated_since: String(since) }, 15),
+    all('/act_' + acc.id + '/ads', { fields: 'id,name,effective_status,creative{object_type,image_hash,video_id,asset_feed_spec{images{hash},videos{video_id}},object_story_spec{video_data{video_id,image_hash},link_data{image_hash,child_attachments{video_id,image_hash}}}}', limit: '200', updated_since: String(since) }, 15),
     all('/act_' + acc.id + '/insights', { level: 'ad', fields: 'ad_id,spend,impressions,clicks,actions,action_values', time_range: JSON.stringify({ since: SINCE, until: today }), limit: '500' }, 10),
     all('/act_' + acc.id + '/insights', { level: 'ad', fields: 'ad_id,spend,impressions,clicks,actions,action_values', date_preset: 'last_7d', limit: '500' }, 10),
+    all('/act_' + acc.id + '/adimages', { fields: 'hash,created_time', limit: '500' }, 4),
   ]);
-  const byVideo = {};
+  const byVideo = {}, byHash = {};
   for (const a of ads) {
     const c = a.creative || {}, vids = new Set();
     if (c.video_id) vids.add(c.video_id);
@@ -72,6 +73,12 @@ async function account(acc, today) {
     if (oss.video_data && oss.video_data.video_id) vids.add(oss.video_data.video_id);
     ((oss.link_data && oss.link_data.child_attachments) || []).forEach(v => v.video_id && vids.add(v.video_id));
     for (const v of vids) (byVideo[v] = byVideo[v] || []).push(a.id);
+    const hs = new Set();
+    if (c.image_hash) hs.add(c.image_hash);
+    ((c.asset_feed_spec && c.asset_feed_spec.images) || []).forEach(i => i.hash && hs.add(i.hash));
+    if (oss.link_data && oss.link_data.image_hash) hs.add(oss.link_data.image_hash);
+    ((oss.link_data && oss.link_data.child_attachments) || []).forEach(v => v.image_hash && hs.add(v.image_hash));
+    for (const h of hs) (byHash[h] = byHash[h] || []).push(a.id);
   }
   const metr = r => ({ sp: num(r.spend), im: num(r.impressions), cl: num(r.clicks), pu: act(r.actions, PURCH), rv: act(r.action_values, PURCH) });
   const I = Object.fromEntries(ins.map(r => [r.ad_id, metr(r)]));
@@ -86,9 +93,10 @@ async function account(acc, today) {
   }
   // também liga pelo nome do anúncio (segue a mesma nomenclatura do arquivo no Air)
   for (const a of ads) { const k = keyOf(a.name); if (k) names[k] = Array.from(new Set((names[k] || []).concat(a.id))) }
+  for (const [h, ids] of Object.entries(byHash)) names['h:' + h] = Array.from(new Set((names['h:' + h] || []).concat(ids)));
   const vidIds = new Set(videos.map(v => v.id)), adVid = Object.keys(byVideo);
   const dbg = { videos: videos.length, ads: ads.length, adsWithVideo: new Set(Object.values(byVideo).flat()).size, adVideoIds: adVid.length, adVideoIdsInLibrary: adVid.filter(v => vidIds.has(v)).length,
-    sampleAdNames: ads.slice(0, 15).map(a => a.name), types: ads.reduce((m, a) => { const t = (a.creative && a.creative.object_type) || '?'; m[t] = (m[t] || 0) + 1; return m }, {}) };
+    images: images.length, hashedAds: new Set(Object.values(byHash).flat()).size, types: ads.reduce((m, a) => { const t = (a.creative && a.creative.object_type) || '?'; m[t] = (m[t] || 0) + 1; return m }, {}) };
   // guarda só os anúncios ligados a algum vídeo com nome
   const used = new Set(Object.values(names).flat());
   return { names, dbg, ads: adOut };
