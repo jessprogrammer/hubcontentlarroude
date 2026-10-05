@@ -4,6 +4,205 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
+<script>
+// Idioma do site: PT (padrão) ou EN. A escolha fica salva no navegador; ao trocar, a página recarrega.
+(function(){
+  let L='pt';try{L=localStorage.getItem('hub-lang')||(/^pt/i.test(navigator.language)?'pt':'en')}catch(e){}
+  window.LANG=L;window.LOC=L==='en'?'en-US':'pt-BR';
+  document.documentElement.lang=window.LOC;
+  window.setLang=function(l){try{localStorage.setItem('hub-lang',l)}catch(e){};location.reload()};
+  if(L!=='en')return;
+  const MPT=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const MEN=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MAB=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const MPA=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  const WPT={seg:'Mon',ter:'Tue',qua:'Wed',qui:'Thu',sex:'Fri','sáb':'Sat',dom:'Sun',Seg:'Mon',Ter:'Tue',Qua:'Wed',Qui:'Thu',Sex:'Fri','Sáb':'Sat',Dom:'Sun'};
+  // frases (as mais longas primeiro)
+  const P=[
+    ['Tudo o que está nas pastas mensais do Air (','Everything in the monthly Air folders ('],
+    ['), organizado pela data de cada board de entrega. Escolha o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha US Request – Meta quando o board está linkado lá.','), organized by the date of each delivery board. Pick a month, then a week. Category and type (Branding or Conversion) come from the US Request – Meta sheet when the board is linked there.'],
+    ['Cada criativo é um board final do Air (por exemplo CREATIVE 01). Ele reúne os tamanhos (1:1, 9:16, 1.91:1) ou os cards de um carrossel.','Each creative is a final Air board (e.g. CREATIVE 01). It holds the sizes (1:1, 9:16, 1.91:1) or the cards of a carousel.'],
+    ['"Sem tipo" quer dizer que o board não está linkado na planilha, então não sei se é Branding ou Conversion.','"No type" means the board is not linked in the sheet, so it is not known whether it is Branding or Conversion.'],
+    ['Semanas que passam de um mês para o outro aparecem nos dois meses, cada uma só com os dias daquele mês. Exemplo: 28/09 a 30/09 em setembro e 01/10 a 04/10 em outubro.','Weeks that span two months appear in both, each with only that month’s days. Example: Sep 28 – Sep 30 in September and Oct 1 – Oct 4 in October.'],
+    ['Em OCT 26, o board New Drop 07.10 tem 15 arquivos soltos que repetem os das pastas STATIC 01 e 02. Por isso contei só as pastas.','In OCT 26, the New Drop 07.10 board has 15 loose files that repeat those in STATIC 01 and 02, so only the folders are counted.'],
+    ['O mês atual ainda está em andamento; o painel atualiza sozinho.','The current month is still in progress; the panel updates automatically.'],
+    ['Fontes: Air, pastas mensais, e planilha Creative Request_Larroude, aba US Request – Meta. Atualizado em','Sources: Air monthly folders and the Creative Request_Larroude sheet, US Request – Meta tab. Updated'],
+    ['O que o time entregou, dia a dia, nos três núcleos. Os números vêm da aba LANÇAMENTOS da planilha','What the team delivered, day by day, across the three units. Numbers come from the LANÇAMENTOS tab of the'],
+    [', somando só os tipos que contam como entrega.',' sheet, counting only the types that count as deliveries.'],
+    ['Captação é SKU fotografado e vídeo gravado. Design não tem essa etapa.','Capture = SKUs photographed and videos shot. Design has no capture stage.'],
+    ['Cada faixa é um tipo. Passe o mouse para ver qual.','Each segment is a type. Hover to see which.'],
+    ['Fonte: planilha Controle de Entregas — Conteúdo Digital, aba LANÇAMENTOS. Atualizado em','Source: Controle de Entregas — Conteúdo Digital sheet, LANÇAMENTOS tab. Updated'],
+    ['. A semana atual fica parcial até sexta.','. The current week stays partial until Friday.'],
+    ['Desempenho dos posts do feed e dos reels do @larroude, vindo do Instagram Insights pelo Supermetrics. Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.','Performance of @larroude feed posts and reels, from Instagram Insights via Supermetrics. Pick a period, see what worked best by format and open any post on Instagram.'],
+    ['Fonte: Instagram Insights (Supermetrics), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em','Source: Instagram Insights (Supermetrics), @larroude profile. Reach and views per post are lifetime totals as of the update. Followers: gains and losses come from Instagram’s "follows and unfollows" metric. Updated'],
+    ['A semana de 27/07 ficou fora: o Instagram registrou um erro nesses dias.','The week of Jul 27 is excluded: Instagram logged an error on those days.'],
+    ['Não foi possível carregar os dados agora. Tente de novo em instantes.','Could not load the data right now. Please try again shortly.'],
+    ['Não consegui ler o Air agora. Recarregue a página em instantes.','Could not read Air right now. Reload the page shortly.'],
+    ['Não consegui buscar o Instagram agora','Could not fetch Instagram right now'],
+    ['Nenhum criativo com esses filtros nesta semana.','No creatives match these filters this week.'],
+    ['Médias por post. Engajamento = interações ÷ alcance.','Averages per post. Engagement = interactions ÷ reach.'],
+    ['Barras = número de posts · linha = alcance médio por post','Bars = number of posts · line = average reach per post'],
+    ['Digite a senha para ver as entregas do time.','Enter the password to see the team’s deliveries.'],
+    ['Todo mundo do time lançou entregas.','Everyone on the team logged deliveries.'],
+    ['Senha incorreta. Tente de novo.','Wrong password. Try again.'],
+    ['Senha incorreta.','Wrong password.'],
+    ['Dados ao vivo · Air, planilhas e Instagram','Live data · Air, sheets and Instagram'],
+    ['Larroudé · Time de conteúdo · Controle de Entregas','Larroudé · Content team · Delivery tracker'],
+    ['Air + planilha US Request – Meta','Air + US Request – Meta sheet'],
+    ['Entregas Meta US','Meta US Deliveries'],
+    ['Planilha Controle de Entregas','Controle de Entregas sheet'],
+    ['Lendo as pastas do Air…','Reading Air folders…'],
+    ['Buscando os posts do Instagram…','Fetching Instagram posts…'],
+    ['Seguidores ganhos e perdidos por semana','Followers gained and lost per week'],
+    ['Entregas por dia e por núcleo','Deliveries per day and unit'],
+    ['Captação e edição por núcleo','Capture and editing per unit'],
+    ['Posts por semana e alcance médio','Posts per week and average reach'],
+    ['de perda sobre os novos','lost vs. new'],
+    ['nas semanas desde','in the weeks since'],
+    ['nos últimos 30 dias','in the last 30 days'],
+    ['criativos entregues de','creatives delivered from'],
+    ['criativos entregues em','creatives delivered in'],
+    ['concentrou','accounted for'],
+    ['da semana','of the week'],
+    ['Média do time por pessoa','Team average per person'],
+    ['dias com lançamento','days with entries'],
+    ['pessoas lançaram','people logged'],
+    ['Sem lançamento nesta semana','No entries this week'],
+    ['Sem lançamento neste dia','No entries this day'],
+    ['com entrega na semana','with deliveries this week'],
+    ['com entrega no dia','with deliveries this day'],
+    ['Entregas na semana','Deliveries this week'],
+    ['Entregas no dia','Deliveries this day'],
+    ['Ver os números em tabela','See the numbers as a table'],
+    ['Hub de conteúdo · US','Content hub · US'],
+    ['Ideias de conteúdo','Content ideas'],
+    ['Criativos entregues','Creatives delivered'],
+    ['Entregas por pessoa','Deliveries per person'],
+    ['Entregas por dia','Deliveries per day'],
+    ['Captação e edição','Capture and editing'],
+    ['Tipos entregues','Types delivered'],
+    ['Ranking de posts','Post ranking'],
+    ['Posts por semana','Posts per week'],
+    ['Novos seguidores','New followers'],
+    ['Deixaram de seguir','Unfollowed'],
+    ['Saldo da semana','Weekly net'],
+    ['Seguidores hoje','Followers today'],
+    ['Alcance somado','Total reach'],
+    ['Alcance médio','Avg. reach'],
+    ['Views médias','Avg. views'],
+    ['Compartilhamentos','Shares'],
+    ['Compartilh.','Shares'],
+    ['Mais recentes','Most recent'],
+    ['Último dia','Last day'],
+    ['Últimos 7 dias','Last 7 days'],
+    ['Últimos 30 dias','Last 30 days'],
+    ['Últimos 90 dias','Last 90 days'],
+    ['Semana toda','Whole week'],
+    ['Semanas do mês','Weeks of the month'],
+    ['Mês todo','Whole month'],
+    ['Melhor dia','Best day'],
+    ['Por categoria','By category'],
+    ['Por formato','By format'],
+    ['Por tipo','By type'],
+    ['Ordenar por','Sort by'],
+    ['Área restrita','Restricted area'],
+    ['Abrir no Air ↗','Open in Air ↗'],
+    ['Ver no Instagram ↗','View on Instagram ↗'],
+    ['fora da planilha','not in sheet'],
+    ['Mostrar mais','Show more'],
+    ['Como contei','How this is counted'],
+    ['sem legenda','no caption'],
+    ['salvamentos','saves'],
+    ['Salvamentos','Saves'],
+    ['Interações','Interactions'],
+    ['interações ÷ alcance','interactions ÷ reach'],
+    ['Engajamento','Engagement'],
+    ['Engaj.','Eng.'],
+    ['Curtidas','Likes'],
+    ['Compart.','Shares'],
+    ['compart.','shares'],
+    ['Salvos','Saves'],
+    ['Alcance','Reach'],
+    ['Seguidores','Followers'],
+    ['Saldo','Net'],
+    ['Novos','New'],
+    ['média de','avg.'],
+    ['por post','per post'],
+    ['carrossel','carousel'],
+    ['Carrossel','Carousel'],
+    ['imagem','image'],
+    ['Imagem','Image'],
+    ['peças editadas','pieces edited'],
+    ['vídeos gravados','videos shot'],
+    ['SKUs captados','SKUs captured'],
+    ['captação','capture'],
+    ['Captação','Capture'],
+    ['edição','editing'],
+    ['Entregas','Deliveries'],
+    ['entregas','deliveries'],
+    ['Pessoas','People'],
+    ['Período','Period'],
+    ['Categoria','Category'],
+    ['Painéis','Panels'],
+    ['Filtros','Filters'],
+    ['Semanas','Weeks'],
+    ['Meses','Months'],
+    ['Ordenar','Sort'],
+    ['Todas','All'],
+    ['Todos','All'],
+    ['Sem tipo','No type'],
+    ['Tipo','Type'],
+    ['Senha','Password'],
+    ['Entrar','Enter'],
+    ['Abrindo…','Opening…'],
+    ['Nada lançado','Nothing logged'],
+    ['atual','current'],
+    ['erro','error'],
+    ['Total','Total'],
+    ['Dia','Day'],
+    ['na semana','this week'],
+    ['no dia','this day'],
+    ['hoje','today'],
+    ['por mês','by month'],
+  ];
+  const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+  const RX=P.sort((a,b)=>b[0].length-a[0].length).map(([a,b])=>[new RegExp('(?<![\\p{L}])'+esc(a)+'(?![\\p{L}])','gu'),b]);
+  const mon=m=>MAB[+m-1];
+  function tr(s){
+    if(!s||!/[A-Za-zÀ-ú0-9]/.test(s))return s;
+    let t=s;
+    for(const [r,b] of RX)t=t.replace(r,b);
+    // datas
+    t=t.replace(/\b(\d{2})\/(\d{2})\/(\d{4})\b/g,(_,d,m,y)=>+m<=12?mon(m)+' '+(+d)+', '+y:_);
+    t=t.replace(/(^|[^\d\/])(\d{2})\/(\d{2})(?![\d\/])/g,(_,p,d,m)=>+m>=1&&+m<=12&&+d<=31?p+mon(m)+' '+(+d):_);
+    t=t.replace(/\b(\d{1,2}) (jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)\b/g,(_,d,m)=>MAB[MPA.indexOf(m)]+' '+(+d));
+    t=t.replace(/(^|\s)(seg|ter|qua|qui|sex|sáb|dom|Seg|Ter|Qua|Qui|Sex|Sáb|Dom)(?=\s)/g,(_,p,w)=>p+WPT[w]);
+    // meses por extenso
+    t=t.replace(/\b(em|de) (janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)\b/gi,(_,p,m)=>'in '+MEN[MPT.indexOf(m.toLowerCase())]);
+    t=t.replace(/(?<![\p{L}])(Janeiro|Fevereiro|Março|Abril|Maio|Junho|Julho|Agosto|Setembro|Outubro|Novembro|Dezembro|janeiro|fevereiro|março|abril|maio|junho|julho|agosto|setembro|outubro|novembro|dezembro)(?![\p{L}])/gu,m=>MEN[MPT.indexOf(m.toLowerCase())]);
+    t=t.replace(/^Até (\w+ \d+)\.$/,'Through $1.');
+    t=t.replace(/(?<![\p{L}])em (\w{3} \d{1,2})/gu,'on $1');
+    // contagens
+    t=t.replace(/\b(\d[\d.,]*) criativos?\b/g,(_,n)=>n+(n==='1'?' creative':' creatives')).replace(/(?<![\p{L}])criativos(?![\p{L}])/gu,'creatives').replace(/(?<![\p{L}])criativo(?![\p{L}])/gu,'creative');
+    t=t.replace(/\b(\d[\d.,]*) arquivos?\b/g,(_,n)=>n+(n==='1'?' file':' files')).replace(/(?<![\p{L}])arquivos(?![\p{L}])/gu,'files');
+    t=t.replace(/\blinha (\d+)/g,'row $1');
+    t=t.replace(/(\d) mi\b/g,'$1M').replace(/(\d) mil\b/g,'$1K');
+    t=t.replace(/(?<![\p{L}])a (?=\w{3} \d)/gu,'to ');
+    return t;
+  }
+  window.tr=tr;
+  const ATTR=['aria-label','placeholder','title','alt'];
+  function walk(n){
+    if(n.nodeType===3){const v=n.nodeValue,t=tr(v);if(t!==v)n.nodeValue=t;return}
+    if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE')return;
+    for(const a of ATTR){const v=n.getAttribute&&n.getAttribute(a);if(v){const t=tr(v);if(t!==v)n.setAttribute(a,t)}}
+    for(const c of n.childNodes)walk(c);
+  }
+  function start(){walk(document.body);new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')walk(m.target);else m.addedNodes.forEach(walk)}}).observe(document.body,{subtree:true,childList:true,characterData:true})}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+
 <title>Entregas Conteúdo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,500;0,600;0,700;1,500;1,600&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap">
@@ -231,6 +430,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .so-more{justify-self:center}
 @media (max-width:860px){.so-fmt{grid-template-columns:1fr}}
 
+.tb-r{display:flex;align-items:center;gap:14px}.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lang button{border:0;background:transparent;color:var(--muted);font:600 11.5px var(--mono);padding:4px 10px;cursor:pointer}.lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 </style>
 </head>
 <body>
@@ -250,7 +450,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
   <div class="main">
-    <div class="topbar"><span class="crumb">Content Hub / <b id="crumb">Entregas Meta US</b></span><span class="sync" id="sync">Air + planilha US Request – Meta</span></div>
+    <div class="topbar"><span class="crumb">Content Hub / <b id="crumb">Entregas Meta US</b></span><span class="tb-r"><span class="sync" id="sync">Air + planilha US Request – Meta</span><span class="lang" role="group" aria-label="Idioma / Language"><button type="button" id="lang-pt" onclick="setLang('pt')">PT</button><button type="button" id="lang-en" onclick="setLang('en')">EN</button></span></span></div>
     <section class="view" id="v-entregas" aria-label="Entregas Meta US">
 <div class="wrap">
   <header>
@@ -289,7 +489,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <li>"Sem tipo" quer dizer que o board não está linkado na planilha, então não sei se é Branding ou Conversion.</li>
       <li>Semanas que passam de um mês para o outro aparecem nos dois meses, cada uma só com os dias daquele mês. Exemplo: 28/09 a 30/09 em setembro e 01/10 a 04/10 em outubro.</li>
       <li>Em OCT 26, o board New Drop 07.10 tem 15 arquivos soltos que repetem os das pastas STATIC 01 e 02. Por isso contei só as pastas.</li>
-      <li>Outubro ainda está em andamento. Para atualizar, é só me pedir de novo.</li>
+      <li>O mês atual ainda está em andamento; o painel atualiza sozinho.</li>
     </ul>
   </div>
 
@@ -476,7 +676,7 @@ function initDaily(TEAM){
   const UN={Audiovisual:'vídeos gravados',Imagem:'SKUs captados'};
   const WDN=['dom','seg','ter','qua','qui','sex','sáb'];
   const NS='http://www.w3.org/2000/svg';
-  const fmt=n=>Math.round(n).toLocaleString('pt-BR');
+  const fmt=n=>Math.round(n).toLocaleString((window.LOC||'pt-BR'));
   const pd=s=>{const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
   const iso=dt=>dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   const dm=dt=>String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0');
@@ -581,7 +781,7 @@ function initDaily(TEAM){
       if(r.status===401)throw new Error('senha');
       const j=await r.json();if(!r.ok)throw new Error(j.error||'erro');
       document.getElementById('dt-lock').hidden=true;document.getElementById('dt-content').hidden=false;
-      document.getElementById('dt-upd').textContent=new Date(j.updated).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+      document.getElementById('dt-upd').textContent=new Date(j.updated).toLocaleString((window.LOC||'pt-BR'),{dateStyle:'short',timeStyle:'short'});
       if(!started){started=true;initDaily(j.team)}try{sessionStorage.setItem('dt-k',pw)}catch(e){}return true}
     catch(e){if(!silent){const er=document.getElementById('dt-err');er.textContent=e.message==='senha'?'Senha incorreta.':'Não foi possível carregar os dados agora. Tente de novo em instantes.';er.hidden=false;document.getElementById('dt-pass').select()}return false}
     finally{btn.disabled=false;btn.textContent='Entrar'}
@@ -597,9 +797,9 @@ window.__S=function(IG,FOL){(function(){
   const MN=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
   const MNF=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
   const NS='http://www.w3.org/2000/svg';
-  const fmt=n=>Math.round(n).toLocaleString('pt-BR');
-  const k=n=>n>=1e6?(n/1e6).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mi':n>=1e4?(n/1e3).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil':fmt(n);
-  const pct=n=>(n*100).toLocaleString('pt-BR',{maximumFractionDigits:1})+'%';
+  const fmt=n=>Math.round(n).toLocaleString((window.LOC||'pt-BR'));
+  const k=n=>n>=1e6?(n/1e6).toLocaleString((window.LOC||'pt-BR'),{maximumFractionDigits:1})+' mi':n>=1e4?(n/1e3).toLocaleString((window.LOC||'pt-BR'),{maximumFractionDigits:1})+' mil':fmt(n);
+  const pct=n=>(n*100).toLocaleString((window.LOC||'pt-BR'),{maximumFractionDigits:1})+'%';
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const el=(t,a={})=>{const e=document.createElementNS(NS,t);for(const x in a)e.setAttribute(x,a[x]);return e};
   const P=IG.map(p=>({...p,er:p.reach?p.inter/p.reach:0,dt:new Date(p.ts.replace(' ','T'))}));
@@ -692,7 +892,7 @@ window.__S=function(IG,FOL){(function(){
     A=[...A].sort((a,b)=>st.sort==='ts'?b.dt-a.dt:b[st.sort]-a[st.sort]);
     const shown=A.slice(0,st.show);
     const hl=f=>(st.sort===f?' class="hl"':'');
-    document.getElementById('so-grid').innerHTML=shown.map((p,i)=>`<article class="so-card"><a class="thumb" href="${p.link}" target="_blank" rel="noopener" aria-label="Abrir post no Instagram"><img src="${p.img}" alt="" loading="lazy"><span class="badge" style="--c:${FC[p.f]}">${p.f}</span>${st.sort!=='ts'?`<span class="so-rank">#${i+1}</span>`:''}</a>
+    document.getElementById('so-grid').innerHTML=shown.map((p,i)=>`<article class="so-card"><a class="thumb" href="${p.link}" target="_blank" rel="noopener" aria-label="Abrir post no Instagram"><img src="${p.img}" alt="" loading="lazy" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;setTimeout(()=>{this.src=this.src+'&r=1'},1500)}"><span class="badge" style="--c:${FC[p.f]}">${p.f}</span>${st.sort!=='ts'?`<span class="so-rank">#${i+1}</span>`:''}</a>
       <div class="meta"><div class="chips"><span class="mono" style="font-size:12px">${String(p.dt.getDate()).padStart(2,'0')} ${MN[p.dt.getMonth()]}</span></div>
       <div class="so-cap">${esc(p.cap)||'<i>sem legenda</i>'}</div>
       <div class="so-m"><span${hl('reach')}>Alcance <b>${k(p.reach)}</b></span><span>Views <b>${k(p.views)}</b></span><span${hl('er')}>Engaj. <b>${pct(p.er)}</b></span><span>Curtidas <b>${k(p.likes)}</b></span><span${hl('saves')}>Salvos <b>${fmt(p.saves)}</b></span><span${hl('shares')}>Compart. <b>${fmt(p.shares)}</b></span></div>
@@ -718,7 +918,7 @@ window.__S=function(IG,FOL){(function(){
 <style>.ld{padding:48px 0;color:var(--muted);font-family:var(--mono);font-size:13px;display:flex;gap:10px;align-items:center}.ld i{width:14px;height:14px;border:2px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:sp 0.8s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}</style>
 <script>
 (function(){
-  const when=s=>new Date(s).toLocaleString('pt-BR',{dateStyle:'short',timeStyle:'short'});
+  const when=s=>new Date(s).toLocaleString((window.LOC||'pt-BR'),{dateStyle:'short',timeStyle:'short'});
   function msg(id,html){const b=document.getElementById(id);if(b)b.innerHTML=html}
   msg('days','<div class="ld"><i></i>Lendo as pastas do Air…</div>');
   msg('so-grid','<div class="ld"><i></i>Buscando os posts do Instagram…</div>');
@@ -728,5 +928,6 @@ window.__S=function(IG,FOL){(function(){
     .catch(e=>msg('so-grid','<p class="empty">Não consegui buscar o Instagram agora ('+String(e.message).replace(/[<>&]/g,'')+').</p>'));
 })();
 </script>
+<script>document.getElementById("lang-"+(window.LANG||"pt")).setAttribute("aria-pressed","true");document.getElementById("lang-"+(window.LANG==="en"?"pt":"en")).setAttribute("aria-pressed","false")</script>
 </body>
 </html>
