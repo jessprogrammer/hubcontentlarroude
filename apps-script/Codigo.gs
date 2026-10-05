@@ -8,6 +8,8 @@ const SITE = 'https://hub-contentlarroude.vercel.app/api/ingest';
 
 const FONTES = {
   criativos:   { id: '1GLgNjLzCqNdRyhB5V8lCh5LDT2VSiVnyXUJZQ0zpUss', gid: 1011478516, colunas: [1, 6, 7, 9, 20, 21, 22] },
+  // Brasil: aba "Requisição BR" e a cópia com os pedidos de setembro (mesmo layout)
+  criativosBR: { id: '1GLgNjLzCqNdRyhB5V8lCh5LDT2VSiVnyXUJZQ0zpUss', abas: ['Requisição BR', 'Cópia de Requisição BR 4'], colunas: [1, 2, 6, 7, 9, 10, 20, 22] },
   lancamentos: { id: '1hGdtF1oBKs-O0emjFX6YFtfZ9mPiDU100O9ZhXZ--Vg', aba: 'LANÇAMENTOS', colunas: [0, 2, 3, 4, 5, 7, 8] },
 };
 
@@ -30,9 +32,26 @@ function lerAba(f) {
   return vals.map(r => r.map((v, i) => (f.colunas.indexOf(i) >= 0 ? v : '')));
 }
 
+// várias abas: junta as linhas preenchidas e guarda o nome da aba (coluna Z) e o número da linha (coluna AA)
+function lerAbas(f) {
+  let out = [];
+  for (const aba of f.abas) {
+    let vals = [];
+    try { vals = Sheets.Spreadsheets.Values.get(f.id, "'" + aba + "'").values || [] } catch (e) { console.log('aba ' + aba + ': ' + e); continue }
+    vals.forEach((r, i) => {
+      const linha = r.map((v, j) => (f.colunas.indexOf(j) >= 0 ? v : ''));
+      if (!linha.some(v => String(v).trim())) return;
+      while (linha.length < 25) linha.push('');
+      linha[25] = aba; linha[26] = String(i + 1);
+      out.push(linha);
+    });
+  }
+  return out;
+}
+
 function enviar() {
   const body = {};
-  for (const k in FONTES) body[k] = lerAba(FONTES[k]);
+  for (const k in FONTES) body[k] = FONTES[k].abas ? lerAbas(FONTES[k]) : lerAba(FONTES[k]);
   const r = UrlFetchApp.fetch(SITE, {
     method: 'post',
     contentType: 'application/json',
