@@ -17,16 +17,15 @@ async function g(path, params) {
 }
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
-  const perms = await g('/me/permissions');
-  const me = await g('/me', { fields: 'id,name' });
-  const accts = await g('/me/adaccounts', { fields: 'name,account_id,account_status,currency', limit: '50' });
-  const out = { me: me.name || me.error, permissions: perms.data ? perms.data.filter(p => p.status === 'granted').map(p => p.permission) : perms.error, adaccounts: accts.data || accts.error };
-  if (accts.data) {
-    out.samples = {};
-    for (const a of accts.data.slice(0, 6)) {
-      const ads = await g('/act_' + a.account_id + '/ads', { fields: 'name,effective_status', limit: '8' });
-      out.samples[a.name] = ads.data ? ads.data.map(x => x.name + ' [' + x.effective_status + ']') : ads.error;
-    }
+  const out = {};
+  for (const id of ['2047856822417350', '312869193575906', '929449929417505']) {
+    const o = out[id] = {};
+    const imgs = await g('/act_' + id + '/adimages', { fields: 'name,created_time', limit: '15' });
+    o.images = imgs.data ? imgs.data.map(x => x.name + ' @' + String(x.created_time).slice(0, 10)) : imgs.error;
+    const vids = await g('/act_' + id + '/advideos', { fields: 'title,created_time', limit: '15' });
+    o.videos = vids.data ? vids.data.map(x => x.title + ' @' + String(x.created_time).slice(0, 10)) : vids.error;
+    const ads = await g('/act_' + id + '/ads', { fields: 'name,effective_status,adset{name},campaign{name},creative{name,title,image_hash,video_id,asset_feed_spec{images{hash},videos{video_id}},object_story_spec}', limit: '4', effective_status: '["ACTIVE"]' });
+    o.ads = ads.data ? ads.data.map(x => ({ n: x.name, c: x.campaign && x.campaign.name, s: x.adset && x.adset.name, cr: x.creative && { name: x.creative.name, img: !!x.creative.image_hash, vid: !!x.creative.video_id, afs: !!x.creative.asset_feed_spec, oss: x.creative.object_story_spec ? Object.keys(x.creative.object_story_spec) : null } })) : ads.error;
   }
   res.status(200).json(out);
 }
