@@ -61,21 +61,32 @@ function parseDate(label, folder) {
   return new Date(Date.UTC(yy, mo - 1, d));
 }
 
-async function sheetIndex() {
-  const doc = await get('sheet:criativos');
+// planilha de pedidos: board do Air (8 primeiros caracteres do id) -> tipo, objetivo, funil, status
+// US: aba "US Request - Meta". BR: abas "Requisição BR" (e cópias), com a data de entrega na coluna W.
+async function sheetIndex(key) {
+  const doc = await get(key);
   if (!doc) return {};
   const idx = {};
   doc.rows.forEach((r, i) => {
     const ids = [...String(r[20] || '').matchAll(/\/b\/([0-9a-f]{8})/g)].map(m => m[1]);
-    for (const id of ids) idx[id] = { row: i + 1, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim() };
+    const row = r[26] ? +r[26] : i + 1, tab = r[25] || '';
+    for (const id of ids) idx[id] = { row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null };
   });
   return idx;
 }
+// "02/09/2026" ou "2/9" (dia/mês) -> Date
+function sheetDate(v) {
+  const m = String(v || '').match(/(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?/);
+  if (!m) return null;
+  const y = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : 2026;
+  if (+m[2] < 1 || +m[2] > 12) return null;
+  return new Date(Date.UTC(y, +m[2] - 1, +m[1]));
+}
 
 function category(path, n, exts, own) {
-  if (own && own.atype) { const t = own.atype.toUpperCase(); if (/CAROUSEL|CARROUSEL/.test(t)) return 'Carousel'; if (/GIF/.test(t)) return 'GIF'; if (/VIDEO/.test(t)) return 'Video'; if (/STATIC/.test(t)) return 'Static'; }
+  if (own && own.atype) { const t = own.atype.toUpperCase(); if (/CAROUSEL|CARROUSEL|CARROSS?EL/.test(t)) return 'Carousel'; if (/GIF/.test(t)) return 'GIF'; if (/VIDEO/.test(t)) return 'Video'; if (/STATIC/.test(t)) return 'Static'; }
   const up = path.join('/').toUpperCase();
-  if (/CARROUSEL|CAROUSEL/.test(up)) return 'Carousel';
+  if (/CARROUSEL|CAROUSEL|CARROSS?EL/.test(up)) return 'Carousel';
   if (/\bGIFF?\b|GIFS/.test(up)) return 'GIF';
   if (/STATIC/.test(up)) return n <= 6 ? 'Static' : 'Carousel';
   if (/VIDEO/.test(up)) return 'Video';
@@ -83,23 +94,31 @@ function category(path, n, exts, own) {
 }
 
 async function build() {
-  const [sheet, ...folders] = await Promise.all([sheetIndex().catch(() => ({})), ...config.airFolders.map(f => crawl(f))]);
+  const US = config.airFolders.map(f => ({ ...f, mk: 'US' })), BR = (config.airFoldersBR || []).map(f => ({ ...f, mk: 'BR' }));
+  const [sUS, sBR, ...folders] = await Promise.all([
+    sheetIndex('sheet:criativos').catch(() => ({})), sheetIndex('sheet:criativosBR').catch(() => ({})),
+    ...US.concat(BR).map(f => crawl(f).catch(e => { console.error('air', f.name, e.message); return [] }))]);
   const items = [];
   for (const L of folders.flat()) {
-    const date = parseDate(L.path[0] || '', L.folder);
-    if (!date) continue;
+    const mk = L.folder.mk, sheet = mk === 'BR' ? sBR : sUS;
     const id8 = L.id.slice(0, 8);
     let s = sheet[id8], inherited = false;
     if (!s) for (const a of L.anc) { if (sheet[a.slice(0, 8)]) { s = sheet[a.slice(0, 8)]; inherited = true; break } }
+    // data: do nome do board ("ADS 09.30"); se o board não tem data, a data de entrega da planilha (BR)
+    const date = parseDate(L.path[0] || '', L.folder) || (s && s.date) || null;
+    if (!date) continue;
     const exts = [...new Set(L.clips.map(c => c.ext))];
     const sq = L.clips.find(c => c.width === c.height) || L.clips[0];
     const obj = (s && s.obj) || overrides.obj[id8] || '';
+    const dated = !!parseDate(L.path[0] || '', L.folder);
+    // sem data no nome: o primeiro nível já é a campanha
+    const path = dated ? L.path : ['', ...L.path];
     items.push({
-      date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
+      mk, date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
       week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
-      camp: L.path.length > 2 ? L.path[1] : '—', detail: L.path.length > 2 ? L.path.slice(2).join(' / ') : (L.path[1] || ''),
+      camp: path.length > 2 ? path[1] : '—', detail: path.length > 2 ? path.slice(2).join(' / ') : (path[1] || ''),
       cat: category(L.path, L.clips.length, exts, inherited ? null : s), obj, om: !s?.obj && !!overrides.obj[id8],
-      fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null,
+      fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null, tab: s ? s.tab : '',
       n: L.clips.length, dur: Math.round(Math.max(0, ...L.clips.map(c => c.duration || 0))),
       link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
       img: sq && sq.assets && sq.assets.image ? sq.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : '',
@@ -114,7 +133,7 @@ async function build() {
 
 export default async function handler(req, res) {
   try {
-    const data = await cached('air', 5 * 60e3, build);
+    const data = await cached('air2', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=86400');
     res.status(200).json(data);
   } catch (e) {
