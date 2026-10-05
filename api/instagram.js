@@ -3,12 +3,12 @@ import config from '../config.js';
 import base from '../data/fol-base.js';
 import { pool, cached, iso, mondayOf } from '../lib/util.js';
 
-const SM = 'https://api.supermetrics.com/enterprise/v2/query/data/json';
+const SM = 'https://api.supermetrics.com/v2/query/data/json';
 const ACC = config.instagramAccount;
 
 async function sm(fields, report_type, range) {
   const q = { ds_id: 'IGI', ds_accounts: ACC, fields, settings: { report_type }, max_rows: 5000, api_key: process.env.SUPERMETRICS_API_KEY, ...range };
-  if (process.env.IG_DS_USER) q.ds_user = process.env.IG_DS_USER;
+  q.ds_user = process.env.IG_DS_USER || ACC;
   for (let k = 0; k < 3; k++) {
     const r = await fetch(SM + '?json=' + encodeURIComponent(JSON.stringify(q)));
     const j = await r.json().catch(() => ({}));
