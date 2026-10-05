@@ -6,21 +6,21 @@ Site com três painéis, lidos ao vivo a cada visita (com cache curto):
 |---|---|---|
 | Entregas Meta US | Pastas mensais do Air + planilha US Request – Meta | a cada ~10 min |
 | Daily tasks (senha) | Planilha Controle de Entregas, aba LANÇAMENTOS | a cada ~5 min |
-| Social | Instagram @larroude via API do Supermetrics | a cada ~1 h |
+| Social | Instagram @larroude via API da Meta (Graph API) | a cada ~1 h |
 
 ## Como os dados chegam
 
 - **Air**: o site lê as pastas públicas direto, a cada visita.
 - **Planilhas**: o Apps Script em `apps-script/` (guardado no Drive da Jess) lê as duas planilhas a cada 10 min e envia para `/api/ingest`. Só e-mails listados em `config.js → ingestEmails` são aceitos.
-- **Instagram**: API do Supermetrics.
+- **Instagram**: API da Meta (Graph API), com token de System User.
 
 ## Variáveis no Vercel (Settings → Environment Variables)
 
 | Nome | O que colocar |
 |---|---|
 | `TEAM_PASSWORD` | Senha do Daily tasks |
-| `SUPERMETRICS_API_KEY` | Chave de API do Supermetrics Hub |
-| `IG_DS_USER` | (opcional) usuário da conexão do Instagram no Supermetrics |
+| `META_ACCESS_TOKEN` | Token de System User da Meta (não vence) |
+| `IG_USER_ID` | (opcional) id da conta do Instagram; padrão em `config.js` |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Criadas sozinhas ao conectar o banco Upstash (Storage) |
 
 ## Mês novo no Air
