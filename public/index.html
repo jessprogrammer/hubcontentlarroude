@@ -33,8 +33,8 @@
     ['Cada faixa é um tipo. Passe o mouse para ver qual.','Each segment is a type. Hover to see which.'],
     ['Fonte: planilha Controle de Entregas — Conteúdo Digital, aba LANÇAMENTOS. Atualizado em','Source: Controle de Entregas — Conteúdo Digital sheet, LANÇAMENTOS tab. Updated'],
     ['. A semana atual fica parcial até sexta.','. The current week stays partial until Friday.'],
-    ['Desempenho dos posts do feed e dos reels do @larroude, vindo do Instagram Insights pelo Supermetrics. Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.','Performance of @larroude feed posts and reels, from Instagram Insights via Supermetrics. Pick a period, see what worked best by format and open any post on Instagram.'],
-    ['Fonte: Instagram Insights (Supermetrics), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em','Source: Instagram Insights (Supermetrics), @larroude profile. Reach and views per post are lifetime totals as of the update. Followers: gains and losses come from Instagram’s "follows and unfollows" metric. Updated'],
+    ['Desempenho dos posts do feed e dos reels do @larroude, vindo direto da API do Instagram (Meta). Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.','Performance of @larroude feed posts and reels, straight from the Instagram API (Meta). Pick a period, see what worked best by format and open any post on Instagram.'],
+    ['Fonte: API do Instagram (Meta), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em','Source: Instagram API (Meta), @larroude profile. Reach and views per post are lifetime totals as of the update. Followers: gains and losses come from Instagram’s "follows and unfollows" metric. Updated'],
     ['A semana de 27/07 ficou fora: o Instagram registrou um erro nesses dias.','The week of Jul 27 is excluded: Instagram logged an error on those days.'],
     ['Não foi possível carregar os dados agora. Tente de novo em instantes.','Could not load the data right now. Please try again shortly.'],
     ['Não consegui ler o Air agora. Recarregue a página em instantes.','Could not read Air right now. Reload the page shortly.'],
@@ -550,7 +550,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
         <header>
           <div class="lbl">Larroudé · Instagram @larroude</div>
           <h1>Social</h1>
-          <p class="sub">Desempenho dos posts do feed e dos reels do @larroude, vindo do Instagram Insights pelo Supermetrics. Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.</p>
+          <p class="sub">Desempenho dos posts do feed e dos reels do @larroude, vindo direto da API do Instagram (Meta). Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.</p>
         </header>
 
         <div class="months" id="so-per" role="tablist" aria-label="Período"></div>
@@ -594,7 +594,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
           <button class="f so-more" id="so-more">Mostrar mais</button>
         </section>
 
-        <footer>Fonte: Instagram Insights (Supermetrics), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em <span id="so-upd">…</span>.</footer>
+        <footer>Fonte: API do Instagram (Meta), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em <span id="so-upd">…</span>.</footer>
       </div>
     </section>
   </div>
@@ -911,7 +911,7 @@ window.__S=function(IG,FOL){(function(){
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'Instagram Insights · Supermetrics':'Air + planilha US Request – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':'Air + planilha US Request – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
