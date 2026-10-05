@@ -51,6 +51,8 @@
     ['Larroudé · Time de conteúdo · Controle de Entregas','Larroudé · Content team · Delivery tracker'],
     ['Air + planilha US Request – Meta','Air + US Request – Meta sheet'],
     ['Entregas Meta US','Meta US Deliveries'],
+    ['Entregas Meta','Meta Deliveries'],
+    ['Air + planilhas de pedidos – Meta','Air + Meta request sheets'],
     ['O direcionamento de storytelling de cada dia: campanha, produtos hero, ângulo do e-mail e do SMS, público e CTA. Clique em um dia para ver tudo. Para mudar alguma coisa, entre no modo de edição.','Daily storytelling direction: campaign, hero products, email and SMS angle, audience and CTA. Click a day to see everything. To change something, switch to edit mode.'],
     ['Fonte: calendário de marketing do mês (Excel enviado pela Jess), editável aqui. Última edição:','Source: the month’s marketing calendar (Excel sent by Jess), editable here. Last edit:'],
     ['Larroudé · Storytelling · E-mail e SMS','Larroudé · Storytelling · Email & SMS'],
@@ -88,7 +90,7 @@
     ['Entregas na semana','Deliveries this week'],
     ['Entregas no dia','Deliveries this day'],
     ['Ver os números em tabela','See the numbers as a table'],
-    ['Hub de conteúdo · US','Content hub · US'],
+    ['Hub de conteúdo · US · BR','Content hub · US · BR'],
     ['Ideias de conteúdo','Content ideas'],
     ['Criativos entregues','Creatives delivered'],
     ['Entregas por pessoa','Deliveries per person'],
@@ -551,16 +553,22 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 #ws-n-ul .ws-flag{margin-right:4px}
 @media (max-width:900px){.ws-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:520px){.ws-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ws-q{max-width:none}}
+.mk{display:flex;gap:6px;margin-top:4px}
+.mkb{all:unset;cursor:pointer;display:inline-flex;align-items:baseline;gap:8px;padding:6px 16px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:14px}
+.mkb small{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.mkb[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.mkb[aria-selected="true"] small{color:inherit;opacity:.7}
+.mkb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 </style>
 </head>
 <body>
 
 <div class="app">
   <aside class="side" aria-label="Menu">
-    <div class="brand"><b>Larroudé <em>Content</em></b><span>Hub de conteúdo · US</span></div>
+    <div class="brand"><b>Larroudé <em>Content</em></b><span>Hub de conteúdo · US · BR</span></div>
     <nav class="navsec" aria-label="Painéis">
       <span class="lbl">Painéis</span>
-      <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta US</a>
+      <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta</a>
       <a class="nav" href="#entrega-semanal" data-v="entrega-semanal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="7" rx="1.5"/></svg>Entrega semanal</a>
       <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
@@ -569,13 +577,14 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
   <div class="main">
-    <div class="topbar"><span class="crumb">Content Hub / <b id="crumb">Entregas Meta US</b></span><span class="tb-r"><span class="sync" id="sync">Air + planilha US Request – Meta</span><span class="lang" role="group" aria-label="Idioma / Language"><button type="button" id="lang-pt" onclick="setLang('pt')">PT</button><button type="button" id="lang-en" onclick="setLang('en')">EN</button></span></span></div>
-    <section class="view" id="v-entregas" aria-label="Entregas Meta US">
+    <div class="topbar"><span class="crumb">Content Hub / <b id="crumb">Entregas Meta</b></span><span class="tb-r"><span class="sync" id="sync">Air + planilhas de pedidos – Meta</span><span class="lang" role="group" aria-label="Idioma / Language"><button type="button" id="lang-pt" onclick="setLang('pt')">PT</button><button type="button" id="lang-en" onclick="setLang('en')">EN</button></span></span></div>
+    <section class="view" id="v-entregas" aria-label="Entregas Meta">
 <div class="wrap">
   <header>
-    <div class="lbl">Larroudé · Meta Ads US</div>
+    <div class="lbl notr" id="e-kicker">Larroudé · Meta Ads US</div>
+    <div class="mk notr" id="mk" role="tablist" aria-label="Mercado"></div>
     <h1>Criativos entregues <em id="h-month">por mês</em></h1>
-    <p class="sub">Tudo o que está nas pastas mensais do Air (<a href="https://app.air.inc/a/b498bb608" target="_blank" rel="noopener">SEP 26</a>, <a href="https://app.air.inc/a/b2d250d79" target="_blank" rel="noopener">OCT 26</a>), organizado pela data de cada board de entrega. Escolha o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha US Request – Meta quando o board está linkado lá.</p>
+    <p class="sub notr" id="e-sub">Tudo o que está nas pastas mensais do Air (<a href="https://app.air.inc/a/b498bb608" target="_blank" rel="noopener">SEP 26</a>, <a href="https://app.air.inc/a/b2d250d79" target="_blank" rel="noopener">OCT 26</a>), organizado pela data de cada board de entrega. Escolha o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha US Request – Meta quando o board está linkado lá.</p>
     <div class="months" id="months" role="tablist" aria-label="Meses"></div>
   </header>
 
@@ -792,16 +801,29 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 </div>
 
 <script>
-window.__E=function(DATA){
+window.__E=function(ALL){
+const EN=window.LANG==='en';
+let MK='US';try{const v=localStorage.getItem('mw-mk');if(v==='US'||v==='BR')MK=v}catch(e){}
+if(!ALL.some(x=>(x.mk||'US')===MK))MK='US';
+let DATA=ALL.filter(x=>(x.mk||'US')===MK);
 const CAT_C={Video:'var(--video)',Static:'var(--static)',GIF:'var(--gif)',Carousel:'var(--carousel)'};
 const CATS=['Video','Static','GIF','Carousel'];
 const MON=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 function d(s){const [y,m,dd]=s.split('-').map(Number);return new Date(y,m-1,dd)}
 function fmt(dt){return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')}
 const MNAME={'01':'Janeiro','02':'Fevereiro','03':'Março','04':'Abril','05':'Maio','06':'Junho','07':'Julho','08':'Agosto','09':'Setembro','10':'Outubro','11':'Novembro','12':'Dezembro'};
-const months=[...new Set(DATA.map(x=>x.month))].sort();
+let months=[...new Set(DATA.map(x=>x.month))].sort();
 const state={month:months[months.length-1],week:'all',cat:'all',obj:'all'};
 try{const s=localStorage.getItem('mw-month'); if(s&&months.includes(s))state.month=s}catch(e){}
+const MKINFO={US:{k:'Larroudé · Meta Ads US',air:[['SEP 26','https://app.air.inc/a/b498bb608'],['OCT 26','https://app.air.inc/a/b2d250d79']],sheet:'US Request – Meta'},BR:{k:'Larroudé · Meta Ads Brasil',air:[['2026','https://app.air.inc/a/b8be3d913']],sheet:'Requisição BR'}};
+function renderMk(){
+  const I=MKINFO[MK];document.getElementById('e-kicker').textContent=I.k;
+  const links=I.air.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(', ');
+  document.getElementById('e-sub').innerHTML=EN?`Everything in the monthly Air folders (${links}), organized by the date of each delivery board. Pick a market, a month, then a week. Category and type (Branding or Conversion) come from the ${I.sheet} sheet when the board is linked there.`:`Tudo o que está nas pastas mensais do Air (${links}), organizado pela data de cada board de entrega. Escolha o mercado, o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha ${I.sheet} quando o board está linkado lá.`;
+  const n=k=>ALL.filter(x=>(x.mk||'US')===k).length;
+  document.getElementById('mk').innerHTML=['US','BR'].map(k=>`<button class="mkb" role="tab" data-mk="${k}" aria-selected="${MK===k}"><b>${k==='US'?'US':(EN?'Brazil':'Brasil')}</b><small>${n(k)}</small></button>`).join('');
+  document.querySelectorAll('#mk .mkb').forEach(b=>b.onclick=()=>{if(MK===b.dataset.mk)return;MK=b.dataset.mk;try{localStorage.setItem('mw-mk',MK)}catch(e){}DATA=ALL.filter(x=>(x.mk||'US')===MK);months=[...new Set(DATA.map(x=>x.month))].sort();if(!months.includes(state.month))state.month=months[months.length-1];state.week='all';render()});
+}
 function esc(s){return String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function stack(list){return CATS.map(c=>{const n=list.filter(x=>x.cat===c).length;return n?`<i style="flex:${n};background:${CAT_C[c]}"></i>`:''}).join('')}
 function mItems(){return DATA.filter(x=>x.month===state.month)}
@@ -846,6 +868,7 @@ window.keyOf = n => {
   return 'k:' + p[0] + '|' + p[ai].replace(/[^a-z]/g, '') + '|' + ang.join('').replace(/[^a-z0-9]/g, '') + '|' + num;
 };
 function perf(x){
+  if(x.mk==='BR')return '';
   const A=window.ADS;if(!A)return `<div class="pf pf-load"><span class="mono">Meta…</span></div>`;
   const ids=new Set();(x.files||[]).forEach(n=>{(A.names[n]||[]).forEach(i=>ids.add(i));const k=keyOf(n);if(k)(A.names[k]||[]).forEach(i=>ids.add(i))});
   let approx=false;
@@ -883,6 +906,7 @@ function renderDays(list){
   document.getElementById('empty').hidden=f.length>0;
 }
 function render(){
+  renderMk(); if(!DATA.length){document.getElementById('months').innerHTML='';document.getElementById('weeks').innerHTML='';document.getElementById('summary').innerHTML='';document.getElementById('days').innerHTML='';document.getElementById('empty').hidden=false;return}
   renderMonths(); renderWeeks(); const list=inWeek(); renderSummary(list); renderDays(list);
   document.querySelectorAll('.f').forEach(b=>b.setAttribute('aria-pressed',String(state[b.dataset.g]===b.dataset.v)));
 }
@@ -1128,12 +1152,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta US','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':'Air + planilha US Request – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
