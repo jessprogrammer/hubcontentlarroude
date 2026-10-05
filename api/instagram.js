@@ -21,7 +21,7 @@ function keyShape() {
 }
 
 async function sm(fields, report_type, range) {
-  const q = { ds_id: 'IGI', ds_accounts: ACC, fields, settings: { report_type }, max_rows: 5000, api_key: apiKey(), ...range };
+  const q = { ds_id: 'IGI', ds_accounts: ACC, fields, max_rows: 5000, api_key: apiKey(), ...range };
   q.ds_user = process.env.IG_DS_USER || ACC;
   for (let k = 0; k < 3; k++) {
     const r = await fetch(SM + '?json=' + encodeURIComponent(JSON.stringify(q)));
