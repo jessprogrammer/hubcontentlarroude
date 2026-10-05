@@ -36,7 +36,7 @@ async function fetchCatalog(base) {
   return out;
 }
 
-async function catalog(mk) {
+export async function catalog(mk) {
   const key = 'shop:' + mk;
   let D = null;
   try { D = await get(key) } catch (e) {}
