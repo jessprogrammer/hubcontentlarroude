@@ -123,7 +123,16 @@ export default async function handler(req, res) {
     if (!process.env.SUPERMETRICS_API_KEY) throw new Error('SUPERMETRICS_API_KEY não configurada');
     let D = await get(KEY);
     const old = !D || !D.updated || Date.now() - Date.parse(D.updated) > FRESH_MS || D.pending > 0 || !D.ig || !D.ig.length;
-    if (old) D = await refresh(D);
+    if (old) {
+      const before = D && D.igFetched;
+      D = await refresh(D);
+      // posts novos: já aquece as miniaturas no cache do site, para abrirem rápido
+      if (D.igFetched && D.igFetched !== before && req.headers && req.headers.host) {
+        const ctl = new AbortController(); const t = setTimeout(() => ctl.abort(), 8000);
+        await pool(D.ig.slice(0, 60), 12, p => fetch('https://' + req.headers.host + p.img, { signal: ctl.signal }).then(r => r.arrayBuffer()).catch(() => null));
+        clearTimeout(t);
+      }
+    }
     if (!D.ig || !D.ig.length) return res.status(502).json({ error: (D.errors || ['ainda buscando os posts']).join(' · ') });
     const { _wto, _cur, ...fol } = D.fol;
     res.status(200).json({ updated: D.igFetched || D.updated, ig: D.ig, fol, pending: D.pending || 0 });
