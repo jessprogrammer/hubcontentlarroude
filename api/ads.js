@@ -6,7 +6,7 @@ import { pool } from '../lib/util.js';
 
 const GRAPH = 'https://graph.facebook.com/v23.0';
 const ACCOUNTS = [{ id: '2047856822417350', name: 'Larroudé US' }, { id: '929449929417505', name: 'PRE-ORDER US' }];
-const KEY = 'ads:meta2';
+const KEY = 'ads:meta3';
 const FRESH_MS = 60 * 60e3;
 const SINCE = '2026-08-01'; // período considerado para "total"
 
@@ -17,6 +17,18 @@ function token() {
 }
 const redact = s => String(s || '').replace(/[A-Za-z0-9_-]{24,}/g, '[…]');
 const normName = n => String(n || '').toLowerCase().replace(/\.(mp4|mov|jpe?g|png|gif|webp)$/i, '').replace(/\s*\(\d+\)$/, '').trim();
+
+// chave a partir do nome: código_TIPO_CONSCIÊNCIA_ÂNGULO_NN (Air) ↔ código_Tipo_Destino_Consciência_Ângulo_VNN (anúncio)
+const keyOf = n => {
+  const p = String(n || '').toLowerCase().replace(/\.(mp4|mov|jpe?g|png|gif)$/, '').split('_').filter(Boolean);
+  if (p.length < 4) return '';
+  const ai = p.findIndex((t, i) => i > 0 && /aware|no-copy|nocopy/.test(t));
+  if (ai < 0) return '';
+  let j = ai + 1, ang = [], num = '';
+  for (; j < p.length; j++) { const m = p[j].match(/^v?(\d{1,3})$/); if (m) { num = String(+m[1]); break } ang.push(p[j]) }
+  if (!num) num = '1';
+  return 'k:' + p[0] + '|' + p[ai].replace(/[^a-z]/g, '') + '|' + ang.join('').replace(/[^a-z0-9]/g, '') + '|' + num;
+};
 
 async function graph(pathOrUrl, params) {
   const u = new URL(pathOrUrl.startsWith('http') ? pathOrUrl : GRAPH + pathOrUrl);
@@ -72,6 +84,8 @@ async function account(acc, today) {
     if (n.length < 8 || !byVideo[v.id]) continue;
     names[n] = Array.from(new Set((names[n] || []).concat(byVideo[v.id])));
   }
+  // também liga pelo nome do anúncio (segue a mesma nomenclatura do arquivo no Air)
+  for (const a of ads) { const k = keyOf(a.name); if (k) names[k] = Array.from(new Set((names[k] || []).concat(a.id))) }
   const vidIds = new Set(videos.map(v => v.id)), adVid = Object.keys(byVideo);
   const dbg = { videos: videos.length, ads: ads.length, adsWithVideo: new Set(Object.values(byVideo).flat()).size, adVideoIds: adVid.length, adVideoIdsInLibrary: adVid.filter(v => vidIds.has(v)).length,
     sampleAdNames: ads.slice(0, 15).map(a => a.name), types: ads.reduce((m, a) => { const t = (a.creative && a.creative.object_type) || '?'; m[t] = (m[t] || 0) + 1; return m }, {}) };
