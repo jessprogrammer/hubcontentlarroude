@@ -50,6 +50,9 @@
     ['Larroudé · Time de conteúdo · Controle de Entregas','Larroudé · Content team · Delivery tracker'],
     ['Air + planilha US Request – Meta','Air + US Request – Meta sheet'],
     ['Entregas Meta US','Meta US Deliveries'],
+    ['Static: sem vínculo automático','Static: no automatic match'],
+    ['Não encontrado na Meta','Not found on Meta'],
+    ['Rodando','Running'],['Pausado','Paused'],['anúncios','ads'],['anúncio','ad'],['Gasto','Spend'],['Compras','Purchases'],['7 dias:','7 days:'],
     ['Planilha Controle de Entregas','Controle de Entregas sheet'],
     ['Lendo as pastas do Air…','Reading Air folders…'],
     ['Buscando os posts do Instagram…','Fetching Instagram posts…'],
@@ -431,6 +434,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 @media (max-width:860px){.so-fmt{grid-template-columns:1fr}}
 
 .tb-r{display:flex;align-items:center;gap:14px}.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lang button{border:0;background:transparent;color:var(--muted);font:600 11.5px var(--mono);padding:4px 10px;cursor:pointer}.lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.pf{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:5px;font-size:12px}.pfs{font-family:var(--mono);font-size:11.5px;color:var(--muted)}.pfs.on{color:var(--ok);font-weight:600}.pfs.off{color:var(--muted)}.pf-none .pfs{color:var(--none)}.pfm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px}.pfm span{display:flex;justify-content:space-between;color:var(--muted)}.pfm b{font-family:var(--mono);font-weight:500;color:var(--ink)}.pf7{font-size:11px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -644,12 +648,25 @@ function renderSummary(list){
   <div class="dist"><span class="lbl">Por tipo</span><div class="bar" role="img" aria-label="Distribuição por tipo">${obBar}</div><div class="legend">${obLeg}</div></div>`;
 }
 function stClass(s){s=(s||'').toLowerCase(); if(s==='live')return'st-live'; if(s==='delivered')return'st-delivered'; if(s==='on hold'||s==='needs approval')return'st-hold'; return'st-other'}
+function perf(x){
+  const A=window.ADS;if(!A)return `<div class="pf pf-load"><span class="mono">Meta…</span></div>`;
+  const ids=new Set();(x.files||[]).forEach(n=>(A.names[n]||[]).forEach(i=>ids.add(i)));
+  if(!ids.size){const vid=(x.fx||[]).some(e=>e==='mp4'||e==='mov');return `<div class="pf pf-none"><span class="pfs">${vid?'Não encontrado na Meta':'Static: sem vínculo automático'}</span></div>`}
+  const L=[...ids].map(i=>A.ads[i]).filter(Boolean);
+  const live=L.filter(a=>a.st==='ACTIVE').length;
+  const sum=(k,f)=>L.reduce((s,a)=>s+((a[k]&&a[k][f])||0),0);
+  const sp=sum('t','sp'),im=sum('t','im'),cl=sum('t','cl'),pu=sum('t','pu'),rv=sum('t','rv'),sp7=sum('w','sp'),rv7=sum('w','rv');
+  const loc=window.LOC||'pt-BR',money=v=>'$'+Math.round(v).toLocaleString(loc),pc=v=>(v*100).toLocaleString(loc,{maximumFractionDigits:2})+'%',rx=(a,b)=>b?(a/b).toLocaleString(loc,{maximumFractionDigits:2})+'x':'—';
+  const stl=live?`<span class="pfs on">● Rodando · ${live} anúncio${live>1?'s':''}</span>`:`<span class="pfs off">Pausado · ${L.length} anúncio${L.length>1?'s':''}</span>`;
+  return `<div class="pf">${stl}<div class="pfm"><span>Gasto <b>${money(sp)}</b></span><span>ROAS <b>${rx(rv,sp)}</b></span><span>CTR <b>${im?pc(cl/im):'—'}</b></span><span>Compras <b>${Math.round(pu).toLocaleString(loc)}</b></span></div><div class="pf7 mono">7 dias: ${money(sp7)} · ROAS ${rx(rv7,sp7)}</div></div>`;
+}
 function card(x){
   const objC=x.obj==='Branding'?'obj-branding':x.obj==='Conversion'?'obj-conversion':'obj-none';
   const dur=x.dur?` · ${x.dur}s`:'';
   return `<article class="card"><a class="thumb" href="${x.link}" target="_blank" rel="noopener" aria-label="Abrir ${esc(x.camp)} no Air"><img src="${x.img}" alt="${esc(x.camp+' '+x.detail)}" loading="lazy"><span class="badge" style="--c:${CAT_C[x.cat]}">${x.cat}</span><span class="count">${x.n} arquivo${x.n>1?'s':''}${dur}</span></a>
   <div class="meta"><h3>${esc(x.camp==='—'?x.detail:x.camp)}</h3>${x.camp!=='—'?`<div class="det">${esc(x.detail)}</div>`:''}
   <div class="chips"><span class="chip ${objC}">${x.obj||'Sem tipo'}</span>${x.fun?`<span class="fun">${x.fun}</span>`:''}${x.st?`<span class="st ${stClass(x.st)}">${esc(x.st)}</span>`:''}</div>
+  ${perf(x)}
   <div class="foot"><a href="${x.link}" target="_blank" rel="noopener">Abrir no Air ↗</a><span class="mono">${x.row?'linha '+x.row:'fora da planilha'}</span></div></div></article>`;
 }
 function renderDays(list){
@@ -665,7 +682,7 @@ function render(){
   document.querySelectorAll('.f').forEach(b=>b.setAttribute('aria-pressed',String(state[b.dataset.g]===b.dataset.v)));
 }
 document.querySelectorAll('.f').forEach(b=>b.addEventListener('click',()=>{state[b.dataset.g]=b.dataset.v;render()}));
-render();
+render();window.__Er=render;
 };
 </script>
 
@@ -922,7 +939,7 @@ window.__S=function(IG,FOL){(function(){
   function msg(id,html){const b=document.getElementById(id);if(b)b.innerHTML=html}
   msg('days','<div class="ld"><i></i>Lendo as pastas do Air…</div>');
   msg('so-grid','<div class="ld"><i></i>Buscando os posts do Instagram…</div>');
-  fetch('/api/air').then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);window.__E(j.items);document.getElementById('e-upd').textContent=when(j.updated)})
+  fetch('/api/air').then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);window.__E(j.items);document.getElementById('e-upd').textContent=when(j.updated);return fetch('/api/ads').then(r=>r.json()).then(a=>{if(a&&a.names){window.ADS=a}else{window.ADS={names:{},ads:{}}}window.__Er&&window.__Er()}).catch(()=>{window.ADS={names:{},ads:{}};window.__Er&&window.__Er()})})
     .catch(e=>msg('days','<p class="empty">Não consegui ler o Air agora. Recarregue a página em instantes.</p>'));
   fetch('/api/instagram').then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);window.__S(j.ig,j.fol);document.getElementById('so-upd').textContent=when(j.updated)})
     .catch(e=>msg('so-grid','<p class="empty">Não consegui buscar o Instagram agora ('+String(e.message).replace(/[<>&]/g,'')+').</p>'));
