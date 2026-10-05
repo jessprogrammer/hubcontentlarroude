@@ -6,6 +6,7 @@ import { pool, getJSON, cached, WD, iso, mondayOf } from '../lib/util.js';
 import { get } from '../lib/store.js';
 
 const API = 'https://api.air.inc/shorturl/';
+export const normName = n => String(n || '').toLowerCase().replace(/\.(mp4|mov|jpe?g|png|gif|webp)$/i, '').replace(/\s*\(\d+\)$/, '').trim();
 
 async function kids(sc, id) {
   let out = [], cursor = null;
@@ -101,7 +102,10 @@ async function build() {
       fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null,
       n: L.clips.length, dur: Math.round(Math.max(0, ...L.clips.map(c => c.duration || 0))),
       link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
-      img: sq && sq.assets && sq.assets.image ? sq.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : ''
+      img: sq && sq.assets && sq.assets.image ? sq.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : '',
+      // nomes dos arquivos (para achar o mesmo criativo na Meta) e tipos de arquivo
+      files: L.clips.map(c => normName(c.importedName || c.title || c.displayName)).filter(Boolean),
+      fx: exts
     });
   }
   items.sort((a, b) => a.date.localeCompare(b.date) || a.camp.localeCompare(b.camp));
