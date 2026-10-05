@@ -6,7 +6,7 @@ import { pool } from '../lib/util.js';
 
 const GRAPH = 'https://graph.facebook.com/v23.0';
 const ACCOUNTS = [{ id: '2047856822417350', name: 'Larroudé US' }, { id: '929449929417505', name: 'PRE-ORDER US' }];
-const KEY = 'ads:meta';
+const KEY = 'ads:meta2';
 const FRESH_MS = 60 * 60e3;
 const SINCE = '2026-08-01'; // período considerado para "total"
 
@@ -47,7 +47,7 @@ async function account(acc, today) {
   const since = Math.floor(Date.parse(SINCE) / 1000);
   const [videos, ads, ins, ins7] = await Promise.all([
     all('/act_' + acc.id + '/advideos', { fields: 'id,title', limit: '500' }, 6),
-    all('/act_' + acc.id + '/ads', { fields: 'id,name,effective_status,creative{video_id,asset_feed_spec{videos{video_id}},object_story_spec{video_data{video_id},link_data{child_attachments{video_id}}}}', limit: '200', updated_since: String(since) }, 15),
+    all('/act_' + acc.id + '/ads', { fields: 'id,name,effective_status,creative{object_type,effective_object_story_id,video_id,asset_feed_spec{videos{video_id}},object_story_spec{video_data{video_id},link_data{child_attachments{video_id}}}}', limit: '200', updated_since: String(since) }, 15),
     all('/act_' + acc.id + '/insights', { level: 'ad', fields: 'ad_id,spend,impressions,clicks,actions,action_values', time_range: JSON.stringify({ since: SINCE, until: today }), limit: '500' }, 10),
     all('/act_' + acc.id + '/insights', { level: 'ad', fields: 'ad_id,spend,impressions,clicks,actions,action_values', date_preset: 'last_7d', limit: '500' }, 10),
   ]);
@@ -72,18 +72,21 @@ async function account(acc, today) {
     if (n.length < 8 || !byVideo[v.id]) continue;
     names[n] = Array.from(new Set((names[n] || []).concat(byVideo[v.id])));
   }
+  const vidIds = new Set(videos.map(v => v.id)), adVid = Object.keys(byVideo);
+  const dbg = { videos: videos.length, ads: ads.length, adsWithVideo: new Set(Object.values(byVideo).flat()).size, adVideoIds: adVid.length, adVideoIdsInLibrary: adVid.filter(v => vidIds.has(v)).length,
+    sampleAdNames: ads.slice(0, 15).map(a => a.name), types: ads.reduce((m, a) => { const t = (a.creative && a.creative.object_type) || '?'; m[t] = (m[t] || 0) + 1; return m }, {}) };
   // guarda só os anúncios ligados a algum vídeo com nome
   const used = new Set(Object.values(names).flat());
-  return { names, ads: Object.fromEntries(Object.entries(adOut).filter(([id]) => used.has(id))) };
+  return { names, dbg, ads: Object.fromEntries(Object.entries(adOut).filter(([id]) => used.has(id))) };
 }
 
 async function build() {
   const today = new Date().toISOString().slice(0, 10);
   const res = await pool(ACCOUNTS, 2, async acc => { try { return await account(acc, today) } catch (e) { return { error: acc.name + ': ' + redact(e.message) } } });
-  const out = { updated: new Date().toISOString(), since: SINCE, names: {}, ads: {}, errors: [] };
+  const out = { updated: new Date().toISOString(), since: SINCE, names: {}, ads: {}, errors: [], dbg: {} };
   for (const r of res) {
     if (r.error) { out.errors.push(r.error); continue }
-    Object.assign(out.ads, r.ads);
+    Object.assign(out.ads, r.ads); out.dbg[Object.keys(out.dbg).length] = r.dbg;
     for (const [n, ids] of Object.entries(r.names)) out.names[n] = Array.from(new Set((out.names[n] || []).concat(ids)));
   }
   return out;
