@@ -14,7 +14,20 @@ const FRESH_MS = 60 * 60e3;      // dados com menos de 1 h não são buscados de
 const BUDGET_MS = 40e3;          // tempo máximo de busca por chamada
 const DAYS_BACK = 180;           // posts dos últimos 6 meses
 
-const token = () => String(process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN || process.env.META_TOKEN || '').trim().replace(/^["']|["']$/g, '');
+// aceita o token puro, com aspas, ou a linha inteira do .env (META_ACCESS_TOKEN=EAA...)
+function token() {
+  const v = String(process.env.META_ACCESS_TOKEN || process.env.IG_ACCESS_TOKEN || process.env.META_TOKEN || '');
+  const m = v.match(/E?AA[A-Za-z0-9]{20,}/);
+  if (m) return m[0].startsWith('E') ? m[0] : 'E' + m[0];
+  return v.trim().replace(/^["']|["']$/g, '');
+}
+// nunca devolve o token (nem pedaços dele) em mensagens de erro
+const redact = s => String(s || '').replace(/[A-Za-z0-9_-]{24,}/g, '[…]');
+// formato do token salvo, sem mostrar o token
+function tokenShape() {
+  const v = String(process.env.META_ACCESS_TOKEN || '');
+  return `token salvo: ${v.length} caracteres, começa com "${v.slice(0, 3).replace(/[^A-Za-z=_ ]/g, '?')}", tem "=": ${v.includes('=')}, tem aspas: ${/["']/.test(v)}, tem espaço/quebra: ${/\s/.test(v)}`;
+}
 
 async function graph(pathOrUrl, params, timeoutMs) {
   const u = new URL(pathOrUrl.startsWith('http') ? pathOrUrl : GRAPH + pathOrUrl);
@@ -27,7 +40,7 @@ async function graph(pathOrUrl, params, timeoutMs) {
     const j = await r.json().catch(() => ({}));
     if (r.ok && !j.error) return j;
     const e = j.error || {};
-    throw new Error('Meta ' + r.status + ' ' + (e.code || '') + ' ' + String(e.message || '').slice(0, 200));
+    throw new Error('Meta ' + r.status + ' ' + (e.code || '') + ' ' + redact(e.message).slice(0, 200) + (e.code === 190 ? ' | ' + tokenShape() : ''));
   } finally { clearTimeout(t) }
 }
 const num = v => (v === '' || v == null ? 0 : +v || 0);
@@ -137,7 +150,7 @@ async function refresh(prev) {
         const w = k.slice(2); F._wto[w] = v.to;
         F.weeks = F.weeks.filter(x => x[0] !== w).concat([[w, v.g, v.l]]).sort((p, q) => p[0].localeCompare(q[0])).slice(-13);
       } else F[k] = v;
-    } catch (e) { errors.push(k + ': ' + String(e.message || e).slice(0, 200)) }
+    } catch (e) { errors.push(k + ': ' + redact(e.message || e).slice(0, 300)) }
   });
   D.updated = new Date().toISOString();
   D.pending = jobsFor(F, y, today).length + (D.igFetched ? 0 : 1);
@@ -165,5 +178,5 @@ export default async function handler(req, res) {
     if (!D.ig || !D.ig.length) return res.status(502).json({ error: (D.errors || ['ainda buscando os posts']).join(' · ') });
     const { _wto, _cur, ...fol } = D.fol;
     res.status(200).json({ updated: D.igFetched || D.updated, ig: D.ig, fol, pending: D.pending || 0 });
-  } catch (e) { res.status(502).json({ error: String(e.message || e) }) }
+  } catch (e) { res.status(502).json({ error: redact(e.message || e) }) }
 }
