@@ -6,7 +6,7 @@ import { pool } from '../lib/util.js';
 
 const GRAPH = 'https://graph.facebook.com/v23.0';
 const ACCOUNTS = [{ id: '2047856822417350', name: 'Larroudé US' }, { id: '929449929417505', name: 'PRE-ORDER US' }];
-const KEY = 'ads:meta3';
+const KEY = 'ads:meta4';
 const FRESH_MS = 60 * 60e3;
 const SINCE = '2026-08-01'; // período considerado para "total"
 
@@ -77,7 +77,7 @@ async function account(acc, today) {
   const I = Object.fromEntries(ins.map(r => [r.ad_id, metr(r)]));
   const I7 = Object.fromEntries(ins7.map(r => [r.ad_id, metr(r)]));
   const adOut = {};
-  for (const a of ads) adOut[a.id] = { st: a.effective_status, acc: acc.name, t: I[a.id] || null, w: I7[a.id] || null };
+  for (const a of ads) adOut[a.id] = { n: a.name, st: a.effective_status, acc: acc.name, t: I[a.id] || null, w: I7[a.id] || null };
   const names = {};
   for (const v of videos) {
     const n = normName(v.title);
@@ -91,7 +91,7 @@ async function account(acc, today) {
     sampleAdNames: ads.slice(0, 15).map(a => a.name), types: ads.reduce((m, a) => { const t = (a.creative && a.creative.object_type) || '?'; m[t] = (m[t] || 0) + 1; return m }, {}) };
   // guarda só os anúncios ligados a algum vídeo com nome
   const used = new Set(Object.values(names).flat());
-  return { names, dbg, ads: Object.fromEntries(Object.entries(adOut).filter(([id]) => used.has(id))) };
+  return { names, dbg, ads: adOut };
 }
 
 async function build() {
