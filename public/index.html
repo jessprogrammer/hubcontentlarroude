@@ -50,6 +50,15 @@
     ['Larroudé · Time de conteúdo · Controle de Entregas','Larroudé · Content team · Delivery tracker'],
     ['Air + planilha US Request – Meta','Air + US Request – Meta sheet'],
     ['Entregas Meta US','Meta US Deliveries'],
+    ['O direcionamento de storytelling de cada dia: campanha, produtos hero, ângulo do e-mail e do SMS, público e CTA. Clique em um dia para ver tudo. Para mudar alguma coisa, entre no modo de edição.','Daily storytelling direction: campaign, hero products, email and SMS angle, audience and CTA. Click a day to see everything. To change something, switch to edit mode.'],
+    ['Fonte: calendário de marketing do mês (Excel enviado pela Jess), editável aqui. Última edição:','Source: the month’s marketing calendar (Excel sent by Jess), editable here. Last edit:'],
+    ['Larroudé · Storytelling · E-mail e SMS','Larroudé · Storytelling · Email & SMS'],
+    ['Carregando o calendário…','Loading the calendar…'],
+    ['Senha para editar','Password to edit'],
+    ['Alterações não salvas','Unsaved changes'],
+    ['Calendário editável','Editable calendar'],
+    ['Descartar','Discard'],['Salvar','Save'],['Cancelar','Cancel'],['+ Novo mês','+ New month'],['Tabela','Table'],['Calendário','Calendar'],
+
     ['Static: sem vínculo automático','Static: no automatic match'],
     ['Não encontrado na Meta','Not found on Meta'],
     ['≈ anúncios do mesmo produto e formato','≈ ads for the same product and format'],
@@ -197,8 +206,8 @@
   window.tr=tr;
   const ATTR=['aria-label','placeholder','title','alt'];
   function walk(n){
-    if(n.nodeType===3){const v=n.nodeValue,t=tr(v);if(t!==v)n.nodeValue=t;return}
-    if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE')return;
+    if(n.nodeType===3){if(n.parentElement&&n.parentElement.closest('.notr'))return;const v=n.nodeValue,t=tr(v);if(t!==v)n.nodeValue=t;return}
+    if(n.nodeType!==1||n.tagName==='SCRIPT'||n.tagName==='STYLE'||n.tagName==='TEXTAREA'||(n.closest&&n.closest('.notr')))return;
     for(const a of ATTR){const v=n.getAttribute&&n.getAttribute(a);if(v){const t=tr(v);if(t!==v)n.setAttribute(a,t)}}
     for(const c of n.childNodes)walk(c);
   }
@@ -233,7 +242,7 @@
   --ok:#7CC49B; --ok-soft:#1F3328; --warn:#E0B060; --warn-soft:#3A2F1C; --info:#8EAEDB; --info-soft:#1F2A3A; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;margin:0}
-.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:36px 64px;display:grid;gap:34px}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:clamp(16px,4vw,40px);padding-block:36px 64px;display:grid;grid-template-columns:minmax(0,1fr);gap:34px}
 a{color:inherit}
 button{font:inherit;color:inherit}
 a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
@@ -436,6 +445,58 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 
 .tb-r{display:flex;align-items:center;gap:14px}.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lang button{border:0;background:transparent;color:var(--muted);font:600 11.5px var(--mono);padding:4px 10px;cursor:pointer}.lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 .pf{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:5px;font-size:12px}.pfs{font-family:var(--mono);font-size:11.5px;color:var(--muted)}.pfs.on{color:var(--ok);font-weight:600}.pfs.off{color:var(--muted)}.pf-none .pfs{color:var(--none)}.pfm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px}.pfm span{display:flex;justify-content:space-between;color:var(--muted)}.pfm b{font-family:var(--mono);font-weight:500;color:var(--ink)}.pf7{font-size:11px;color:var(--muted)}.pfa{font-size:11px;color:var(--warn)}
+.cal-bar{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:center}
+.cal-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cal-title{font-family:var(--display);font-size:28px;font-weight:600;min-width:9ch;text-align:center}
+.cal-edit[aria-pressed=true]{background:var(--accent);color:#fff;border-color:var(--accent)}
+.cal-lock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:13px}
+.cal-lock[hidden]{display:none}
+.cal-lock input{font:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:120px;letter-spacing:.2em}
+.cal-err{color:var(--accent)}
+.cal-legend{display:flex;flex-wrap:wrap;gap:6px}
+.ctag{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:999px;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c);border:1px solid color-mix(in srgb,var(--c) 35%,transparent);white-space:nowrap}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--line);gap:1px}
+.cal-wd{background:var(--soft);font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 10px}
+.cal-cell{background:var(--surface);min-height:132px;padding:8px 10px 10px;display:flex;flex-direction:column;gap:5px;text-align:left;border:0;font:inherit;color:inherit;cursor:pointer;min-width:0}
+.cal-cell:hover{background:var(--bg)}
+.cal-cell.out{background:var(--soft);cursor:default;opacity:.55}
+.cal-cell.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal-cell.empty .cal-camp{color:var(--muted);font-style:italic}
+.cal-dn{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.cal-camp{font-weight:600;font-size:13px;line-height:1.25;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cal-prod{font-size:11.5px;color:var(--muted);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cal-tw{overflow:auto;max-width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.cal-table{border-collapse:collapse;font-size:12.5px;min-width:1300px;width:100%}
+.cal-table th{position:sticky;top:0;background:var(--soft);font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);z-index:1}
+.cal-table td{padding:7px 10px;border-bottom:1px solid var(--line);border-right:1px solid var(--line);vertical-align:top;min-width:110px}
+.cal-table td:first-child{white-space:nowrap;font-family:var(--mono);font-size:12px;min-width:84px}
+.editing [contenteditable=true]{background:color-mix(in srgb,var(--warn-soft) 55%,transparent);outline:none}
+.editing [contenteditable=true]:focus{box-shadow:inset 0 0 0 2px var(--accent);background:var(--surface)}
+.cal-notes{display:grid;gap:16px}
+.cal-note h2{margin:0;font-family:var(--display);font-weight:600;font-size:22px}
+.cal-note table{border-collapse:collapse;width:100%;font-size:13px}
+.cal-note th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding:6px 8px;border-bottom:1px solid var(--line)}
+.cal-note td{padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.cal-note td:first-child{font-weight:600;white-space:nowrap}
+.cal-note details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.cal-note details summary::-webkit-details-marker{display:none}
+.cal-note details summary::after{content:"+";font-family:var(--mono);color:var(--muted)}
+.cal-note details[open] summary::after{content:"–"}
+.cal-addrow{justify-self:start;margin-top:8px}
+.cal-save{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:20;background:var(--ink);color:var(--bg);border-radius:999px;padding:8px 8px 8px 18px;display:flex;gap:8px;align-items:center;font-size:13px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.cal-save[hidden]{display:none}
+.cal-save .f{background:transparent;color:var(--bg);border-color:color-mix(in srgb,var(--bg) 40%,transparent)}
+.cal-save .cal-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.cal-dlg{border:1px solid var(--line);border-radius:12px;padding:0;width:min(620px,94vw);background:var(--surface);color:var(--ink)}
+.cal-dlg::backdrop{background:rgba(14,12,15,.45)}
+.cal-dlg-in{display:grid;gap:0}
+.cal-dlg-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:22px}
+.cal-dlg-body{padding:12px 18px 18px;display:grid;gap:12px;max-height:72vh;overflow:auto}
+.cal-fl{display:grid;gap:3px}
+.cal-fl .lbl{font-size:10.5px}
+.cal-fl div{font-size:14px;line-height:1.45;white-space:pre-wrap}
+.cal-fl textarea{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical;min-height:40px}
+@media (max-width:860px){.cal-grid{grid-template-columns:1fr}.cal-wd,.cal-cell.out{display:none}.cal-cell{min-height:auto}}
 </style>
 </head>
 <body>
@@ -448,6 +509,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta US</a>
       <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
+      <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -599,6 +661,56 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
         <footer>Fonte: API do Instagram (Meta), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em <span id="so-upd">…</span>.</footer>
       </div>
     </section>
+    <section class="view" id="v-calendario" aria-label="Calendário" hidden>
+      <div class="wrap">
+        <header>
+          <div class="lbl">Larroudé · Storytelling · E-mail e SMS</div>
+          <h1>Calendário <em id="cal-h">do mês</em></h1>
+          <p class="sub">O direcionamento de storytelling de cada dia: campanha, produtos hero, ângulo do e-mail e do SMS, público e CTA. Clique em um dia para ver tudo. Para mudar alguma coisa, entre no modo de edição.</p>
+        </header>
+
+        <div class="cal-bar">
+          <div class="cal-nav">
+            <button class="f" id="cal-prev" aria-label="Mês anterior">‹</button>
+            <b id="cal-title" class="cal-title">…</b>
+            <button class="f" id="cal-next" aria-label="Próximo mês">›</button>
+            <button class="f" id="cal-new" hidden>+ Novo mês</button>
+          </div>
+          <div class="cal-nav">
+            <span role="group" aria-label="Visualização"><button class="f" id="cal-v-grid" aria-pressed="true">Calendário</button> <button class="f" id="cal-v-table" aria-pressed="false">Tabela</button></span>
+            <button class="f cal-edit" id="cal-edit">Editar 🔒</button>
+          </div>
+        </div>
+
+        <form class="cal-lock" id="cal-lock" hidden autocomplete="off">
+          <span>Senha para editar</span>
+          <input id="cal-pass" type="password" inputmode="numeric" maxlength="24" aria-label="Senha">
+          <button class="f" type="submit">Entrar</button>
+          <button class="f" type="button" id="cal-lock-x">Cancelar</button>
+          <span class="cal-err" id="cal-err" hidden>Senha incorreta.</span>
+        </form>
+
+        <div class="cal-legend notr" id="cal-legend"></div>
+        <div id="cal-body" class="notr"><div class="ld"><i></i>Carregando o calendário…</div></div>
+        <div id="cal-notes" class="cal-notes notr"></div>
+
+        <footer>Fonte: calendário de marketing do mês (Excel enviado pela Jess), editável aqui. Última edição: <span id="cal-upd">—</span>.</footer>
+      </div>
+
+      <div class="cal-save" id="cal-save" hidden>
+        <span id="cal-save-msg">Alterações não salvas</span>
+        <button class="f" id="cal-discard">Descartar</button>
+        <button class="f cal-primary" id="cal-do-save">Salvar</button>
+      </div>
+
+      <dialog class="cal-dlg" id="cal-dlg">
+        <form method="dialog" class="cal-dlg-in">
+          <div class="cal-dlg-h"><b id="cal-dlg-t"></b><button class="f" value="close" aria-label="Fechar">✕</button></div>
+          <div id="cal-dlg-body" class="cal-dlg-body notr"></div>
+        </form>
+      </dialog>
+    </section>
+
   </div>
 </div>
 
@@ -939,12 +1051,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta US','daily-tasks':'Daily tasks','social':'Social'};
+  const views={'entregas':'Entregas Meta US','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':'Air + planilha US Request – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':'Air + planilha US Request – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
@@ -962,5 +1074,123 @@ window.__S=function(IG,FOL){(function(){
 })();
 </script>
 <script>document.getElementById("lang-"+(window.LANG||"pt")).setAttribute("aria-pressed","true");document.getElementById("lang-"+(window.LANG==="en"?"pt":"en")).setAttribute("aria-pressed","false")</script>
+<script>
+// Calendário de storytelling: visualização em grade ou tabela, edição com senha, salva no banco.
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en';
+  const MN=EN?['January','February','March','April','May','June','July','August','September','October','November','December']:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const WD=EN?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const pad=n=>String(n).padStart(2,'0');
+  const st={months:[],m:null,doc:null,orig:null,view:'grid',edit:false,pass:null,dirty:false,loaded:false};
+  try{st.view=localStorage.getItem('cal-view')||'grid'}catch(e){}
+  // cores das prioridades
+  const PAL=[['promo','var(--accent)'],['drop','var(--info)'],['collab','var(--ink)'],['launch','var(--ink)'],['boot','var(--static)'],['founder','var(--gif)'],['holiday','var(--carousel)'],['seasonal','var(--carousel)'],['proof','var(--ok)'],['bestseller','var(--ok)']];
+  const col=p=>{p=String(p||'').toLowerCase();for(const [k,c] of PAL)if(p.includes(k))return c;return 'var(--muted)'};
+  const tag=p=>p?`<span class="ctag" style="--c:${col(p)}">${esc(p)}</span>`:'';
+  const LEN={priority:'Priority',campaign:'Campaign / Story',products:'Hero products',email:'Email subject / angle',sms:'SMS angle',audience:'Audience',cta:'CTA',rationale:'Rationale'};
+  const lab=f=>EN&&LEN[f.k]?LEN[f.k]:f.label;
+  const title=m=>{const [y,mo]=m.split('-');return MN[+mo-1]+' '+y};
+
+  async function api(method,body,q){
+    const r=await fetch('/api/calendar'+(q||''),method==='GET'?{}:{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json().catch(()=>({}));if(!r.ok)throw Object.assign(new Error(j.error||'erro'),{status:r.status});return j;
+  }
+  async function loadMonths(){
+    const j=await api('GET',null,'');st.months=j.months||[];
+    const now=new Date(),cur=now.getFullYear()+'-'+pad(now.getMonth()+1);
+    let pick=st.months.includes(cur)?cur:st.months[st.months.length-1];
+    try{const s=localStorage.getItem('cal-m');if(s&&st.months.includes(s))pick=s}catch(e){}
+    await open(pick);
+  }
+  async function open(m){
+    if(st.dirty&&!confirm(EN?'Discard unsaved changes?':'Descartar as alterações não salvas?'))return;
+    st.m=m;try{localStorage.setItem('cal-m',m)}catch(e){}
+    $('cal-body').innerHTML='<div class="ld"><i></i>…</div>';
+    st.doc=await api('GET',null,'?m='+m);st.orig=JSON.stringify(st.doc);setDirty(false);render();
+  }
+  function setDirty(v){st.dirty=v;$('cal-save').hidden=!v;$('cal-save-msg').textContent=EN?'Unsaved changes':'Alterações não salvas'}
+  function touch(){setDirty(JSON.stringify(st.doc)!==st.orig)}
+
+  function render(){
+    const m=st.m,d=st.doc;
+    $('cal-title').textContent=title(m);$('cal-h').textContent=(EN?'for ':'de ')+MN[+m.split('-')[1]-1].toLowerCase();
+    const i=st.months.indexOf(m);$('cal-prev').disabled=i<=0;$('cal-next').disabled=i<0||i>=st.months.length-1;
+    $('cal-new').hidden=!st.edit;
+    $('cal-v-grid').setAttribute('aria-pressed',st.view==='grid');$('cal-v-table').setAttribute('aria-pressed',st.view==='table');
+    $('cal-edit').setAttribute('aria-pressed',st.edit);$('cal-edit').textContent=st.edit?(EN?'Editing ✓':'Editando ✓'):(EN?'Edit 🔒':'Editar 🔒');
+    $('v-calendario').classList.toggle('editing',st.edit);
+    $('cal-upd').textContent=d.updated?new Date(d.updated).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'}):(EN?'original version':'versão original');
+    const pr=[...new Set(Object.values(d.days).map(x=>x.priority).filter(Boolean))];
+    $('cal-legend').innerHTML=pr.map(tag).join(' ');
+    if(st.view==='grid')grid();else table();
+    notes();
+  }
+  function daysOf(m){const [y,mo]=m.split('-').map(Number);const n=new Date(y,mo,0).getDate();return Array.from({length:n},(_,i)=>`${m}-${pad(i+1)}`)}
+  function grid(){
+    const m=st.m,[y,mo]=m.split('-').map(Number),first=(new Date(y,mo-1,1).getDay()+6)%7,today=new Date();
+    const tIso=today.getFullYear()+'-'+pad(today.getMonth()+1)+'-'+pad(today.getDate());
+    let h=WD.map(w=>`<div class="cal-wd">${w}</div>`).join('');
+    for(let i=0;i<first;i++)h+='<div class="cal-cell out"></div>';
+    for(const iso of daysOf(m)){
+      const x=st.doc.days[iso]||{};const dn=+iso.slice(8);
+      h+=`<button type="button" class="cal-cell${x.campaign?'':' empty'}${iso===tIso?' today':''}" data-d="${iso}"><span class="cal-dn">${dn}</span>${tag(x.priority)}<span class="cal-camp">${esc(x.campaign)||(st.edit?(EN?'+ add':'+ adicionar'):'—')}</span>${x.products?`<span class="cal-prod">${esc(x.products)}</span>`:''}</button>`;
+    }
+    const rest=(7-((first+daysOf(m).length)%7))%7;for(let i=0;i<rest;i++)h+='<div class="cal-cell out"></div>';
+    $('cal-body').innerHTML=`<div class="cal-grid">${h}</div>`;
+    $('cal-body').querySelectorAll('.cal-cell[data-d]').forEach(b=>b.onclick=()=>dlg(b.dataset.d));
+  }
+  function table(){
+    const F=st.doc.fields,ce=st.edit?' contenteditable="true"':'';
+    const rows=daysOf(st.m).map(iso=>{const x=st.doc.days[iso]||{};const dt=new Date(iso+'T12:00');
+      return `<tr data-d="${iso}"><td>${pad(dt.getDate())}/${pad(dt.getMonth()+1)} · ${WD[(dt.getDay()+6)%7]}</td>${F.map(f=>`<td data-k="${f.k}"${ce}>${f.k==='priority'&&!st.edit?tag(x[f.k]):esc(x[f.k])}</td>`).join('')}</tr>`}).join('');
+    $('cal-body').innerHTML=`<div class="cal-tw"><table class="cal-table"><thead><tr><th>${EN?'Date':'Data'}</th>${F.map(f=>`<th>${esc(lab(f))}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
+    if(st.edit)$('cal-body').querySelectorAll('td[contenteditable]').forEach(td=>td.oninput=()=>{const iso=td.parentNode.dataset.d;const x=st.doc.days[iso]=st.doc.days[iso]||{};x[td.dataset.k]=td.innerText.trim();touch()});
+  }
+  function dlg(iso){
+    const x=st.doc.days[iso]||{},F=st.doc.fields,dt=new Date(iso+'T12:00');
+    $('cal-dlg-t').textContent=WD[(dt.getDay()+6)%7]+' '+dt.getDate()+' '+MN[dt.getMonth()].toLowerCase();
+    $('cal-dlg-body').innerHTML=F.map(f=>`<label class="cal-fl"><span class="lbl">${esc(lab(f))}</span>${st.edit?`<textarea data-k="${f.k}" rows="${f.k==='rationale'||f.k==='sms'||f.k==='email'?3:1}">${esc(x[f.k])}</textarea>`:(f.k==='priority'?(tag(x[f.k])||'—'):`<div>${esc(x[f.k])||'—'}</div>`)}</label>`).join('');
+    if(st.edit)$('cal-dlg-body').querySelectorAll('textarea').forEach(t=>t.oninput=()=>{const o=st.doc.days[iso]=st.doc.days[iso]||{};o[t.dataset.k]=t.value;touch()});
+    $('cal-dlg').showModal();
+  }
+  $('cal-dlg').addEventListener('close',()=>{if(st.view==='grid')grid();$('cal-legend').innerHTML=[...new Set(Object.values(st.doc.days).map(x=>x.priority).filter(Boolean))].map(tag).join(' ')});
+  function notes(){
+    const N=st.doc.notes||[],ce=st.edit?' contenteditable="true"':'';
+    $('cal-notes').innerHTML=N.map((n,ni)=>`<section class="dt-card cal-note"><details${ni<2?' open':''}><summary><h2${ce} data-n="${ni}" data-t="1">${esc(n.title)}</h2><span class="mono" style="font-size:11px;color:var(--muted)">${n.rows.length}</span></summary>
+      <div style="overflow:auto"><table><thead><tr>${n.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${n.rows.map((r,ri)=>`<tr>${n.cols.map((c,ci)=>`<td${ce} data-n="${ni}" data-r="${ri}" data-c="${ci}">${esc(r[ci])}</td>`).join('')}</tr>`).join('')}</tbody></table></div>
+      ${st.edit?`<button class="f cal-addrow" data-add="${ni}">${EN?'+ row':'+ linha'}</button>`:''}</details></section>`).join('');
+    if(st.edit){
+      $('cal-notes').querySelectorAll('[contenteditable]').forEach(e=>{e.onclick=ev=>ev.stopPropagation();e.oninput=()=>{const n=st.doc.notes[+e.dataset.n];if(e.dataset.t)n.title=e.innerText.trim();else{const r=n.rows[+e.dataset.r];r[+e.dataset.c]=e.innerText.trim()}touch()}});
+      $('cal-notes').querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>{const n=st.doc.notes[+b.dataset.add];n.rows.push(n.cols.map(()=>''));touch();notes()});
+    }
+  }
+  // botões
+  $('cal-prev').onclick=()=>{const i=st.months.indexOf(st.m);if(i>0)open(st.months[i-1])};
+  $('cal-next').onclick=()=>{const i=st.months.indexOf(st.m);if(i<st.months.length-1)open(st.months[i+1])};
+  $('cal-v-grid').onclick=()=>{st.view='grid';try{localStorage.setItem('cal-view','grid')}catch(e){};render()};
+  $('cal-v-table').onclick=()=>{st.view='table';try{localStorage.setItem('cal-view','table')}catch(e){};render()};
+  $('cal-edit').onclick=()=>{if(st.edit){if(st.dirty&&!confirm(EN?'Discard unsaved changes?':'Descartar as alterações não salvas?'))return;if(st.dirty){st.doc=JSON.parse(st.orig);setDirty(false)}st.edit=false;render();return}
+    if(st.pass){st.edit=true;render();return}$('cal-lock').hidden=false;$('cal-pass').focus()};
+  $('cal-lock-x').onclick=()=>{$('cal-lock').hidden=true;$('cal-err').hidden=true};
+  $('cal-lock').onsubmit=async e=>{e.preventDefault();$('cal-err').hidden=true;const pw=$('cal-pass').value;
+    try{await api('POST',{password:pw,action:'check'});st.pass=pw;try{sessionStorage.setItem('cal-k',pw)}catch(e){}$('cal-lock').hidden=true;$('cal-pass').value='';st.edit=true;render()}
+    catch(err){$('cal-err').textContent=err.status===401?(EN?'Wrong password.':'Senha incorreta.'):(EN?'Could not check now.':'Não foi possível conferir agora.');$('cal-err').hidden=false}};
+  $('cal-discard').onclick=()=>{st.doc=JSON.parse(st.orig);setDirty(false);render()};
+  $('cal-do-save').onclick=async()=>{const b=$('cal-do-save');b.disabled=true;$('cal-save-msg').textContent=EN?'Saving…':'Salvando…';
+    try{st.doc=await api('POST',{password:st.pass,action:'save',month:st.m,doc:st.doc});st.orig=JSON.stringify(st.doc);setDirty(false);render()}
+    catch(err){$('cal-save-msg').textContent=err.status===401?(EN?'Password expired. Click Edit again.':'Senha expirou. Clique em Editar de novo.'):(EN?'Could not save. Try again.':'Não salvou. Tente de novo.');if(err.status===401){st.pass=null}}
+    finally{b.disabled=false}};
+  $('cal-new').onclick=async()=>{const last=st.months[st.months.length-1];const [y,mo]=last.split('-').map(Number);const nx=mo===12?(y+1)+'-01':y+'-'+pad(mo+1);
+    if(!confirm((EN?'Create ':'Criar ')+title(nx)+'?'))return;
+    try{await api('POST',{password:st.pass,action:'create',month:nx,copyNotesFrom:last});st.months.push(nx);st.months.sort();await open(nx)}catch(err){alert(EN?'Could not create the month.':'Não foi possível criar o mês.')}};
+  window.addEventListener('beforeunload',e=>{if(st.dirty){e.preventDefault();e.returnValue=''}});
+  try{st.pass=sessionStorage.getItem('cal-k')||null}catch(e){}
+  // carrega quando a aba é aberta
+  function maybeLoad(){if(location.hash==='#calendario'&&!st.loaded){st.loaded=true;loadMonths().catch(()=>{$('cal-body').innerHTML='<p class="empty">'+(EN?'Could not load the calendar.':'Não consegui carregar o calendário.')+'</p>';st.loaded=false})}}
+  window.addEventListener('hashchange',maybeLoad);maybeLoad();
+})();
+</script>
 </body>
 </html>
