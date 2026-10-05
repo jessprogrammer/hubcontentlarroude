@@ -27,5 +27,7 @@ export default {
     }
   ],
   "instagramAccount": "17841433001140952",
-  "ingestEmails": ["jessica.pavao@larroude.com"]
+  "ingestEmails": ["jessica.pavao@larroude.com"],
+  "_commentCopy": "Quem aprova e remove copys no Banco de copy (login com Google).",
+  "copyApprovers": ["marina@larroude.com", "jessica.pavao@larroude.com"]
 };
