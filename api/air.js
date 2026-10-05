@@ -44,15 +44,20 @@ async function crawl(folder) {
     }
     level = next;
   }
-  return leaves.map(l => ({ ...l, shortcode: folder.shortcode }));
+  return leaves.map(l => ({ ...l, shortcode: folder.shortcode, folder }));
 }
 
-function parseDate(label) {
+const MES = { JAN: 1, FEB: 2, FEV: 2, MAR: 3, APR: 4, ABR: 4, MAY: 5, MAI: 5, JUN: 6, JUL: 7, AUG: 8, AGO: 8, SEP: 9, SET: 9, OCT: 10, OUT: 10, NOV: 11, DEC: 12, DEZ: 12 };
+// data do board de entrega ("ADS 09.30", "17.09", "10.02"): o mês da pasta (SEP 26, OCT 26...) decide a ordem dia/mês
+function parseDate(label, folder) {
   const m = label.replace(/^ADS\s*/i, '').match(/(\d{1,2})[.\/](\d{1,2})/);
   if (!m) return null;
-  let a = +m[1], b = +m[2], mo, d;
-  if (a > 12) { mo = b; d = a } else if (a === 9 || a === 10 || a === 11 || a === 12) { mo = a; d = b } else { mo = b; d = a }
-  return new Date(Date.UTC(2026, mo - 1, d));
+  const a = +m[1], b = +m[2];
+  const fm = MES[String(folder.name || '').slice(0, 3).toUpperCase()];
+  const yy = 2000 + (+(String(folder.name || '').match(/(\d{2})\s*$/) || [0, 26])[1]);
+  let mo, d;
+  if (fm && b === fm) { mo = b; d = a } else if (fm && a === fm) { mo = a; d = b } else if (a > 12) { mo = b; d = a } else { mo = a; d = b }
+  return new Date(Date.UTC(yy, mo - 1, d));
 }
 
 async function sheetIndex() {
@@ -80,7 +85,7 @@ async function build() {
   const [sheet, ...folders] = await Promise.all([sheetIndex().catch(() => ({})), ...config.airFolders.map(f => crawl(f))]);
   const items = [];
   for (const L of folders.flat()) {
-    const date = parseDate(L.path[0] || '');
+    const date = parseDate(L.path[0] || '', L.folder);
     if (!date) continue;
     const id8 = L.id.slice(0, 8);
     let s = sheet[id8], inherited = false;
