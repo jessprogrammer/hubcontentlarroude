@@ -1,10 +1,12 @@
 # Larroudé Content Hub
 
-Site com três painéis, lidos ao vivo a cada visita (com cache curto):
+Site com cinco painéis, lidos ao vivo a cada visita (com cache curto):
 
 | Painel | Fonte | Atualiza |
 |---|---|---|
-| Entregas Meta US | Pastas mensais do Air + planilha US Request – Meta | a cada ~10 min |
+| Entregas Meta (US e Brasil) | Pastas mensais do Air + planilha Creative Request (abas US Request – Meta e Requisição BR) + anúncios da Meta (US) | a cada ~10 min |
+| Entrega semanal | Asana, board [MKT] Content Team / Marketing | a cada 1 min |
+| Calendário | Editável no site (senha) | na hora |
 | Daily tasks (senha) | Planilha Controle de Entregas, aba LANÇAMENTOS | a cada ~5 min |
 | Social | Instagram @larroude via API da Meta (Graph API) | a cada ~1 h |
 
@@ -19,13 +21,14 @@ Site com três painéis, lidos ao vivo a cada visita (com cache curto):
 | Nome | O que colocar |
 |---|---|
 | `TEAM_PASSWORD` | Senha do Daily tasks |
+| `ASANA_TOKEN` | Personal Access Token do Asana (painel Entrega semanal) |
 | `META_ACCESS_TOKEN` | Token de System User da Meta (não vence) |
 | `IG_USER_ID` | (opcional) id da conta do Instagram; padrão em `config.js` |
 | `KV_REST_API_URL` / `KV_REST_API_TOKEN` | Criadas sozinhas ao conectar o banco Upstash (Storage) |
 
 ## Mês novo no Air
 
-Abra `config.js` e adicione uma linha em `airFolders` com o nome, o shortcode do link público
+Abra `config.js` e adicione uma linha em `airFolders` (US) ou `airFoldersBR` (Brasil) com o nome, o shortcode do link público
 (`app.air.inc/a/<shortcode>`) e o id do board raiz. Salve, faça commit e push: o Vercel publica sozinho.
 
 ## Criativo sem tipo
