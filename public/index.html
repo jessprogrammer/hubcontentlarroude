@@ -52,6 +52,7 @@
     ['Entregas Meta US','Meta US Deliveries'],
     ['Static: sem vínculo automático','Static: no automatic match'],
     ['Não encontrado na Meta','Not found on Meta'],
+    ['≈ anúncios do mesmo produto e formato','≈ ads for the same product and format'],
     ['Rodando','Running'],['Pausado','Paused'],['anúncios','ads'],['anúncio','ad'],['Gasto','Spend'],['Compras','Purchases'],['7 dias:','7 days:'],
     ['Planilha Controle de Entregas','Controle de Entregas sheet'],
     ['Lendo as pastas do Air…','Reading Air folders…'],
@@ -434,7 +435,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 @media (max-width:860px){.so-fmt{grid-template-columns:1fr}}
 
 .tb-r{display:flex;align-items:center;gap:14px}.lang{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden}.lang button{border:0;background:transparent;color:var(--muted);font:600 11.5px var(--mono);padding:4px 10px;cursor:pointer}.lang button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
-.pf{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:5px;font-size:12px}.pfs{font-family:var(--mono);font-size:11.5px;color:var(--muted)}.pfs.on{color:var(--ok);font-weight:600}.pfs.off{color:var(--muted)}.pf-none .pfs{color:var(--none)}.pfm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px}.pfm span{display:flex;justify-content:space-between;color:var(--muted)}.pfm b{font-family:var(--mono);font-weight:500;color:var(--ink)}.pf7{font-size:11px;color:var(--muted)}
+.pf{border-top:1px dashed var(--line);padding-top:8px;display:grid;gap:5px;font-size:12px}.pfs{font-family:var(--mono);font-size:11.5px;color:var(--muted)}.pfs.on{color:var(--ok);font-weight:600}.pfs.off{color:var(--muted)}.pf-none .pfs{color:var(--none)}.pfm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px}.pfm span{display:flex;justify-content:space-between;color:var(--muted)}.pfm b{font-family:var(--mono);font-weight:500;color:var(--ink)}.pf7{font-size:11px;color:var(--muted)}.pfa{font-size:11px;color:var(--warn)}
 </style>
 </head>
 <body>
@@ -658,6 +659,14 @@ window.keyOf = n => {
 function perf(x){
   const A=window.ADS;if(!A)return `<div class="pf pf-load"><span class="mono">Meta…</span></div>`;
   const ids=new Set();(x.files||[]).forEach(n=>{(A.names[n]||[]).forEach(i=>ids.add(i));const k=keyOf(n);if(k)(A.names[k]||[]).forEach(i=>ids.add(i))});
+  let approx=false;
+  if(!ids.size){
+    // sem vínculo exato: anúncios do mesmo produto (código) e mesmo formato
+    const T=t=>/gif/.test(t)?'gif':/video/.test(t)?'video':/carou/.test(t)?'carousel':/static|catalog/.test(t)?'static':'';
+    if(!A._ct){A._ct={};for(const [id,ad] of Object.entries(A.ads)){const p=String(ad.n||'').toLowerCase().split('_');const k=p[0].trim()+'|'+T(p[1]||'');if(p[0].length>=6)(A._ct[k]=A._ct[k]||[]).push(id)}}
+    (x.files||[]).forEach(n=>{const p=n.split('_');if(p[0].length<6)return;const t=T(p.find((q,i)=>i>0&&T(q))||'')||T(x.cat.toLowerCase());(A._ct[p[0]+'|'+t]||[]).forEach(i=>ids.add(i))});
+    approx=ids.size>0;
+  }
   if(!ids.size){return `<div class="pf pf-none"><span class="pfs">Não encontrado na Meta</span></div>`}
   const L=[...ids].map(i=>A.ads[i]).filter(Boolean);
   const live=L.filter(a=>a.st==='ACTIVE').length;
@@ -665,7 +674,7 @@ function perf(x){
   const sp=sum('t','sp'),im=sum('t','im'),cl=sum('t','cl'),pu=sum('t','pu'),rv=sum('t','rv'),sp7=sum('w','sp'),rv7=sum('w','rv');
   const loc=window.LOC||'pt-BR',money=v=>'$'+Math.round(v).toLocaleString(loc),pc=v=>(v*100).toLocaleString(loc,{maximumFractionDigits:2})+'%',rx=(a,b)=>b?(a/b).toLocaleString(loc,{maximumFractionDigits:2})+'x':'—';
   const stl=live?`<span class="pfs on">● Rodando · ${live} anúncio${live>1?'s':''}</span>`:`<span class="pfs off">Pausado · ${L.length} anúncio${L.length>1?'s':''}</span>`;
-  return `<div class="pf">${stl}<div class="pfm"><span>Gasto <b>${money(sp)}</b></span><span>ROAS <b>${rx(rv,sp)}</b></span><span>CTR <b>${im?pc(cl/im):'—'}</b></span><span>Compras <b>${Math.round(pu).toLocaleString(loc)}</b></span></div><div class="pf7 mono">7 dias: ${money(sp7)} · ROAS ${rx(rv7,sp7)}</div></div>`;
+  return `<div class="pf${approx?' pf-approx':''}">${stl}${approx?'<span class="pfa">≈ anúncios do mesmo produto e formato</span>':''}<div class="pfm"><span>Gasto <b>${money(sp)}</b></span><span>ROAS <b>${rx(rv,sp)}</b></span><span>CTR <b>${im?pc(cl/im):'—'}</b></span><span>Compras <b>${Math.round(pu).toLocaleString(loc)}</b></span></div><div class="pf7 mono">7 dias: ${money(sp7)} · ROAS ${rx(rv7,sp7)}</div></div>`;
 }
 function card(x){
   const objC=x.obj==='Branding'?'obj-branding':x.obj==='Conversion'?'obj-conversion':'obj-none';
