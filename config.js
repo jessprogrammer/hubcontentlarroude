@@ -13,6 +13,19 @@ export default {
       "root": "7b2197c6-0e11-496b-96fa-682b3b4c74a6"
     }
   ],
+  "_commentBR": "Pastas mensais do Air do Brasil (link 2026: app.air.inc/a/b8be3d913). Para um mês novo, adicione uma linha.",
+  "airFoldersBR": [
+    {
+      "name": "SETEMBRO 26",
+      "shortcode": "b8be3d913",
+      "root": "e7c94675-5323-4a93-aec0-8e0ba599c306"
+    },
+    {
+      "name": "OUTUBRO 26",
+      "shortcode": "b8be3d913",
+      "root": "41f6172f-4550-47aa-a61f-11907780fb43"
+    }
+  ],
   "instagramAccount": "17841433001140952",
   "ingestEmails": ["jessica.pavao@larroude.com"]
 };
