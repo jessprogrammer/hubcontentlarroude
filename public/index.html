@@ -19,6 +19,7 @@
   const WPT={seg:'Mon',ter:'Tue',qua:'Wed',qui:'Thu',sex:'Fri','sáb':'Sat',dom:'Sun',Seg:'Mon',Ter:'Tue',Qua:'Wed',Qui:'Thu',Sex:'Fri','Sáb':'Sat',Dom:'Sun'};
   // frases (as mais longas primeiro)
   const P=[
+    ['Entrega semanal','Weekly delivery'],
     ['Tudo o que está nas pastas mensais do Air (','Everything in the monthly Air folders ('],
     ['), organizado pela data de cada board de entrega. Escolha o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha US Request – Meta quando o board está linkado lá.','), organized by the date of each delivery board. Pick a month, then a week. Category and type (Branding or Conversion) come from the US Request – Meta sheet when the board is linked there.'],
     ['Cada criativo é um board final do Air (por exemplo CREATIVE 01). Ele reúne os tamanhos (1:1, 9:16, 1.91:1) ou os cards de um carrossel.','Each creative is a final Air board (e.g. CREATIVE 01). It holds the sizes (1:1, 9:16, 1.91:1) or the cards of a carousel.'],
@@ -497,6 +498,59 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cal-fl div{font-size:14px;line-height:1.45;white-space:pre-wrap}
 .cal-fl textarea{font:inherit;font-size:14px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical;min-height:40px}
 @media (max-width:860px){.cal-grid{grid-template-columns:1fr}.cal-wd,.cal-cell.out{display:none}.cal-cell{min-height:auto}}
+/* ===== Entrega semanal (Asana) ===== */
+:root{--late:#B3261E;--late-soft:#FBE9E7;--today:#C25A00;--today-soft:#FDEEDC;--tom:#8A6A00;--tom-soft:#FBF3D5;--appr:#5B4BA8;--appr-soft:#EEEBFA;--hold:#6B6670;--hold-soft:#EFEDEF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--late:#F2867C;--late-soft:#3B1F1D;--today:#F0A35E;--today-soft:#3A2817;--tom:#E2C35C;--tom-soft:#332B12;--appr:#B2A6F0;--appr-soft:#29243F;--hold:#A9A3AB;--hold-soft:#2A272C}}
+:root[data-theme="dark"]{--late:#F2867C;--late-soft:#3B1F1D;--today:#F0A35E;--today-soft:#3A2817;--tom:#E2C35C;--tom-soft:#332B12;--appr:#B2A6F0;--appr-soft:#29243F;--hold:#A9A3AB;--hold-soft:#2A272C}
+.ws-stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px}
+.ws-stat{all:unset;box-sizing:border-box;cursor:pointer;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:2px;border-top:4px solid var(--c,var(--ink))}
+.ws-stat b{font-family:var(--display);font-size:34px;line-height:1.05;font-weight:600;color:var(--c,var(--ink));font-variant-numeric:tabular-nums}
+.ws-stat span{font-size:13px;color:var(--muted)}
+.ws-stat[aria-pressed="true"]{background:var(--c-soft,var(--soft));border-color:var(--c,var(--ink))}
+.ws-stat:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ws-tb{gap:8px;position:static!important}
+.ws-people{display:flex;flex-wrap:wrap;gap:6px}
+.ws-f{font-size:13.5px;border:1px solid var(--line);background:var(--surface);padding:5px 12px;border-radius:999px;cursor:pointer}
+.ws-f[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.ws-tb .sep{display:none}
+.ws-people .ws-f small{opacity:.65;margin-left:4px;font-family:var(--mono);font-size:11.5px}
+.ws-q{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 12px;border-radius:999px;min-width:180px;flex:1;max-width:260px}
+#ws-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,360px),1fr));gap:16px;align-items:start}
+#ws-board>.ld,#ws-board>.empty{grid-column:1/-1}
+.ws-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.ws-ch{display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ws-av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:600;font-size:14px;background:var(--accent-soft);color:var(--accent);flex:none}
+.ws-card.none .ws-av{background:var(--soft);color:var(--muted)}
+.ws-nm{display:grid;gap:3px;min-width:0;flex:1}
+.ws-nm b{font-size:16px}
+.ws-badges{display:flex;flex-wrap:wrap;gap:5px}
+.ws-b{font-family:var(--mono);font-size:11px;padding:1px 7px;border-radius:999px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.ws-b.late{background:var(--late-soft);color:var(--late)}.ws-b.today{background:var(--today-soft);color:var(--today)}.ws-b.tom{background:var(--tom-soft);color:var(--tom)}.ws-b.appr{background:var(--appr-soft);color:var(--appr)}
+.ws-list{list-style:none;margin:0;padding:0}
+.ws-t{display:grid;gap:4px;padding:10px 16px 10px 13px;border-left:3px solid transparent;border-bottom:1px solid var(--line)}
+.ws-list .ws-t:last-child{border-bottom:0}
+.ws-t.late{border-left-color:var(--late)}.ws-t.today{border-left-color:var(--today)}.ws-t.tom{border-left-color:var(--tom)}
+.ws-t a{text-decoration:none;font-size:14.5px;line-height:1.35;overflow-wrap:anywhere}
+.ws-t a:hover{text-decoration:underline}
+.ws-meta{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.ws-flag{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--soft);color:var(--muted);white-space:nowrap}
+.ws-flag.late{background:var(--late);color:#fff}.ws-flag.today{background:var(--today);color:#fff}.ws-flag.tom{background:var(--tom-soft);color:var(--tom);outline:1px solid var(--tom)}
+.ws-flag.appr{background:var(--appr-soft);color:var(--appr)}.ws-flag.hold{background:var(--hold-soft);color:var(--hold)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .ws-flag.late,:root:not([data-theme="light"]) .ws-flag.today{color:#1D1A1E}}
+:root[data-theme="dark"] .ws-flag.late,:root[data-theme="dark"] .ws-flag.today{color:#1D1A1E}
+.ws-dot{opacity:.5}
+.ws-old{border-top:1px solid var(--line)}
+.ws-old summary{cursor:pointer;padding:9px 16px;font-size:12.5px;color:var(--muted);list-style:none}
+.ws-old summary::-webkit-details-marker{display:none}
+.ws-old summary::before{content:"▸ ";}
+.ws-old[open] summary::before{content:"▾ ";}
+.ws-old .ws-t{opacity:.8}
+.ws-more{all:unset;cursor:pointer;display:block;padding:9px 16px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
+.ws-link{all:unset;cursor:pointer;text-decoration:underline;color:var(--ink)}
+.ws-err{grid-column:1/-1;border-left:3px solid var(--late);background:var(--surface);padding:14px 18px;border-radius:0 8px 8px 0;font-size:14px}
+#ws-n-ul .ws-flag{margin-right:4px}
+@media (max-width:900px){.ws-stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.ws-stats{grid-template-columns:repeat(2,minmax(0,1fr))}.ws-q{max-width:none}}
 </style>
 </head>
 <body>
@@ -507,6 +561,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <nav class="navsec" aria-label="Painéis">
       <span class="lbl">Painéis</span>
       <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta US</a>
+      <a class="nav" href="#entrega-semanal" data-v="entrega-semanal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="7" rx="1.5"/></svg>Entrega semanal</a>
       <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
@@ -558,6 +613,28 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   </div>
 
   <footer>Fontes: Air, pastas mensais, e planilha Creative Request_Larroude, aba US Request – Meta. Atualizado em <span id="e-upd">…</span>.</footer>
+</div>
+    </section>
+    <section class="view notr" id="v-entrega-semanal" aria-label="Entrega semanal" hidden>
+<div class="wrap">
+  <header>
+    <div class="lbl" id="ws-kicker">Larroudé · Asana · Content Team</div>
+    <h1 id="ws-h1">Entrega <em>semanal</em></h1>
+    <p class="sub" id="ws-sub">Quem está com cada tarefa do board <a href="https://app.asana.com/1/1199941711767564/project/1203331193070474/board/1205116624457039" target="_blank" rel="noopener">[MKT] Content Team / Marketing</a>, com os avisos do que está atrasado e do que precisa sair logo. Atualiza sozinho a cada minuto.</p>
+  </header>
+  <div class="ws-stats" id="ws-stats" role="group" aria-label="Resumo"></div>
+  <div class="toolbar ws-tb" role="group" aria-label="Filtros">
+    <span class="lbl" id="ws-l-who">Pessoa</span>
+    <div class="ws-people" id="ws-people"></div>
+    <span class="sep"></span>
+    <input class="ws-q" id="ws-q" type="search" placeholder="Buscar tarefa" aria-label="Buscar tarefa">
+  </div>
+  <div id="ws-board"><div class="ld"><i></i><span>Carregando o Asana…</span></div></div>
+  <div class="note" id="ws-note">
+    <b id="ws-n-t">Como ler os avisos</b>
+    <ul id="ws-n-ul"></ul>
+  </div>
+  <footer><span id="ws-src">Fonte: Asana, board [MKT] Content Team / Marketing. Atualizado às</span> <span id="ws-upd">…</span> · <button class="ws-link" id="ws-refresh" type="button">Atualizar agora</button></footer>
 </div>
     </section>
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
@@ -1051,12 +1128,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta US','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
+  const views={'entregas':'Entregas Meta US','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':'Air + planilha US Request – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':'Air + planilha US Request – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
@@ -1190,6 +1267,143 @@ window.__S=function(IG,FOL){(function(){
   // carrega quando a aba é aberta
   function maybeLoad(){if(location.hash==='#calendario'&&!st.loaded){st.loaded=true;loadMonths().catch(()=>{$('cal-body').innerHTML='<p class="empty">'+(EN?'Could not load the calendar.':'Não consegui carregar o calendário.')+'</p>';st.loaded=false})}}
   window.addEventListener('hashchange',maybeLoad);maybeLoad();
+})();
+</script>
+<script>
+// Entrega semanal — tarefas abertas do Asana, por pessoa, com avisos de prazo.
+(function(){
+  const EN=window.LANG==='en', $=id=>document.getElementById(id);
+  const T=(pt,en)=>EN?en:pt;
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const OLD=45; // atrasadas há mais que isso ficam recolhidas
+  const ORDER={late:0,today:1,tom:2,week:3,later:4,nodate:5};
+  let D=null, st={f:'all',who:'all',q:'',open:{}}, timer=null, loading=false;
+  try{const s=JSON.parse(localStorage.getItem('ws-f')||'{}');if(s.f)st.f=s.f;if(s.who)st.who=s.who}catch(e){}
+  const save=()=>{try{localStorage.setItem('ws-f',JSON.stringify({f:st.f,who:st.who}))}catch(e){}};
+
+  // textos fixos em inglês
+  if(EN){
+    $('ws-h1').innerHTML='Weekly <em>delivery</em>';
+    $('ws-sub').innerHTML='Who owns each task on the <a href="https://app.asana.com/1/1199941711767564/project/1203331193070474/board/1205116624457039" target="_blank" rel="noopener">[MKT] Content Team / Marketing</a> board, with alerts for what is late and what has to ship soon. Refreshes every minute.';
+    $('ws-l-who').textContent='Person';$('ws-q').placeholder='Search task';$('ws-q').setAttribute('aria-label','Search task');
+    $('ws-n-t').textContent='How to read the alerts';$('ws-src').textContent='Source: Asana, [MKT] Content Team / Marketing board. Updated at';$('ws-refresh').textContent='Refresh now';
+  }
+  $('ws-n-ul').innerHTML=[
+    T('<span class="ws-flag late">Atrasada</span> o prazo do Asana já passou e a tarefa não foi concluída.','<span class="ws-flag late">Late</span> the Asana due date has passed and the task is not complete.'),
+    T('<span class="ws-flag today">Entregar hoje</span> vence hoje. <span class="ws-flag tom">Entregar amanhã</span> vence amanhã: precisa entregar logo.','<span class="ws-flag today">Due today</span> due today. <span class="ws-flag tom">Due tomorrow</span> due tomorrow: has to ship soon.'),
+    T('<span class="ws-flag appr">Em aprovação</span> está no status ou na coluna de aprovação. <span class="ws-flag hold">Parada</span> está aguardando informação ou em stand by.','<span class="ws-flag appr">In approval</span> by status or approval column. <span class="ws-flag hold">On hold</span> waiting for information or on stand by.'),
+    T('O responsável é quem está atribuído na tarefa. Se ninguém está atribuído, uso a lista da pessoa (por exemplo MARI TO DO LIST) e marco com "pela lista".','The owner is the task assignee. If nobody is assigned, the person’s list is used (e.g. MARI TO DO LIST), marked "by list".'),
+    T('Tarefas atrasadas há mais de '+OLD+' dias ficam recolhidas no fim de cada pessoa. Tarefas na coluna DONE ou com status Entregue/Aprovado não aparecem.','Tasks late by more than '+OLD+' days are collapsed at the end of each person. Tasks in the DONE column or with status Delivered/Approved are hidden.'),
+    T('Hoje é contado pelo relógio do seu computador.','"Today" follows your computer’s clock.')
+  ].map(s=>'<li>'+s+'</li>').join('');
+
+  const dayN=s=>{const [y,m,d]=s.split('-').map(Number);return Math.round(Date.UTC(y,m-1,d)/864e5)};
+  const todayN=()=>{const n=new Date();return Math.round(Date.UTC(n.getFullYear(),n.getMonth(),n.getDate())/864e5)};
+  const WD=EN?['Sun','Mon','Tue','Wed','Thu','Fri','Sat']:['dom','seg','ter','qua','qui','sex','sáb'];
+  const fmt=s=>{const [y,m,d]=s.split('-').map(Number);const w=WD[new Date(Date.UTC(y,m-1,d)).getUTCDay()];
+    return EN?w+' '+new Date(Date.UTC(y,m-1,d)).toLocaleDateString('en-US',{month:'short',day:'numeric',timeZone:'UTC'})+(y!==new Date().getFullYear()?', '+y:''):w+' '+String(d).padStart(2,'0')+'/'+String(m).padStart(2,'0')+(y!==new Date().getFullYear()?'/'+String(y).slice(2):'')};
+
+  function classify(t,tn){
+    const appr=/aprova|approv/i.test(t.st)||/approv|aprova/i.test(t.sec);
+    const hold=/aguardando|stand ?by|on hold/i.test(t.st);
+    if(!t.due)return {k:'nodate',diff:null,appr,hold,old:false};
+    const diff=dayN(t.due)-tn;
+    const k=diff<0?'late':diff===0?'today':diff===1?'tom':diff<=6?'week':'later';
+    return {k,diff,appr,hold,old:diff< -OLD};
+  }
+  function flag(c){
+    if(c.k==='late'){const n=-c.diff;return '<span class="ws-flag late">'+T('Atrasada · ','Late · ')+n+(EN?(n===1?' day':' days'):(n===1?' dia':' dias'))+'</span>'}
+    if(c.k==='today')return '<span class="ws-flag today">'+T('Entregar hoje','Due today')+'</span>';
+    if(c.k==='tom')return '<span class="ws-flag tom">'+T('Entregar amanhã','Due tomorrow')+'</span>';
+    return '';
+  }
+  function row(t){
+    const c=t._c, bits=[];
+    if(t.due)bits.push((c.k==='late'?T('venceu ','was due '):T('vence ','due '))+fmt(t.due));else bits.push(T('sem prazo','no due date'));
+    if(t.st&&!c.appr&&!c.hold)bits.push(esc(t.st));
+    if(t.sec&&!/TO DO LIST|approval|aprova/i.test(t.sec))bits.push(esc(t.sec));
+    if(t.ctry)bits.push(esc(t.ctry));
+    if(t.pri&&/urgent|high|alta/i.test(t.pri))bits.push('<b style="color:var(--late)">'+esc(t.pri)+'</b>');
+    if(t.by==='l')bits.push(T('pela lista','by list'));
+    return '<li class="ws-t '+c.k+'"><a href="'+esc(t.url)+'" target="_blank" rel="noopener">'+esc(t.n)+'</a><div class="ws-meta">'+flag(c)+
+      (c.appr?'<span class="ws-flag appr">'+T('Em aprovação','In approval')+'</span>':'')+(c.hold?'<span class="ws-flag hold">'+T('Parada','On hold')+'</span>':'')+
+      bits.join('<span class="ws-dot">·</span>')+'</div></li>';
+  }
+  const match=(t)=>{const c=t._c;
+    if(st.f==='late'&&c.k!=='late')return false;
+    if(st.f==='today'&&c.k!=='today')return false;
+    if(st.f==='tom'&&c.k!=='tom')return false;
+    if(st.f==='appr'&&!c.appr)return false;
+    if(st.f==='nodate'&&c.k!=='nodate')return false;
+    if(st.q){const q=st.q.toLowerCase();if(!(t.n+' '+t.sec+' '+t.st+' '+(t.who||'')).toLowerCase().includes(q))return false}
+    return true};
+  const NONE='__none';
+  const whoOf=t=>t.who||NONE;
+  const nameOf=w=>w===NONE?T('Sem responsável','Unassigned'):w;
+  const ini=w=>w===NONE?'?':w.split(/\s+/).map(p=>p[0]).join('').slice(0,2).toUpperCase();
+
+  function render(){
+    if(!D)return;
+    const tn=todayN(), tasks=D.tasks;
+    tasks.forEach(t=>t._c=classify(t,tn));
+    // resumo
+    const cnt=k=>tasks.filter(t=>k==='appr'?t._c.appr:k==='all'?true:t._c.k===k).length;
+    const S=[['all',T('Abertas','Open'),'var(--ink)','var(--soft)'],['late',T('Atrasadas','Late'),'var(--late)','var(--late-soft)'],['today',T('Entregar hoje','Due today'),'var(--today)','var(--today-soft)'],
+      ['tom',T('Entregar amanhã','Due tomorrow'),'var(--tom)','var(--tom-soft)'],['appr',T('Em aprovação','In approval'),'var(--appr)','var(--appr-soft)'],['nodate',T('Sem prazo','No due date'),'var(--muted)','var(--soft)']];
+    $('ws-stats').innerHTML=S.map(([k,l,c,cs])=>'<button class="ws-stat" data-f="'+k+'" aria-pressed="'+(st.f===k)+'" style="--c:'+c+';--c-soft:'+cs+'"><b>'+cnt(k)+'</b><span>'+l+'</span></button>').join('');
+    // pessoas
+    const byWho={};tasks.forEach(t=>(byWho[whoOf(t)]=byWho[whoOf(t)]||[]).push(t));
+    const score=list=>list.reduce((s,t)=>s+(t._c.k==='late'&&!t._c.old?100:t._c.k==='today'?60:t._c.k==='tom'?30:t._c.k==='week'?3:0),0)+list.length*0.01;
+    const people=Object.keys(byWho).sort((a,b)=>(a===NONE)-(b===NONE)||score(byWho[b])-score(byWho[a])||a.localeCompare(b));
+    if(st.who!=='all'&&!byWho[st.who])st.who='all';
+    $('ws-people').innerHTML='<button class="ws-f" data-who="all" aria-pressed="'+(st.who==='all')+'">'+T('Todos','Everyone')+'<small>'+tasks.length+'</small></button>'+
+      people.map(w=>'<button class="ws-f" data-who="'+esc(w)+'" aria-pressed="'+(st.who===w)+'">'+esc(nameOf(w))+'<small>'+byWho[w].length+'</small></button>').join('');
+    // cards
+    const cards=[];
+    for(const w of people){
+      if(st.who!=='all'&&st.who!==w)continue;
+      const list=byWho[w].filter(match).sort((a,b)=>ORDER[a._c.k]-ORDER[b._c.k]||(a.due||'9').localeCompare(b.due||'9')||a.n.localeCompare(b.n));
+      if(!list.length)continue;
+      const cur=list.filter(t=>!t._c.old), old=list.filter(t=>t._c.old);
+      const n=k=>list.filter(t=>k==='appr'?t._c.appr:t._c.k===k).length;
+      const badges=[['late',T('atrasada','late'),T('atrasadas','late')],['today',T('hoje','today'),T('hoje','today')],['tom',T('amanhã','tomorrow'),T('amanhã','tomorrow')],['appr',T('em aprovação','in approval'),T('em aprovação','in approval')]]
+        .map(([k,s,p])=>{const v=n(k);return v?'<span class="ws-b '+k+'">'+v+' '+(v===1?s:p)+'</span>':''}).join('');
+      const LIM=10, opened=st.open[w]||st.who===w;
+      const shown=opened?cur:cur.slice(0,LIM);
+      cards.push('<article class="ws-card'+(w===NONE?' none':'')+'"><div class="ws-ch"><div class="ws-av" aria-hidden="true">'+esc(ini(w))+'</div><div class="ws-nm"><b>'+esc(nameOf(w))+'</b><div class="ws-badges"><span class="ws-b">'+list.length+' '+T(list.length===1?'tarefa':'tarefas',list.length===1?'task':'tasks')+'</span>'+badges+'</div></div></div>'+
+        (shown.length?'<ul class="ws-list">'+shown.map(row).join('')+'</ul>':'')+
+        (cur.length>shown.length?'<button class="ws-more" data-open="'+esc(w)+'">'+T('Ver mais ','Show ')+(cur.length-shown.length)+T('',' more')+'</button>':'')+
+        (old.length?'<details class="ws-old"><summary>'+old.length+' '+T(old.length===1?'atrasada há mais de '+OLD+' dias':'atrasadas há mais de '+OLD+' dias',old.length===1?'task late by more than '+OLD+' days':'tasks late by more than '+OLD+' days')+'</summary><ul class="ws-list">'+old.map(row).join('')+'</ul></details>':'')+
+        '</article>');
+    }
+    $('ws-board').innerHTML=cards.length?cards.join(''):'<p class="empty">'+T('Nenhuma tarefa com esses filtros.','No tasks match these filters.')+'</p>';
+    const u=new Date(D.updated);
+    $('ws-upd').textContent=u.toLocaleTimeString(window.LOC||'pt-BR',{hour:'2-digit',minute:'2-digit'})+(D.stale?T(' (Asana fora do ar, mostrando a última versão)',' (Asana unavailable, showing the last version)'):'');
+  }
+
+  async function load(fresh){
+    if(loading)return;loading=true;
+    try{
+      const r=await fetch('/api/asana'+(fresh?'?fresh=1':''),{cache:'no-store'});
+      const j=await r.json().catch(()=>({}));
+      if(!r.ok||!j.tasks)throw new Error(j.error||('HTTP '+r.status));
+      D=j;render();
+    }catch(e){
+      if(!D)$('ws-board').innerHTML='<div class="ws-err">'+T('Não consegui ler o Asana agora. ','Could not read Asana right now. ')+'<span class="muted">'+esc(e.message)+'</span></div>';
+    }finally{loading=false}
+  }
+  const on=()=>location.hash==='#entrega-semanal';
+  function tick(){if(on()&&!document.hidden)load(false)}
+  function start(){if(!on())return;load(false);if(!timer)timer=setInterval(tick,60e3)}
+  window.addEventListener('hashchange',start);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden&&on())load(false)});
+  $('ws-stats').addEventListener('click',e=>{const b=e.target.closest('[data-f]');if(!b)return;st.f=st.f===b.dataset.f?'all':b.dataset.f;save();render()});
+  $('ws-people').addEventListener('click',e=>{const b=e.target.closest('[data-who]');if(!b)return;st.who=b.dataset.who;save();render()});
+  $('ws-board').addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;st.open[b.dataset.open]=true;render()});
+  $('ws-q').addEventListener('input',e=>{st.q=e.target.value.trim();render()});
+  $('ws-refresh').addEventListener('click',()=>load(true));
+  setInterval(()=>{if(D&&on())render()},10*60e3); // vira o dia sem recarregar
+  start();
 })();
 </script>
 </body>
