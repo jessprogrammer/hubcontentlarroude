@@ -19,6 +19,7 @@
   const WPT={seg:'Mon',ter:'Tue',qua:'Wed',qui:'Thu',sex:'Fri','sáb':'Sat',dom:'Sun',Seg:'Mon',Ter:'Tue',Qua:'Wed',Qui:'Thu',Sex:'Fri','Sáb':'Sat',Dom:'Sun'};
   // frases (as mais longas primeiro)
   const P=[
+    ['Banco de copy · US','Copy bank · US'],
     ['Entrega semanal','Weekly delivery'],
     ['Tudo o que está nas pastas mensais do Air (','Everything in the monthly Air folders ('],
     ['), organizado pela data de cada board de entrega. Escolha o mês e depois a semana. A categoria e o tipo (Branding ou Conversion) vêm da planilha US Request – Meta quando o board está linkado lá.','), organized by the date of each delivery board. Pick a month, then a week. Category and type (Branding or Conversion) come from the US Request – Meta sheet when the board is linked there.'],
@@ -559,6 +560,67 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .mkb[aria-selected="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
 .mkb[aria-selected="true"] small{color:inherit;opacity:.7}
 .mkb:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* ===== Banco de copy ===== */
+.cp-top{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.cp-search{flex:1;min-width:220px}
+.cp-search input,.cp-fl input,.cp-fl textarea,.cp-lock input{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+.cp-search input{border-radius:999px;padding:9px 16px}
+.cp-fl textarea{resize:vertical;line-height:1.45}
+.cp-actions{display:flex;gap:8px}
+.cp-b{font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line);background:var(--surface);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.cp-b:hover{border-color:var(--ink)}
+.cp-b[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cp-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.cp-primary:hover{border-color:var(--accent);filter:brightness(1.05)}
+.cp-danger{color:var(--late,#B3261E);margin-right:auto}
+.cp-b:disabled{opacity:.5;cursor:default}
+.cp-lock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.cp-lock[hidden]{display:none}
+.cp-lock label{font-size:14px}
+.cp-lock input{width:auto;min-width:160px;flex:0 1 220px}
+.cp-err{color:var(--late,#B3261E);font-size:13px}
+.cp-filters{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cp-filters .lbl{margin-right:4px}
+.cp-filters .sep{width:1px;height:22px;background:var(--line);margin:0 6px}
+.cp-filters small{opacity:.65;margin-left:4px;font-family:var(--mono);font-size:11.5px}
+.cp-pfilter{display:inline-flex;align-items:center;gap:8px;background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:3px 6px 3px 3px;font-size:13px}
+.cp-pfilter img{width:26px;height:26px;border-radius:50%;object-fit:cover;background:var(--soft)}
+.cp-pfilter button{all:unset;cursor:pointer;padding:0 6px;color:var(--muted)}
+.cp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;align-items:start}
+.cp-list>.ld,.cp-list>.empty{grid-column:1/-1}
+.cp-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.cp-ch{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.cp-type{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--ink);color:var(--bg)}
+.cp-tag{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.cp-text{font-size:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.cp-notes{font-size:13px;color:var(--muted);margin:0;white-space:pre-wrap}
+.cp-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cp-prod{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;font-size:12.5px;max-width:100%;background:var(--bg)}
+.cp-prod:hover{border-color:var(--ink)}
+.cp-prod img,.cp-prod i{width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--soft);flex:none}
+.cp-prod span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-prod .x{color:var(--muted);margin-left:2px}
+.cp-cf{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px;font-size:12px;color:var(--muted)}
+.cp-cf .cp-b{font-size:12.5px;padding:4px 12px}
+.cp-cf .cp-ok{background:var(--ok-soft,#E3F2E8);border-color:transparent}
+.cp-dlg{border:1px solid var(--line);border-radius:14px;padding:0;width:min(680px,94vw);background:var(--surface);color:var(--ink)}
+.cp-dlg::backdrop{background:rgba(14,12,15,.45)}
+.cp-dlg-in{display:grid}
+.cp-dlg-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:22px}
+.cp-dlg-body{padding:14px 18px;display:grid;gap:14px;max-height:68vh;overflow:auto}
+.cp-fl{display:grid;gap:6px}
+.cp-count{font-family:var(--mono);text-transform:none;letter-spacing:0;margin-left:6px}
+.cp-res{display:grid;gap:4px;max-height:260px;overflow:auto}
+.cp-res:empty{display:none}
+.cp-ri{all:unset;box-sizing:border-box;cursor:pointer;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:6px 8px;border-radius:8px;border:1px solid transparent}
+.cp-ri:hover,.cp-ri:focus-visible{background:var(--soft);border-color:var(--line)}
+.cp-ri img,.cp-ri i{width:40px;height:40px;border-radius:6px;object-fit:cover;background:var(--soft)}
+.cp-ri b{font-weight:500;font-size:14px;display:block}
+.cp-ri small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.cp-ri em{font-style:normal;font-size:12px;color:var(--muted)}
+.cp-msg{font-size:13px;color:var(--muted);padding:4px 2px}
+.cp-dlg-f{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+@media (max-width:560px){.cp-actions{width:100%}.cp-actions .cp-b{flex:1}}
 </style>
 </head>
 <body>
@@ -573,6 +635,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
+      <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -644,6 +707,56 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <ul id="ws-n-ul"></ul>
   </div>
   <footer><span id="ws-src">Fonte: Asana, board [MKT] Content Team / Marketing. Atualizado às</span> <span id="ws-upd">…</span> · <button class="ws-link" id="ws-refresh" type="button">Atualizar agora</button></footer>
+</div>
+    </section>
+    <section class="view notr" id="v-copy" aria-label="Copy" hidden>
+<div class="wrap">
+  <header>
+    <div class="lbl" id="cp-kicker">Larroudé · Banco de copy · US</div>
+    <h1 id="cp-h1">Banco de <em>copy</em></h1>
+    <p class="sub" id="cp-sub">Frases prontas para reaproveitar em anúncios, vídeos e posts. Busque pelo texto, pelo tipo ou pelo produto (nome ou SKU) e clique em Copiar. Para adicionar ou mudar, entre no modo de edição.</p>
+  </header>
+  <div class="cp-top">
+    <div class="cp-search">
+      <input id="cp-q" type="search" placeholder="Buscar copy, produto ou SKU" aria-label="Buscar copy, produto ou SKU">
+    </div>
+    <div class="cp-actions">
+      <button class="cp-b" id="cp-new" type="button" hidden>+ Nova copy</button>
+      <button class="cp-b" id="cp-edit" type="button">Editar 🔒</button>
+    </div>
+  </div>
+  <form class="cp-lock" id="cp-lock" hidden>
+    <label for="cp-pass" id="cp-pass-l">Senha para editar</label>
+    <input id="cp-pass" type="password" autocomplete="current-password">
+    <button class="cp-b cp-primary" type="submit" id="cp-pass-ok">Entrar</button>
+    <span class="cp-err" id="cp-pass-err"></span>
+  </form>
+  <div class="cp-filters" id="cp-filters" role="group" aria-label="Filtros"></div>
+  <div id="cp-list" class="cp-list"><div class="ld"><i></i><span>Carregando…</span></div></div>
+  <footer><span id="cp-foot">Banco de copy salvo no site. Produtos vêm do catálogo da loja US (larroude.com). Atualizado em</span> <span id="cp-upd">…</span></footer>
+
+  <dialog class="cp-dlg" id="cp-dlg">
+    <form class="cp-dlg-in" id="cp-form">
+      <div class="cp-dlg-h"><b id="cp-dlg-t">Nova copy</b><button class="cp-b" type="button" id="cp-x" aria-label="Fechar">✕</button></div>
+      <div class="cp-dlg-body">
+        <label class="cp-fl"><span class="lbl" id="cp-l-type">Tipo</span><input id="cp-type" list="cp-types" placeholder="Ex.: Headline, Texto principal, Roteiro de vídeo"><datalist id="cp-types"></datalist></label>
+        <label class="cp-fl"><span class="lbl"><span id="cp-l-text">Copy</span> <span class="cp-count" id="cp-count">0</span></span><textarea id="cp-text" rows="5" required></textarea></label>
+        <label class="cp-fl"><span class="lbl" id="cp-l-tags">Ângulos / tags (separe por vírgula)</span><input id="cp-tags" placeholder="Ex.: conforto, styling, oferta"></label>
+        <div class="cp-fl"><span class="lbl" id="cp-l-prod">Produtos ligados</span>
+          <div class="cp-chips" id="cp-sel"></div>
+          <input id="cp-pq" type="search" placeholder="Buscar produto por nome ou SKU" aria-label="Buscar produto por nome ou SKU" autocomplete="off">
+          <div class="cp-res" id="cp-res"></div>
+        </div>
+        <label class="cp-fl"><span class="lbl" id="cp-l-notes">Notas</span><textarea id="cp-notes" rows="2"></textarea></label>
+      </div>
+      <div class="cp-dlg-f">
+        <button class="cp-b cp-danger" type="button" id="cp-del" hidden>Excluir</button>
+        <span class="cp-err" id="cp-save-err"></span>
+        <button class="cp-b" type="button" id="cp-cancel">Cancelar</button>
+        <button class="cp-b cp-primary" type="submit" id="cp-save">Salvar</button>
+      </div>
+    </form>
+  </dialog>
 </div>
     </section>
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
@@ -1152,12 +1265,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':'Air + planilhas de pedidos – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
@@ -1428,6 +1541,135 @@ window.__S=function(IG,FOL){(function(){
   $('ws-refresh').addEventListener('click',()=>load(true));
   setInterval(()=>{if(D&&on())render()},10*60e3); // vira o dia sem recarregar
   start();
+})();
+</script>
+<script>
+// Banco de copy — frases reutilizáveis, ligadas a produtos da loja.
+(function(){
+  const EN=window.LANG==='en', $=id=>document.getElementById(id), T=(pt,en)=>EN?en:pt;
+  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+  const MK='US';
+  const st={items:[],updated:null,loaded:false,pass:null,edit:false,type:'all',prod:null,q:'',cur:null,sel:[]};
+  try{st.pass=sessionStorage.getItem('cal-k')||null}catch(e){}
+  try{const t=localStorage.getItem('cp-type');if(t)st.type=t}catch(e){}
+
+  if(EN){
+    $('cp-kicker').textContent='Larroudé · Copy bank · US';$('cp-h1').innerHTML='Copy <em>bank</em>';
+    $('cp-sub').textContent='Ready-made lines to reuse in ads, videos and posts. Search by text, type or product (name or SKU) and click Copy. To add or change copy, switch to edit mode.';
+    $('cp-q').placeholder='Search copy, product or SKU';$('cp-new').textContent='+ New copy';$('cp-edit').textContent='Edit 🔒';
+    $('cp-pass-l').textContent='Password to edit';$('cp-pass-ok').textContent='Enter';$('cp-foot').textContent='Copy bank saved on the site. Products come from the US store catalog (larroude.com). Updated';
+    $('cp-l-type').textContent='Type';$('cp-type').placeholder='E.g. Headline, Primary text, Video script';$('cp-l-text').textContent='Copy';
+    $('cp-l-tags').textContent='Angles / tags (comma separated)';$('cp-tags').placeholder='E.g. comfort, styling, offer';$('cp-l-prod').textContent='Linked products';
+    $('cp-pq').placeholder='Search product by name or SKU';$('cp-l-notes').textContent='Notes';$('cp-del').textContent='Delete';$('cp-cancel').textContent='Cancel';$('cp-save').textContent='Save';
+  }
+
+  async function api(method,body,qs){
+    const r=await fetch('/api/copy'+(qs||''),method==='GET'?{cache:'no-store'}:{method,headers:{'content-type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){const e=new Error(j.error||('HTTP '+r.status));e.status=r.status;throw e}
+    return j;
+  }
+  const prodChip=(p,extra)=>`<button type="button" class="cp-prod" data-pid="${esc(p.id)}" title="${esc(p.t+(p.sku&&p.sku[0]?' · '+p.sku[0]:''))}">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:'<i></i>'}<span>${esc(p.t)}</span>${extra||''}</button>`;
+
+  function matches(x){
+    if(st.type!=='all'&&(x.type||'')!==st.type)return false;
+    if(st.prod&&!(x.products||[]).some(p=>p.id===st.prod.id))return false;
+    if(st.q){const h=norm([x.text,x.type,(x.tags||[]).join(' '),x.notes,(x.products||[]).map(p=>p.t+' '+p.h+' '+(p.sku||[]).join(' ')).join(' ')].join(' '));
+      if(!norm(st.q).split(/\s+/).filter(Boolean).every(w=>h.includes(w)))return false}
+    return true;
+  }
+  function render(){
+    // filtros por tipo
+    const types={};st.items.forEach(x=>{const k=x.type||'';types[k]=(types[k]||0)+1});
+    const keys=Object.keys(types).sort((a,b)=>(a==='')-(b==='')||a.localeCompare(b));
+    if(st.type!=='all'&&!(st.type in types))st.type='all';
+    $('cp-filters').innerHTML=`<span class="lbl">${T('Tipo','Type')}</span><button class="cp-b" data-type="all" aria-pressed="${st.type==='all'}">${T('Todos','All')}<small>${st.items.length}</small></button>`+
+      keys.map(k=>`<button class="cp-b" data-type="${esc(k)}" aria-pressed="${st.type===k}">${esc(k||T('Sem tipo','No type'))}<small>${types[k]}</small></button>`).join('')+
+      (st.prod?`<span class="sep"></span><span class="cp-pfilter">${st.prod.img?`<img src="${esc(st.prod.img)}" alt="">`:''}${esc(st.prod.t)}<button type="button" id="cp-pclear" aria-label="${T('Tirar filtro de produto','Clear product filter')}">✕</button></span>`:'');
+    $('cp-types').innerHTML=keys.filter(Boolean).map(k=>`<option value="${esc(k)}">`).join('');
+    const L=st.items.filter(matches);
+    if(!st.items.length){$('cp-list').innerHTML=`<p class="empty">${st.edit?T('Nenhuma copy ainda. Clique em "+ Nova copy" para começar.','No copy yet. Click "+ New copy" to start.'):T('Nenhuma copy ainda. Entre no modo de edição para adicionar a primeira.','No copy yet. Switch to edit mode to add the first one.')}</p>`}
+    else if(!L.length){$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`}
+    else $('cp-list').innerHTML=L.map(x=>`<article class="cp-card" data-id="${esc(x.id)}">
+      <div class="cp-ch">${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}</div>
+      <p class="cp-text">${esc(x.text)}</p>
+      ${x.notes?`<p class="cp-notes">${esc(x.notes)}</p>`:''}
+      ${(x.products||[]).length?`<div class="cp-chips">${x.products.map(p=>prodChip(p)).join('')}</div>`:''}
+      <div class="cp-cf"><span class="mono">${[...x.text].length} ${T('caracteres','characters')}</span><span style="display:flex;gap:6px">${st.edit?`<button class="cp-b" data-act="edit">${T('Editar','Edit')}</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span></div>
+    </article>`).join('');
+    $('cp-upd').textContent=st.updated?new Date(st.updated).toLocaleString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
+    $('cp-new').hidden=!st.edit;
+    $('cp-edit').textContent=st.edit?T('Editando ✓','Editing ✓'):T('Editar 🔒','Edit 🔒');
+    $('cp-edit').setAttribute('aria-pressed',String(st.edit));
+  }
+  async function load(){
+    try{const j=await api('GET',null,'?mk='+MK);st.items=j.items||[];st.updated=j.updated;st.loaded=true;render()}
+    catch(e){st.loaded=false;$('cp-list').innerHTML=`<p class="empty">${T('Não consegui carregar o banco de copy. Recarregue a página.','Could not load the copy bank. Reload the page.')}</p>`}
+  }
+
+  // filtros, busca, copiar
+  $('cp-filters').addEventListener('click',e=>{const b=e.target.closest('[data-type]');if(b){st.type=b.dataset.type;try{localStorage.setItem('cp-type',st.type)}catch(_){}render();return}
+    if(e.target.closest('#cp-pclear')){st.prod=null;render()}});
+  let qt;$('cp-q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim();render()},120)});
+  $('cp-list').addEventListener('click',async e=>{
+    const card=e.target.closest('.cp-card');if(!card)return;const x=st.items.find(i=>i.id===card.dataset.id);if(!x)return;
+    const pb=e.target.closest('.cp-prod');if(pb){st.prod=(x.products||[]).find(p=>p.id===pb.dataset.pid)||null;render();window.scrollTo({top:$('cp-filters').getBoundingClientRect().top+scrollY-80,behavior:'smooth'});return}
+    const b=e.target.closest('[data-act]');if(!b)return;
+    if(b.dataset.act==='copy'){
+      try{await navigator.clipboard.writeText(x.text)}catch(_){const t=document.createElement('textarea');t.value=x.text;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(__){}t.remove()}
+      b.textContent=T('Copiado ✓','Copied ✓');b.classList.add('cp-ok');setTimeout(()=>{b.textContent=T('Copiar','Copy');b.classList.remove('cp-ok')},1500);
+    } else if(b.dataset.act==='edit')openDlg(x);
+  });
+
+  // senha
+  $('cp-edit').onclick=async()=>{
+    if(st.edit){st.edit=false;render();return}
+    if(st.pass){try{await api('POST',{password:st.pass,action:'check'});st.edit=true;render();return}catch(e){st.pass=null}}
+    $('cp-lock').hidden=false;$('cp-pass').focus();
+  };
+  $('cp-lock').onsubmit=async e=>{e.preventDefault();const pw=$('cp-pass').value;$('cp-pass-err').textContent='';
+    try{await api('POST',{password:pw,action:'check'});st.pass=pw;try{sessionStorage.setItem('cal-k',pw)}catch(_){}$('cp-lock').hidden=true;$('cp-pass').value='';st.edit=true;render()}
+    catch(err){$('cp-pass-err').textContent=err.status===401?T('Senha incorreta.','Wrong password.'):T('Não consegui conferir. Tente de novo.','Could not check. Try again.')}};
+
+  // editor
+  function selRender(){$('cp-sel').innerHTML=st.sel.map(p=>prodChip(p,'<span class="x" aria-hidden="true">✕</span>')).join('')}
+  function openDlg(x){
+    st.cur=x||null;st.sel=x?JSON.parse(JSON.stringify(x.products||[])):(st.prod?[st.prod]:[]);
+    $('cp-dlg-t').textContent=x?T('Editar copy','Edit copy'):T('Nova copy','New copy');
+    $('cp-type').value=x?x.type||'':(st.type!=='all'?st.type:'');$('cp-text').value=x?x.text:'';$('cp-tags').value=x?(x.tags||[]).join(', '):'';$('cp-notes').value=x?x.notes||'':'';
+    $('cp-pq').value='';$('cp-res').innerHTML='';$('cp-save-err').textContent='';$('cp-del').hidden=!x;$('cp-count').textContent=[...$('cp-text').value].length;
+    selRender();$('cp-dlg').showModal();setTimeout(()=>$('cp-text').focus(),30);
+  }
+  $('cp-new').onclick=()=>openDlg(null);
+  $('cp-x').onclick=$('cp-cancel').onclick=()=>$('cp-dlg').close();
+  $('cp-text').oninput=()=>{$('cp-count').textContent=[...$('cp-text').value].length};
+  $('cp-sel').addEventListener('click',e=>{const b=e.target.closest('.cp-prod');if(!b)return;st.sel=st.sel.filter(p=>p.id!==b.dataset.pid);selRender()});
+  let pt,pseq=0,last=[];
+  $('cp-pq').addEventListener('input',e=>{clearTimeout(pt);const q=e.target.value.trim();if(q.length<2){$('cp-res').innerHTML='';return}
+    pt=setTimeout(async()=>{const n=++pseq;$('cp-res').innerHTML=`<div class="cp-msg">${T('Buscando na loja…','Searching the store…')}</div>`;
+      try{const r=await fetch('/api/products?mk='+MK+'&q='+encodeURIComponent(q));const j=await r.json();if(n!==pseq)return;if(!r.ok)throw new Error(j.error);last=j.items||[];
+        $('cp-res').innerHTML=last.length?last.map((p,i)=>`<button type="button" class="cp-ri" data-i="${i}">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:'<i></i>'}<span><b>${esc(p.t)}</b><small>${esc((p.sku||[]).slice(0,2).join(' · '))}</small></span><em>${st.sel.some(s=>s.id===p.id)?T('ligado ✓','linked ✓'):'+'}</em></button>`).join(''):`<div class="cp-msg">${T('Nenhum produto encontrado.','No products found.')}</div>`}
+      catch(err){if(n===pseq)$('cp-res').innerHTML=`<div class="cp-msg">${T('Não consegui buscar na loja agora.','Could not search the store right now.')}</div>`}},250)});
+  $('cp-pq').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const b=$('cp-res').querySelector('.cp-ri');if(b)b.click()}});
+  $('cp-res').addEventListener('click',e=>{const b=e.target.closest('.cp-ri');if(!b)return;const p=last[+b.dataset.i];if(!p)return;
+    if(!st.sel.some(s=>s.id===p.id))st.sel.push({id:p.id,t:p.t,h:p.h,sku:p.sku,img:p.img,url:p.url});else st.sel=st.sel.filter(s=>s.id!==p.id);
+    selRender();b.querySelector('em').textContent=st.sel.some(s=>s.id===p.id)?T('ligado ✓','linked ✓'):'+'});
+  $('cp-form').onsubmit=async e=>{e.preventDefault();
+    const item={id:st.cur?st.cur.id:undefined,type:$('cp-type').value.trim(),text:$('cp-text').value,tags:$('cp-tags').value.split(',').map(s=>s.trim()).filter(Boolean),notes:$('cp-notes').value,products:st.sel};
+    if(!item.text.trim()){$('cp-save-err').textContent=T('Escreva a copy.','Write the copy.');return}
+    $('cp-save').disabled=true;$('cp-save-err').textContent='';
+    try{const j=await api('POST',{password:st.pass,action:'save',mk:MK,item});st.items=j.items;st.updated=j.updated;$('cp-dlg').close();render()}
+    catch(err){$('cp-save-err').textContent=err.status===401?T('Senha expirou. Feche e clique em Editar de novo.','Password expired. Close and click Edit again.'):T('Não salvou. Tente de novo.','Could not save. Try again.');if(err.status===401){st.pass=null;st.edit=false}}
+    finally{$('cp-save').disabled=false}};
+  $('cp-del').onclick=async()=>{if(!st.cur)return;
+    if($('cp-del').dataset.sure!=='1'){$('cp-del').dataset.sure='1';$('cp-del').textContent=T('Confirmar exclusão','Confirm delete');setTimeout(()=>{$('cp-del').dataset.sure='';$('cp-del').textContent=T('Excluir','Delete')},4000);return}
+    $('cp-del').dataset.sure='';$('cp-del').textContent=T('Excluir','Delete');
+    try{const j=await api('POST',{password:st.pass,action:'delete',mk:MK,id:st.cur.id});st.items=j.items;st.updated=j.updated;$('cp-dlg').close();render()}
+    catch(err){$('cp-save-err').textContent=T('Não excluiu. Tente de novo.','Could not delete. Try again.')}};
+
+  function maybeLoad(){if(location.hash==='#copy'&&!st.loaded){st.loaded=true;load()}}
+  window.addEventListener('hashchange',maybeLoad);maybeLoad();
 })();
 </script>
 </body>
