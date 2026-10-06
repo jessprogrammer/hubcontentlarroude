@@ -638,7 +638,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cp-fl select{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
 @media (max-width:560px){.cp-row2{grid-template-columns:1fr}}
 /* card por grupo (produto ou tema) */
-.cp-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,620px),1fr))}
+.cp-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr))}
+.cp-grp.open{grid-column:1/-1}
 .cp-grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
 .cp-gh{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
 .cp-gh img,.cp-gh i.ph{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--soft);flex:none;display:grid;place-items:center;font-style:normal;font-size:20px}
@@ -665,6 +666,16 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cp-fr .lbl{min-width:52px}
 .cp-r .cp-acts .cp-i{min-width:30px;text-align:center;padding:3px 8px}
 .cp-r .cp-meta{gap:5px 6px}
+.cp-gh[data-tog]{cursor:pointer;border-bottom:0;background:var(--surface)}
+.cp-grp.open .cp-gh[data-tog]{border-bottom:1px solid var(--line);background:var(--bg)}
+.cp-gh[data-tog]:hover{background:var(--soft)}
+.cp-gh[data-tog]:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.cp-gh[data-tog]::after{content:"›";font-size:22px;color:var(--muted);transition:transform .15s;margin-left:4px}
+.cp-grp.open .cp-gh[data-tog]::after{transform:rotate(90deg)}
+.cp-gh img,.cp-gh i.ph{width:56px;height:56px}
+.cp-grp:not(.open) .cp-gt b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cp-grp:not(.open){transition:border-color .15s}
+.cp-grp:not(.open):hover{border-color:var(--ink)}
 </style>
 </head>
 <body>
@@ -1688,11 +1699,11 @@ window.__S=function(IG,FOL){(function(){
     if(!st.items.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy ainda.','No copy yet.')}</p>`;
     else if(!L.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`;
     else $('cp-list').innerHTML=G.map(g=>{
-      const LIM=8,open=st.open[g.key]||G.length===1,shown=open?g.items:g.items.slice(0,LIM),pend=g.items.filter(x=>x.st!=='approved').length;
-      const head=g.kind==='p'?`${g.p.img?`<img src="${esc(g.p.img)}" alt="">`:'<i class="ph"></i>'}<div class="cp-gt"><b title="${esc(g.p.t)}">${esc(g.p.t)}</b><small>${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}${(g.p.sku||[])[0]?' · '+esc(g.p.sku[0]):''}${g.p.url?` · <a href="${esc(g.p.url)}" target="_blank" rel="noopener">${T('ver na loja','view in store')} ↗</a>`:''}</small></div>`
+      const open=!!st.open[g.key]||!!st.q,shown=open?g.items:[],pend=g.items.filter(x=>x.st!=='approved').length;
+      const head=g.kind==='p'?`${g.p.img?`<img src="${esc(g.p.img)}" alt="">`:'<i class="ph"></i>'}<div class="cp-gt"><b title="${esc(g.p.t)}">${esc(g.p.t)}</b><small>${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small>${open?`<small>${(g.p.sku||[])[0]?esc(g.p.sku[0]):''}${g.p.url?` · <a href="${esc(g.p.url)}" target="_blank" rel="noopener">${T('ver na loja','view in store')} ↗</a>`:''}</small>`:''}</div>`
         :`<i class="ph" aria-hidden="true">${/fall|autumn|outono/i.test(g.name)?'🍂':/summer|ver[aã]o/i.test(g.name)?'☀️':/winter|inverno/i.test(g.name)?'❄️':/spring|primavera/i.test(g.name)?'🌷':/holiday/i.test(g.name)?'✨':'✦'}</i><div class="cp-gt"><b>${esc(g.name)}</b><small>${T('copy geral','general copy')} · ${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small></div>`;
-      return `<article class="cp-grp" data-g="${esc(g.key)}"><div class="cp-gh">${head}${approver()&&pend?`<button class="cp-b cp-ab" data-gok="${esc(g.key)}">✓ ${T('Aprovar '+pend,'Approve '+pend)}</button>`:''}</div>
-        <ul class="cp-rows">${shown.map(row).join('')}</ul>${g.items.length>shown.length?`<button class="cp-gmore" data-more="${esc(g.key)}">${T('Ver todas as '+g.items.length+' frases','Show all '+g.items.length+' lines')} ↓</button>`:''}</article>`}).join('');
+      return `<article class="cp-grp${open?' open':''}" data-g="${esc(g.key)}"><div class="cp-gh" role="button" tabindex="0" aria-expanded="${open}" data-tog="${esc(g.key)}" title="${open?T('Fechar','Close'):T('Abrir as frases','Open the lines')}">${head}${approver()&&pend&&open?`<button class="cp-b cp-ab" data-gok="${esc(g.key)}">✓ ${T('Aprovar '+pend,'Approve '+pend)}</button>`:''}</div>
+        ${open?`<ul class="cp-rows">${shown.map(row).join('')}</ul>`:''}</article>`}).join('');
     $('cp-upd').textContent=st.updated?new Date(st.updated).toLocaleString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
     const ed=st.edit||approver();
     $('cp-new').hidden=$('cp-bulk').hidden=!ed;
@@ -1745,7 +1756,7 @@ window.__S=function(IG,FOL){(function(){
     if(e.target.closest('#cp-pclear')){st.prod=null;render()}});
   let qt;$('cp-q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim();render()},120)});
   $('cp-list').addEventListener('click',async e=>{
-    const more=e.target.closest('[data-more]');if(more){st.open[more.dataset.more]=true;render();return}
+    const tog=e.target.closest('[data-tog]');if(tog&&!e.target.closest('a,button')){const k=tog.dataset.tog;st.open[k]=!st.open[k];render();return}
     const gok=e.target.closest('[data-gok]');if(gok){const k=gok.dataset.gok;const ids=st.items.filter(x=>x.st!=='approved'&&matches(x,true)&&(k.startsWith('p:')?(x.products||[]).some(p=>'p:'+p.id===k):!(x.products||[]).length&&'t:'+(x.theme||'')===k)).map(x=>x.id);
       gok.disabled=true;try{apply(await api('POST',{auth:auth(),action:'approve',mk:MK,ids}));render()}catch(err){gok.disabled=false;alertMsg(fail(err))}return}
     const r=e.target.closest('.cp-r');if(!r)return;const x=st.items.find(i=>i.id===r.dataset.id);if(!x)return;
@@ -1759,6 +1770,8 @@ window.__S=function(IG,FOL){(function(){
       if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent=T('Remover?','Remove?');setTimeout(()=>{if(b.isConnected){b.classList.remove('sure');b.textContent='✕'}},4000);return}
       b.disabled=true;try{apply(await api('POST',{auth:auth(),action:'delete',mk:MK,id:x.id}));render()}catch(err){b.disabled=false;alertMsg(fail(err))}}
   });
+
+  $('cp-list').addEventListener('keydown',e=>{const t=e.target.closest('[data-tog]');if(t&&e.target===t&&(e.key==='Enter'||e.key===' ')){e.preventDefault();const k=t.dataset.tog;st.open[k]=!st.open[k];render();const n=document.querySelector('[data-tog="'+CSS.escape(k)+'"]');if(n)n.focus()}});
 
   // senha do time
   $('cp-edit').onclick=async()=>{
