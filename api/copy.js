@@ -11,11 +11,12 @@ import { catalog } from './products.js';
 import seedUS from '../data/copy-seed-us.js';
 import seedCyprus from '../data/copy-seed-us-cyprus.js';
 import seedBest from '../data/copy-seed-us-bestsellers.js';
+import seedMix from '../data/copy-seed-us-mix.js';
 
 const MKS = ['US', 'BR'];
 // etapas do funil (consciência), iguais aos nomes dos anúncios
 export const FUNNEL = config.copyFunnel || ['Branding', 'Problem awareness', 'Product awareness', 'Most aware / Conversion'];
-const SEEDS = { US: [seedUS, seedCyprus, seedBest] };
+const SEEDS = { US: [seedUS, seedCyprus, seedBest, seedMix] };
 const APPROVERS = (config.copyApprovers || []).map(e => e.toLowerCase());
 const CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || '';
 const str = (v, n) => String(v == null ? '' : v).slice(0, n);
