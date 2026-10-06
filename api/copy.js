@@ -11,6 +11,8 @@ import { catalog } from './products.js';
 import seedUS from '../data/copy-seed-us.js';
 
 const MKS = ['US', 'BR'];
+// etapas do funil (consciência), iguais aos nomes dos anúncios
+export const FUNNEL = config.copyFunnel || ['Branding', 'Problem awareness', 'Product awareness', 'Most aware / Conversion'];
 const SEEDS = { US: seedUS };
 const APPROVERS = (config.copyApprovers || []).map(e => e.toLowerCase());
 const CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || '';
@@ -31,6 +33,8 @@ function clean(it) {
     text: str(it.text, 4000),
     tags: (Array.isArray(it.tags) ? it.tags : String(it.tags || '').split(',')).map(s => str(s, 40).trim()).filter(Boolean).slice(0, 12),
     notes: str(it.notes, 1000),
+    funnel: FUNNEL.includes(it.funnel) ? it.funnel : '',
+    theme: str(it.theme, 40).trim(),
     products: cleanProducts(it.products)
   };
 }
@@ -51,27 +55,36 @@ async function approverOf(idToken) {
 // copys enviadas em lote pelo time (arquivo em data/): entram uma vez, como pendentes
 async function withSeed(mk, D) {
   const S = SEEDS[mk];
-  if (!S || (D.seeded || []).includes(S.version)) return D;
-  let prods = [];
-  if (S.product) {
-    try {
-      const C = await catalog(mk);
-      const want = S.product.toLowerCase();
-      const p = C.items.find(x => x.t.toLowerCase() === want) || C.items.find(x => x.t.toLowerCase().includes(want));
-      if (p) prods = cleanProducts([p]);
-    } catch (e) { return D } // loja fora do ar: tenta de novo na próxima visita
+  if (!S) return D;
+  if (!(D.seeded || []).includes(S.version)) {
+    let prods = [];
+    if (S.product) {
+      try {
+        const C = await catalog(mk);
+        const want = S.product.toLowerCase();
+        const p = C.items.find(x => x.t.toLowerCase() === want) || C.items.find(x => x.t.toLowerCase().includes(want));
+        if (p) prods = cleanProducts([p]);
+      } catch (e) { return D } // loja fora do ar: tenta de novo na próxima visita
+    }
+    const have = new Set(D.items.map(x => x.id));
+    const now = new Date().toISOString();
+    const add = S.items.filter(x => !have.has(x.id)).map(x => ({ ...clean({ ...x, type: x.type || S.type, products: prods }), st: 'pending', created: now, by: 'lista enviada pela Jess' }));
+    D.items = add.concat(D.items);
+    D.seeded = (D.seeded || []).concat(S.version);
+    D.updated = now;
+    await put('copy:' + mk, D);
   }
-  const have = new Set(D.items.map(x => x.id));
-  const now = new Date().toISOString();
-  const add = S.items.filter(x => !have.has(x.id)).map(x => ({ ...clean({ ...x, type: x.type || S.type, products: prods }), st: 'pending', created: now, by: 'lista enviada pela Jess' }));
-  D.items = add.concat(D.items);
-  D.seeded = (D.seeded || []).concat(S.version);
-  D.updated = now;
-  await put('copy:' + mk, D);
+  // ajustes posteriores (ex.: etapa do funil sugerida): aplicados uma vez, só onde o campo ainda está vazio
+  for (const P of S.patches || []) {
+    if ((D.seeded || []).includes(P.version)) continue;
+    for (const x of D.items) { const v = P.set[x.id]; if (v) for (const [k, val] of Object.entries(v)) if (!x[k]) x[k] = val }
+    D.seeded = (D.seeded || []).concat(P.version); D.updated = new Date().toISOString();
+    await put('copy:' + mk, D);
+  }
   return D;
 }
 
-const pub = (mk, D) => ({ mk, items: D.items.map(x => ({ ...x, st: x.st || 'pending' })), updated: D.updated || null, clientId: CLIENT_ID(), approvers: APPROVERS });
+const pub = (mk, D) => ({ mk, items: D.items.map(x => ({ ...x, st: x.st || 'pending' })), updated: D.updated || null, clientId: CLIENT_ID(), approvers: APPROVERS, funnel: FUNNEL });
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
