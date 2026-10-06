@@ -70,7 +70,7 @@ async function sheetIndex(key) {
   doc.rows.forEach((r, i) => {
     const ids = [...String(r[20] || '').matchAll(/\/b\/([0-9a-f]{8})/g)].map(m => m[1]);
     const row = r[26] ? +r[26] : i + 1, tab = r[25] || '';
-    for (const id of ids) idx[id] = { row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null };
+    for (const id of ids) idx[id] = { id, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null };
   });
   return idx;
 }
@@ -118,7 +118,7 @@ async function build() {
       week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
       camp: path.length > 2 ? path[1] : '—', detail: path.length > 2 ? path.slice(2).join(' / ') : (path[1] || ''),
       cat: category(L.path, L.clips.length, exts, inherited ? null : s), obj, om: !s?.obj && !!overrides.obj[id8],
-      fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null, tab: s ? s.tab : '',
+      fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null, tab: s ? s.tab : '', sid: s ? s.id : '',
       n: L.clips.length, dur: Math.round(Math.max(0, ...L.clips.map(c => c.duration || 0))),
       link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
       img: sq && sq.assets && sq.assets.image ? sq.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : '',
@@ -133,7 +133,7 @@ async function build() {
 
 export default async function handler(req, res) {
   try {
-    const data = await cached('air2', 5 * 60e3, build);
+    const data = await cached('air3', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=86400');
     res.status(200).json(data);
   } catch (e) {
