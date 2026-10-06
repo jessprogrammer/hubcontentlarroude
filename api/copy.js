@@ -100,7 +100,8 @@ export default async function handler(req, res) {
     let body = req.body;
     if (typeof body === 'string') { try { body = JSON.parse(body) } catch { body = {} } }
     const auth = body.auth || { password: body.password };
-    const pass = process.env.CAL_PASSWORD || process.env.TEAM_PASSWORD;
+    // senha só do Banco de copy (COPY_PASSWORD no Vercel); enquanto não existir, vale a do Calendário
+    const pass = process.env.COPY_PASSWORD || process.env.CAL_PASSWORD || process.env.TEAM_PASSWORD;
     const who = auth.idToken ? await approverOf(auth.idToken) : null;
     const approver = who && !who.denied ? who : null;
     const team = !!(pass && auth.password && String(auth.password) === pass);
@@ -124,7 +125,6 @@ export default async function handler(req, res) {
         const i = D.items.findIndex(x => x.id === it.id);
         if (i >= 0) {
           const old = D.items[i];
-          if ((old.st || 'pending') === 'approved' && !approver) return res.status(403).json({ error: 'aprovada' });
           // o time mudou uma copy: volta a aguardar aprovação; quem aprova mantém o status
           D.items[i] = { ...old, ...it, st: approver ? (old.st || 'pending') : 'pending', edited: now, editedBy: by };
         } else {
@@ -135,7 +135,8 @@ export default async function handler(req, res) {
       return done();
     }
     if (body.action === 'approve' || body.action === 'delete') {
-      if (!approver) return res.status(403).json({ error: 'só quem aprova' });
+      // remover: quem tem a senha do Banco de copy ou quem aprova. Aprovar: só quem aprova (login Google, ainda não ligado)
+      if (body.action === 'approve' && !approver) return res.status(403).json({ error: 'só quem aprova' });
       const ids = new Set((Array.isArray(body.ids) ? body.ids : [body.id]).map(String));
       if (body.action === 'delete') D.items = D.items.filter(x => !ids.has(x.id));
       else for (const x of D.items) if (ids.has(x.id)) {
