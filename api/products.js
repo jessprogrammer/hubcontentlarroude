@@ -31,13 +31,15 @@ async function fetchCatalog(base) {
         url: base + '/products/' + p.handle
       });
     }
-    if (ps.length < 250) break;
+    // a loja às vezes devolve menos de 250 numa página mesmo tendo mais produtos: só para quando a página vem vazia
+    if (!ps.length) break;
   }
-  return out;
+  const seen = new Set();
+  return out.filter(p => !seen.has(p.id) && seen.add(p.id));
 }
 
 export async function catalog(mk) {
-  const key = 'shop:' + mk;
+  const key = 'shop2:' + mk;
   let D = null;
   try { D = await get(key) } catch (e) {}
   if (!D || Date.now() - Date.parse(D.updated) > FRESH_MS) {

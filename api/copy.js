@@ -9,11 +9,12 @@ import config from '../config.js';
 import { get, put } from '../lib/store.js';
 import { catalog } from './products.js';
 import seedUS from '../data/copy-seed-us.js';
+import seedCyprus from '../data/copy-seed-us-cyprus.js';
 
 const MKS = ['US', 'BR'];
 // etapas do funil (consciência), iguais aos nomes dos anúncios
 export const FUNNEL = config.copyFunnel || ['Branding', 'Problem awareness', 'Product awareness', 'Most aware / Conversion'];
-const SEEDS = { US: seedUS };
+const SEEDS = { US: [seedUS, seedCyprus] };
 const APPROVERS = (config.copyApprovers || []).map(e => e.toLowerCase());
 const CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || '';
 const str = (v, n) => String(v == null ? '' : v).slice(0, n);
@@ -54,8 +55,10 @@ async function approverOf(idToken) {
 
 // copys enviadas em lote pelo time (arquivo em data/): entram uma vez, como pendentes
 async function withSeed(mk, D) {
-  const S = SEEDS[mk];
-  if (!S) return D;
+  for (const S of SEEDS[mk] || []) D = await applySeed(mk, D, S);
+  return D;
+}
+async function applySeed(mk, D, S) {
   if (!(D.seeded || []).includes(S.version)) {
     let prods = [];
     if (S.product) {
