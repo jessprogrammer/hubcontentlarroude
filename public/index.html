@@ -588,20 +588,20 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cp-pfilter button{all:unset;cursor:pointer;padding:0 6px;color:var(--muted)}
 .cp-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px;align-items:start}
 .cp-list>.ld,.cp-list>.empty{grid-column:1/-1}
-.cp-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:10px;min-width:0}
+.cp-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:12px;min-width:0}
 .cp-ch{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.cp-type{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--ink);color:var(--bg)}
-.cp-tag{font-size:12px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted)}
-.cp-text{font-size:16px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
-.cp-notes{font-size:13px;color:var(--muted);margin:0;white-space:pre-wrap}
+.cp-type{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--ink);color:var(--bg)}
+.cp-tag{font-size:11px;padding:1px 8px;border-radius:999px;background:var(--soft);color:var(--muted)}
+.cp-text{font-size:clamp(20px,2.1vw,24px);line-height:1.3;font-weight:500;letter-spacing:-.005em;color:var(--ink);white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
+.cp-notes{font-size:12px;color:var(--muted);margin:0;white-space:pre-wrap}
 .cp-chips{display:flex;flex-wrap:wrap;gap:6px}
-.cp-prod{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:7px;border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;font-size:12.5px;max-width:100%;background:var(--bg)}
+.cp-prod{all:unset;box-sizing:border-box;cursor:pointer;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:2px 9px 2px 2px;font-size:11.5px;color:var(--muted);max-width:100%;background:var(--bg)}
 .cp-prod:hover{border-color:var(--ink)}
-.cp-prod img,.cp-prod i{width:24px;height:24px;border-radius:50%;object-fit:cover;background:var(--soft);flex:none}
+.cp-prod img,.cp-prod i{width:20px;height:20px;border-radius:50%;object-fit:cover;background:var(--soft);flex:none}
 .cp-prod span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cp-prod .x{color:var(--muted);margin-left:2px}
-.cp-cf{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:10px;font-size:12px;color:var(--muted)}
-.cp-cf .cp-b{font-size:12.5px;padding:4px 12px}
+.cp-cf{display:flex;gap:8px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:8px;font-size:11px;color:var(--muted)}
+.cp-cf .cp-b{font-size:12px;padding:3px 11px}
 .cp-cf .cp-ok{background:var(--ok-soft,#E3F2E8);border-color:transparent}
 .cp-dlg{border:1px solid var(--line);border-radius:14px;padding:0;width:min(680px,94vw);background:var(--surface);color:var(--ink)}
 .cp-dlg::backdrop{background:rgba(14,12,15,.45)}
@@ -621,6 +621,50 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cp-msg{font-size:13px;color:var(--muted);padding:4px 2px}
 .cp-dlg-f{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
 @media (max-width:560px){.cp-actions{width:100%}.cp-actions .cp-b{flex:1}}
+.cp-gbox,.cp-who{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14px}
+.cp-gbox[hidden],.cp-who[hidden]{display:none}
+.cp-who b{font-weight:600}
+.cp-who .cp-b{margin-left:auto}
+.cp-st{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;font-weight:600;padding:2px 8px;border-radius:5px}
+.cp-st.pending{background:var(--warn-soft);color:var(--warn)}
+.cp-st.approved{background:var(--ok-soft);color:var(--ok)}
+.cp-card.pending{border-style:dashed}
+.cp-hint{font-size:12px;color:var(--muted)}
+.cp-ab{background:var(--ok-soft);border-color:transparent;color:var(--ok)}
+.cp-rm{color:var(--late,#B3261E)}
+.cp-rm.sure{background:var(--late,#B3261E);color:#fff;border-color:transparent}
+.cp-cf .cp-acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.cp-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cp-fl select{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:9px 12px;width:100%}
+@media (max-width:560px){.cp-row2{grid-template-columns:1fr}}
+/* card por grupo (produto ou tema) */
+.cp-list{grid-template-columns:repeat(auto-fill,minmax(min(100%,620px),1fr))}
+.cp-grp{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0}
+.cp-gh{display:flex;gap:12px;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.cp-gh img,.cp-gh i.ph{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--soft);flex:none;display:grid;place-items:center;font-style:normal;font-size:20px}
+.cp-gt{display:grid;gap:2px;min-width:0;flex:1}
+.cp-gt b{font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cp-gt small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+.cp-gt a{color:var(--muted);text-decoration:none}
+.cp-gh .cp-b{font-size:12px;padding:4px 11px}
+.cp-rows{list-style:none;margin:0;padding:0}
+.cp-r{display:grid;grid-template-columns:1fr auto;gap:6px 12px;align-items:start;padding:12px 16px;border-bottom:1px solid var(--line)}
+.cp-rows .cp-r:last-child{border-bottom:0}
+.cp-r.pending{background:repeating-linear-gradient(135deg,transparent 0 12px,color-mix(in srgb,var(--warn-soft) 55%,transparent) 12px 13px)}
+.cp-r .cp-text{font-size:18px;line-height:1.3;font-weight:500;grid-column:1}
+.cp-r .cp-acts{grid-column:2;grid-row:1/span 2;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:center}
+.cp-r .cp-acts .cp-b{font-size:12px;padding:3px 10px}
+.cp-r .cp-meta{grid-column:1;display:flex;gap:5px;flex-wrap:wrap;align-items:center;font-size:11px;color:var(--muted)}
+.cp-fun{font-family:var(--mono);font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;font-weight:600;padding:2px 7px;border-radius:5px;background:var(--info-soft);color:var(--info)}
+.cp-fun.f0{background:var(--soft);color:var(--ink)}.cp-fun.f3{background:var(--accent-soft);color:var(--accent)}
+.cp-gmore{all:unset;cursor:pointer;display:block;padding:10px 16px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line)}
+.cp-gmore:hover{color:var(--ink)}
+@media (max-width:560px){.cp-r{grid-template-columns:1fr}.cp-r .cp-acts{grid-column:1;grid-row:auto;justify-content:flex-start}}
+.cp-filters{display:grid;gap:8px}
+.cp-fr{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.cp-fr .lbl{min-width:52px}
+.cp-r .cp-acts .cp-i{min-width:30px;text-align:center;padding:3px 8px}
+.cp-r .cp-meta{gap:5px 6px}
 </style>
 </head>
 <body>
@@ -718,13 +762,21 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   </header>
   <div class="cp-top">
     <div class="cp-search">
-      <input id="cp-q" type="search" placeholder="Buscar copy, produto ou SKU" aria-label="Buscar copy, produto ou SKU">
+      <input id="cp-q" type="search" placeholder="Buscar copy, produto, SKU ou tema" aria-label="Buscar copy, produto, SKU ou tema">
     </div>
     <div class="cp-actions">
       <button class="cp-b" id="cp-new" type="button" hidden>+ Nova copy</button>
+      <button class="cp-b" id="cp-bulk" type="button" hidden>+ Várias de uma vez</button>
       <button class="cp-b" id="cp-edit" type="button">Editar 🔒</button>
+      <button class="cp-b" id="cp-appr" type="button" hidden>Aprovar copys</button>
     </div>
   </div>
+  <div class="cp-gbox" id="cp-gbox" hidden>
+    <span id="cp-g-txt">Quem aprova entra com o login do Google (Marina e Jess).</span>
+    <div id="cp-gbtn"></div>
+    <span class="cp-err" id="cp-g-err"></span>
+  </div>
+  <div class="cp-who" id="cp-who" hidden></div>
   <form class="cp-lock" id="cp-lock" hidden>
     <label for="cp-pass" id="cp-pass-l">Senha para editar</label>
     <input id="cp-pass" type="password" autocomplete="current-password">
@@ -740,7 +792,9 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <div class="cp-dlg-h"><b id="cp-dlg-t">Nova copy</b><button class="cp-b" type="button" id="cp-x" aria-label="Fechar">✕</button></div>
       <div class="cp-dlg-body">
         <label class="cp-fl"><span class="lbl" id="cp-l-type">Tipo</span><input id="cp-type" list="cp-types" placeholder="Ex.: Headline, Texto principal, Roteiro de vídeo"><datalist id="cp-types"></datalist></label>
-        <label class="cp-fl"><span class="lbl"><span id="cp-l-text">Copy</span> <span class="cp-count" id="cp-count">0</span></span><textarea id="cp-text" rows="5" required></textarea></label>
+        <div class="cp-row2"><label class="cp-fl"><span class="lbl" id="cp-l-funnel">Etapa do funil</span><select id="cp-funnel"></select></label>
+        <label class="cp-fl"><span class="lbl" id="cp-l-theme">Tema geral (opcional)</span><input id="cp-theme" list="cp-themes" placeholder="Ex.: Fall, Summer, Holiday"><datalist id="cp-themes"></datalist></label></div>
+        <label class="cp-fl"><span class="lbl"><span id="cp-l-text">Copy</span> <span class="cp-count" id="cp-count">0</span></span><textarea id="cp-text" rows="5"></textarea><span class="cp-hint" id="cp-hint" hidden>Uma copy por linha. Marcadores como "*", "-" ou "1." no começo saem sozinhos.</span></label>
         <label class="cp-fl"><span class="lbl" id="cp-l-tags">Ângulos / tags (separe por vírgula)</span><input id="cp-tags" placeholder="Ex.: conforto, styling, oferta"></label>
         <div class="cp-fl"><span class="lbl" id="cp-l-prod">Produtos ligados</span>
           <div class="cp-chips" id="cp-sel"></div>
@@ -750,7 +804,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
         <label class="cp-fl"><span class="lbl" id="cp-l-notes">Notas</span><textarea id="cp-notes" rows="2"></textarea></label>
       </div>
       <div class="cp-dlg-f">
-        <button class="cp-b cp-danger" type="button" id="cp-del" hidden>Excluir</button>
+        <button class="cp-b cp-danger" type="button" id="cp-del" hidden>Remover</button>
         <span class="cp-err" id="cp-save-err"></span>
         <button class="cp-b" type="button" id="cp-cancel">Cancelar</button>
         <button class="cp-b cp-primary" type="submit" id="cp-save">Salvar</button>
@@ -1544,106 +1598,196 @@ window.__S=function(IG,FOL){(function(){
 })();
 </script>
 <script>
-// Banco de copy — frases reutilizáveis, ligadas a produtos da loja.
+// Banco de copy — frases reutilizáveis, ligadas a produtos da loja, com aprovação.
+// Time (senha): adiciona e edita copys pendentes. Quem aprova (login Google, e-mails em config.copyApprovers): aprova, remove, edita tudo.
 (function(){
   const EN=window.LANG==='en', $=id=>document.getElementById(id), T=(pt,en)=>EN?en:pt;
   const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const MK='US';
-  const st={items:[],updated:null,loaded:false,pass:null,edit:false,type:'all',prod:null,q:'',cur:null,sel:[]};
+  const st={items:[],updated:null,loaded:false,pass:null,edit:false,idTok:null,me:null,clientId:'',funnel:['Branding','Problem awareness','Product awareness','Most aware / Conversion'],type:'all',status:'all',fun:'all',theme:'all',prod:null,q:'',cur:null,sel:[],bulk:false,open:{}};
   try{st.pass=sessionStorage.getItem('cal-k')||null}catch(e){}
-  try{const t=localStorage.getItem('cp-type');if(t)st.type=t}catch(e){}
+  try{st.idTok=sessionStorage.getItem('cp-g')||null}catch(e){}
+  try{const t=localStorage.getItem('cp-type');if(t)st.type=t;const s=localStorage.getItem('cp-status');if(s)st.status=s;const f=localStorage.getItem('cp-fun');if(f)st.fun=f;const h=localStorage.getItem('cp-theme');if(h)st.theme=h}catch(e){}
+  const approver=()=>!!(st.me&&st.me.approver);
 
   if(EN){
     $('cp-kicker').textContent='Larroudé · Copy bank · US';$('cp-h1').innerHTML='Copy <em>bank</em>';
-    $('cp-sub').textContent='Ready-made lines to reuse in ads, videos and posts. Search by text, type or product (name or SKU) and click Copy. To add or change copy, switch to edit mode.';
-    $('cp-q').placeholder='Search copy, product or SKU';$('cp-new').textContent='+ New copy';$('cp-edit').textContent='Edit 🔒';
+    $('cp-sub').textContent='Ready-made lines to reuse in ads, videos and posts. Search by text, type or product (name or SKU) and click Copy. New copy stays "Awaiting approval" until Marina or Jess approves it.';
+    $('cp-q').placeholder='Search copy, product, SKU or theme';$('cp-l-funnel').textContent='Funnel stage';$('cp-l-theme').textContent='General theme (optional)';$('cp-theme').placeholder='E.g. Fall, Summer, Holiday';$('cp-new').textContent='+ New copy';$('cp-bulk').textContent='+ Several at once';$('cp-appr').textContent='Approve copy';
+    $('cp-g-txt').textContent='Approvers sign in with their Google account (Marina and Jess).';
     $('cp-pass-l').textContent='Password to edit';$('cp-pass-ok').textContent='Enter';$('cp-foot').textContent='Copy bank saved on the site. Products come from the US store catalog (larroude.com). Updated';
     $('cp-l-type').textContent='Type';$('cp-type').placeholder='E.g. Headline, Primary text, Video script';$('cp-l-text').textContent='Copy';
+    $('cp-hint').textContent='One copy per line. Leading markers like "*", "-" or "1." are removed.';
     $('cp-l-tags').textContent='Angles / tags (comma separated)';$('cp-tags').placeholder='E.g. comfort, styling, offer';$('cp-l-prod').textContent='Linked products';
-    $('cp-pq').placeholder='Search product by name or SKU';$('cp-l-notes').textContent='Notes';$('cp-del').textContent='Delete';$('cp-cancel').textContent='Cancel';$('cp-save').textContent='Save';
-  }
+    $('cp-pq').placeholder='Search product by name or SKU';$('cp-l-notes').textContent='Notes';$('cp-del').textContent='Remove';$('cp-cancel').textContent='Cancel';$('cp-save').textContent='Save';
+  } else $('cp-sub').textContent='Frases prontas para reaproveitar em anúncios, vídeos e posts. Busque pelo texto, pelo tipo ou pelo produto (nome ou SKU) e clique em Copiar. Copy nova fica "Aguardando aprovação" até a Marina ou a Jess aprovar.';
 
+  const auth=()=>approver()?{idToken:st.idTok}:{password:st.pass};
   async function api(method,body,qs){
     const r=await fetch('/api/copy'+(qs||''),method==='GET'?{cache:'no-store'}:{method,headers:{'content-type':'application/json'},body:JSON.stringify(body)});
     const j=await r.json().catch(()=>({}));
     if(!r.ok){const e=new Error(j.error||('HTTP '+r.status));e.status=r.status;throw e}
     return j;
   }
+  const apply=j=>{st.items=j.items||[];st.updated=j.updated;if(j.clientId!==undefined)st.clientId=j.clientId;if(Array.isArray(j.funnel)&&j.funnel.length)st.funnel=j.funnel};
+  const fail=err=>{
+    if(err.status===401){if(approver()){st.me=null;st.idTok=null;try{sessionStorage.removeItem('cp-g')}catch(_){}return T('Seu login expirou. Clique em "Aprovar copys" de novo.','Your sign-in expired. Click "Approve copy" again.')}
+      st.pass=null;st.edit=false;return T('Senha expirou. Clique em Editar de novo.','Password expired. Click Edit again.')}
+    if(err.status===403)return T('Só a Marina ou a Jess podem fazer isso.','Only Marina or Jess can do that.');
+    return T('Não salvou. Tente de novo.','Could not save. Try again.')};
   const prodChip=(p,extra)=>`<button type="button" class="cp-prod" data-pid="${esc(p.id)}" title="${esc(p.t+(p.sku&&p.sku[0]?' · '+p.sku[0]:''))}">${p.img?`<img src="${esc(p.img)}" alt="" loading="lazy">`:'<i></i>'}<span>${esc(p.t)}</span>${extra||''}</button>`;
+  const fmtDate=s=>s?new Date(s).toLocaleDateString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit'}):'';
+  const nameOf=e=>/^marina/i.test(e||'')?'Marina':/^jessica/i.test(e||'')?'Jess':(e||'');
 
-  function matches(x){
+  function matches(x,ignoreStatus){
     if(st.type!=='all'&&(x.type||'')!==st.type)return false;
+    if(!ignoreStatus&&st.status!=='all'&&x.st!==st.status)return false;
+    if(st.fun!=='all'&&(x.funnel||'')!==st.fun)return false;
+    if(st.theme!=='all'&&(x.theme||'')!==st.theme)return false;
     if(st.prod&&!(x.products||[]).some(p=>p.id===st.prod.id))return false;
-    if(st.q){const h=norm([x.text,x.type,(x.tags||[]).join(' '),x.notes,(x.products||[]).map(p=>p.t+' '+p.h+' '+(p.sku||[]).join(' ')).join(' ')].join(' '));
+    if(st.q){const h=norm([x.text,x.type,x.theme,x.funnel,(x.tags||[]).join(' '),x.notes,(x.products||[]).map(p=>p.t+' '+p.h+' '+(p.sku||[]).join(' ')).join(' ')].join(' '));
       if(!norm(st.q).split(/\s+/).filter(Boolean).every(w=>h.includes(w)))return false}
     return true;
   }
-  function render(){
-    // filtros por tipo
-    const types={};st.items.forEach(x=>{const k=x.type||'';types[k]=(types[k]||0)+1});
-    const keys=Object.keys(types).sort((a,b)=>(a==='')-(b==='')||a.localeCompare(b));
-    if(st.type!=='all'&&!(st.type in types))st.type='all';
-    $('cp-filters').innerHTML=`<span class="lbl">${T('Tipo','Type')}</span><button class="cp-b" data-type="all" aria-pressed="${st.type==='all'}">${T('Todos','All')}<small>${st.items.length}</small></button>`+
-      keys.map(k=>`<button class="cp-b" data-type="${esc(k)}" aria-pressed="${st.type===k}">${esc(k||T('Sem tipo','No type'))}<small>${types[k]}</small></button>`).join('')+
-      (st.prod?`<span class="sep"></span><span class="cp-pfilter">${st.prod.img?`<img src="${esc(st.prod.img)}" alt="">`:''}${esc(st.prod.t)}<button type="button" id="cp-pclear" aria-label="${T('Tirar filtro de produto','Clear product filter')}">✕</button></span>`:'');
-    $('cp-types').innerHTML=keys.filter(Boolean).map(k=>`<option value="${esc(k)}">`).join('');
-    const L=st.items.filter(matches);
-    if(!st.items.length){$('cp-list').innerHTML=`<p class="empty">${st.edit?T('Nenhuma copy ainda. Clique em "+ Nova copy" para começar.','No copy yet. Click "+ New copy" to start.'):T('Nenhuma copy ainda. Entre no modo de edição para adicionar a primeira.','No copy yet. Switch to edit mode to add the first one.')}</p>`}
-    else if(!L.length){$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`}
-    else $('cp-list').innerHTML=L.map(x=>`<article class="cp-card" data-id="${esc(x.id)}">
-      <div class="cp-ch">${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}</div>
+  const funIdx=f=>Math.max(0,st.funnel.indexOf(f));
+  const chips=(label,key,list,cur)=>`<span class="lbl">${label}</span><button class="cp-b" data-${key}="all" aria-pressed="${cur==='all'}">${T('Todos','All')}</button>`+list.map(([k,n])=>`<button class="cp-b" data-${key}="${esc(k)}" aria-pressed="${cur===k}">${esc(k||T('Sem','None'))}<small>${n}</small></button>`).join('');
+  const countBy=f=>{const m={};st.items.forEach(x=>{const k=f(x);if(k!==null)m[k]=(m[k]||0)+1});return m};
+  // grupos: um por produto ligado; copy sem produto vai para o tema geral (Fall, Summer…) ou "Geral"
+  function groups(L){
+    const G=new Map();
+    const add=(key,meta,x)=>{if(!G.has(key))G.set(key,{...meta,items:[]});G.get(key).items.push(x)};
+    for(const x of L){
+      if((x.products||[]).length)for(const p of x.products)add('p:'+p.id,{kind:'p',p,name:p.t},x);
+      else add('t:'+(x.theme||''),{kind:'t',name:x.theme||T('Geral (sem produto)','General (no product)')},x);
+    }
+    return [...G.entries()].map(([k,g])=>({key:k,...g})).sort((a,b)=>(a.kind==='t')-(b.kind==='t')||b.items.length-a.items.length||a.name.localeCompare(b.name));
+  }
+  function row(x){
+    const canEdit=approver()||(st.edit&&x.st!=='approved');
+    return `<li class="cp-r ${x.st==='approved'?'approved':'pending'}" data-id="${esc(x.id)}">
       <p class="cp-text">${esc(x.text)}</p>
-      ${x.notes?`<p class="cp-notes">${esc(x.notes)}</p>`:''}
-      ${(x.products||[]).length?`<div class="cp-chips">${x.products.map(p=>prodChip(p)).join('')}</div>`:''}
-      <div class="cp-cf"><span class="mono">${[...x.text].length} ${T('caracteres','characters')}</span><span style="display:flex;gap:6px">${st.edit?`<button class="cp-b" data-act="edit">${T('Editar','Edit')}</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span></div>
-    </article>`).join('');
+      <span class="cp-acts">${approver()?(x.st==='approved'?`<button class="cp-b cp-i" data-act="unapprove" title="${T('Voltar para pendente','Back to pending')}" aria-label="${T('Voltar para pendente','Back to pending')}">↺</button>`:`<button class="cp-b cp-ab cp-i" data-act="approve" title="${T('Aprovar','Approve')}" aria-label="${T('Aprovar','Approve')}">✓</button>`)+`<button class="cp-b cp-rm cp-i" data-act="remove" title="${T('Remover','Remove')}" aria-label="${T('Remover','Remove')}">✕</button>`:''}${canEdit?`<button class="cp-b cp-i" data-act="edit" title="${T('Editar','Edit')}" aria-label="${T('Editar','Edit')}">✎</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span>
+      <div class="cp-meta">${x.st==='approved'?`<span class="cp-st approved" title="${esc(T('Aprovada por ','Approved by ')+nameOf(x.approvedBy)+' · '+fmtDate(x.approvedAt))}">✓ ${T('Aprovada','Approved')}</span>`:`<span class="cp-st pending">${T('Aguardando aprovação','Awaiting approval')}</span>`}${x.funnel?`<span class="cp-fun f${funIdx(x.funnel)}">${esc(x.funnel)}</span>`:''}${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${x.theme?`<span class="cp-tag">${esc(x.theme)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}<span class="mono">${[...x.text].length}c</span>${x.notes?`<span title="${esc(x.notes)}">📝</span>`:''}</div>
+    </li>`;
+  }
+  function render(){
+    const nP=st.items.filter(x=>x.st!=='approved').length,nA=st.items.length-nP;
+    const types=countBy(x=>x.type||''),funs=countBy(x=>x.funnel||''),themes=countBy(x=>x.theme?x.theme:null);
+    if(st.type!=='all'&&!(st.type in types))st.type='all';
+    if(st.theme!=='all'&&!(st.theme in themes))st.theme='all';
+    const funList=st.funnel.map(f=>[f,funs[f]||0]).concat(funs['']?[['',funs['']]]:[]);
+    $('cp-filters').innerHTML=`<div class="cp-fr"><span class="lbl">${T('Status','Status')}</span>`+[['all',T('Todas','All'),st.items.length],['approved',T('Aprovadas','Approved'),nA],['pending',T('Aguardando aprovação','Awaiting approval'),nP]].map(([k,l,n])=>`<button class="cp-b" data-status="${k}" aria-pressed="${st.status===k}">${l}<small>${n}</small></button>`).join('')+`</div>`+
+      `<div class="cp-fr">${chips(T('Funil','Funnel'),'fun',funList,st.fun)}</div>`+
+      `<div class="cp-fr">${chips(T('Tipo','Type'),'type',Object.keys(types).sort().map(k=>[k,types[k]]),st.type)}${Object.keys(themes).length?`<span class="sep"></span>${chips(T('Tema','Theme'),'theme',Object.keys(themes).sort().map(k=>[k,themes[k]]),st.theme)}`:''}</div>`+
+      (st.prod?`<div class="cp-fr"><span class="cp-pfilter">${st.prod.img?`<img src="${esc(st.prod.img)}" alt="">`:''}${esc(st.prod.t)}<button type="button" id="cp-pclear" aria-label="${T('Tirar filtro de produto','Clear product filter')}">✕</button></span></div>`:'');
+    $('cp-types').innerHTML=Object.keys(types).filter(Boolean).map(k=>`<option value="${esc(k)}">`).join('');
+    $('cp-themes').innerHTML=['Fall','Winter','Holiday','Spring','Summer'].concat(Object.keys(themes)).filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<option value="${esc(k)}">`).join('');
+    const L=st.items.filter(x=>matches(x));
+    const G=groups(L);
+    if(!st.items.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy ainda.','No copy yet.')}</p>`;
+    else if(!L.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`;
+    else $('cp-list').innerHTML=G.map(g=>{
+      const LIM=8,open=st.open[g.key]||G.length===1,shown=open?g.items:g.items.slice(0,LIM),pend=g.items.filter(x=>x.st!=='approved').length;
+      const head=g.kind==='p'?`${g.p.img?`<img src="${esc(g.p.img)}" alt="">`:'<i class="ph"></i>'}<div class="cp-gt"><b title="${esc(g.p.t)}">${esc(g.p.t)}</b><small>${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}${(g.p.sku||[])[0]?' · '+esc(g.p.sku[0]):''}${g.p.url?` · <a href="${esc(g.p.url)}" target="_blank" rel="noopener">${T('ver na loja','view in store')} ↗</a>`:''}</small></div>`
+        :`<i class="ph" aria-hidden="true">${/fall|autumn|outono/i.test(g.name)?'🍂':/summer|ver[aã]o/i.test(g.name)?'☀️':/winter|inverno/i.test(g.name)?'❄️':/spring|primavera/i.test(g.name)?'🌷':/holiday/i.test(g.name)?'✨':'✦'}</i><div class="cp-gt"><b>${esc(g.name)}</b><small>${T('copy geral','general copy')} · ${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small></div>`;
+      return `<article class="cp-grp" data-g="${esc(g.key)}"><div class="cp-gh">${head}${approver()&&pend?`<button class="cp-b cp-ab" data-gok="${esc(g.key)}">✓ ${T('Aprovar '+pend,'Approve '+pend)}</button>`:''}</div>
+        <ul class="cp-rows">${shown.map(row).join('')}</ul>${g.items.length>shown.length?`<button class="cp-gmore" data-more="${esc(g.key)}">${T('Ver todas as '+g.items.length+' frases','Show all '+g.items.length+' lines')} ↓</button>`:''}</article>`}).join('');
     $('cp-upd').textContent=st.updated?new Date(st.updated).toLocaleString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
-    $('cp-new').hidden=!st.edit;
-    $('cp-edit').textContent=st.edit?T('Editando ✓','Editing ✓'):T('Editar 🔒','Edit 🔒');
-    $('cp-edit').setAttribute('aria-pressed',String(st.edit));
+    const ed=st.edit||approver();
+    $('cp-new').hidden=$('cp-bulk').hidden=!ed;
+    $('cp-edit').hidden=approver();
+    $('cp-edit').textContent=st.edit?T('Editando ✓','Editing ✓'):T('Editar 🔒','Edit 🔒');$('cp-edit').setAttribute('aria-pressed',String(st.edit));
+    $('cp-appr').hidden=approver()||!st.clientId;
+    if(approver()){
+      const vis=st.items.filter(x=>x.st!=='approved'&&matches(x,true));
+      $('cp-who').hidden=false;
+      $('cp-who').innerHTML=`<span>${T('Você entrou como','Signed in as')} <b>${esc(st.me.email)}</b> · ${T('pode aprovar e remover copys.','can approve and remove copy.')}</span>${vis.length?`<button class="cp-b cp-ab" id="cp-allok">✓ ${T('Aprovar as '+vis.length+' pendentes desta lista','Approve the '+vis.length+' pending in this list')}</button>`:''}<button class="cp-b" id="cp-out">${T('Sair','Sign out')}</button>`;
+    } else $('cp-who').hidden=true;
   }
   async function load(){
-    try{const j=await api('GET',null,'?mk='+MK);st.items=j.items||[];st.updated=j.updated;st.loaded=true;render()}
+    try{apply(await api('GET',null,'?mk='+MK));render();if(st.idTok)whoami()}
     catch(e){st.loaded=false;$('cp-list').innerHTML=`<p class="empty">${T('Não consegui carregar o banco de copy. Recarregue a página.','Could not load the copy bank. Reload the page.')}</p>`}
   }
 
-  // filtros, busca, copiar
-  $('cp-filters').addEventListener('click',e=>{const b=e.target.closest('[data-type]');if(b){st.type=b.dataset.type;try{localStorage.setItem('cp-type',st.type)}catch(_){}render();return}
+  // login de quem aprova (Google)
+  async function whoami(){
+    try{const j=await api('POST',{auth:{idToken:st.idTok},action:'whoami'});
+      if(j.approver){st.me=j;st.edit=false;$('cp-gbox').hidden=true;$('cp-lock').hidden=true;try{sessionStorage.setItem('cp-g',st.idTok)}catch(_){}}
+      else{st.me=null;st.idTok=null;try{sessionStorage.removeItem('cp-g')}catch(_){}
+        if(j.email){$('cp-gbox').hidden=false;$('cp-g-err').textContent=T('O e-mail '+j.email+' não está na lista de quem aprova.','The email '+j.email+' is not on the approvers list.')}}
+      render()}
+    catch(e){st.me=null}
+  }
+  let gLoaded=null;
+  function loadGsi(){return gLoaded||(gLoaded=new Promise((ok,ko)=>{const s=document.createElement('script');s.src='https://accounts.google.com/gsi/client';s.async=true;s.onload=ok;s.onerror=ko;document.head.appendChild(s)}))}
+  $('cp-appr').onclick=async()=>{
+    $('cp-gbox').hidden=false;$('cp-g-err').textContent='';$('cp-lock').hidden=true;
+    try{await loadGsi();
+      google.accounts.id.initialize({client_id:st.clientId,callback:r=>{st.idTok=r.credential;whoami()},hd:'larroude.com',ux_mode:'popup',auto_select:false});
+      $('cp-gbtn').innerHTML='';google.accounts.id.renderButton($('cp-gbtn'),{theme:'outline',size:'large',text:'signin_with',locale:EN?'en':'pt-BR'});
+    }catch(e){$('cp-g-err').textContent=T('Não consegui abrir o login do Google.','Could not open Google sign-in.')}
+  };
+  $('cp-who').addEventListener('click',async e=>{
+    if(e.target.closest('#cp-out')){st.me=null;st.idTok=null;try{sessionStorage.removeItem('cp-g');google.accounts.id.disableAutoSelect()}catch(_){}render();return}
+    const b=e.target.closest('#cp-allok');if(!b)return;
+    const ids=st.items.filter(x=>x.st!=='approved'&&matches(x,true)).map(x=>x.id);
+    b.disabled=true;try{apply(await api('POST',{auth:auth(),action:'approve',mk:MK,ids}));render()}catch(err){b.disabled=false;alertMsg(fail(err))}
+  });
+  const alertMsg=m=>{$('cp-g-err').textContent=m;if(!approver()){$('cp-gbox').hidden=false}else{const w=$('cp-who');w.insertAdjacentHTML('beforeend',`<span class="cp-err">${esc(m)}</span>`)}};
+
+  // filtros, busca, copiar, aprovar, remover
+  $('cp-filters').addEventListener('click',e=>{
+    const s=e.target.closest('[data-status]');if(s){st.status=s.dataset.status;try{localStorage.setItem('cp-status',st.status)}catch(_){}render();return}
+    const b=e.target.closest('[data-type]');if(b){st.type=b.dataset.type;try{localStorage.setItem('cp-type',st.type)}catch(_){}render();return}
+    const f=e.target.closest('[data-fun]');if(f){st.fun=f.dataset.fun;try{localStorage.setItem('cp-fun',st.fun)}catch(_){}render();return}
+    const h=e.target.closest('[data-theme]');if(h){st.theme=h.dataset.theme;try{localStorage.setItem('cp-theme',st.theme)}catch(_){}render();return}
     if(e.target.closest('#cp-pclear')){st.prod=null;render()}});
   let qt;$('cp-q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim();render()},120)});
   $('cp-list').addEventListener('click',async e=>{
-    const card=e.target.closest('.cp-card');if(!card)return;const x=st.items.find(i=>i.id===card.dataset.id);if(!x)return;
-    const pb=e.target.closest('.cp-prod');if(pb){st.prod=(x.products||[]).find(p=>p.id===pb.dataset.pid)||null;render();window.scrollTo({top:$('cp-filters').getBoundingClientRect().top+scrollY-80,behavior:'smooth'});return}
-    const b=e.target.closest('[data-act]');if(!b)return;
-    if(b.dataset.act==='copy'){
+    const more=e.target.closest('[data-more]');if(more){st.open[more.dataset.more]=true;render();return}
+    const gok=e.target.closest('[data-gok]');if(gok){const k=gok.dataset.gok;const ids=st.items.filter(x=>x.st!=='approved'&&matches(x,true)&&(k.startsWith('p:')?(x.products||[]).some(p=>'p:'+p.id===k):!(x.products||[]).length&&'t:'+(x.theme||'')===k)).map(x=>x.id);
+      gok.disabled=true;try{apply(await api('POST',{auth:auth(),action:'approve',mk:MK,ids}));render()}catch(err){gok.disabled=false;alertMsg(fail(err))}return}
+    const r=e.target.closest('.cp-r');if(!r)return;const x=st.items.find(i=>i.id===r.dataset.id);if(!x)return;
+    const b=e.target.closest('[data-act]');if(!b)return;const act=b.dataset.act;
+    if(act==='copy'){
       try{await navigator.clipboard.writeText(x.text)}catch(_){const t=document.createElement('textarea');t.value=x.text;document.body.appendChild(t);t.select();try{document.execCommand('copy')}catch(__){}t.remove()}
       b.textContent=T('Copiado ✓','Copied ✓');b.classList.add('cp-ok');setTimeout(()=>{b.textContent=T('Copiar','Copy');b.classList.remove('cp-ok')},1500);
-    } else if(b.dataset.act==='edit')openDlg(x);
+    } else if(act==='edit')openDlg(x);
+    else if(act==='approve'||act==='unapprove'){b.disabled=true;try{apply(await api('POST',{auth:auth(),action:'approve',mk:MK,id:x.id,value:act==='approve'}));render()}catch(err){b.disabled=false;alertMsg(fail(err))}}
+    else if(act==='remove'){
+      if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent=T('Remover?','Remove?');setTimeout(()=>{if(b.isConnected){b.classList.remove('sure');b.textContent='✕'}},4000);return}
+      b.disabled=true;try{apply(await api('POST',{auth:auth(),action:'delete',mk:MK,id:x.id}));render()}catch(err){b.disabled=false;alertMsg(fail(err))}}
   });
 
-  // senha
+  // senha do time
   $('cp-edit').onclick=async()=>{
     if(st.edit){st.edit=false;render();return}
-    if(st.pass){try{await api('POST',{password:st.pass,action:'check'});st.edit=true;render();return}catch(e){st.pass=null}}
-    $('cp-lock').hidden=false;$('cp-pass').focus();
+    if(st.pass){try{await api('POST',{auth:{password:st.pass},action:'check'});st.edit=true;render();return}catch(e){st.pass=null}}
+    $('cp-gbox').hidden=true;$('cp-lock').hidden=false;$('cp-pass').focus();
   };
   $('cp-lock').onsubmit=async e=>{e.preventDefault();const pw=$('cp-pass').value;$('cp-pass-err').textContent='';
-    try{await api('POST',{password:pw,action:'check'});st.pass=pw;try{sessionStorage.setItem('cal-k',pw)}catch(_){}$('cp-lock').hidden=true;$('cp-pass').value='';st.edit=true;render()}
+    try{await api('POST',{auth:{password:pw},action:'check'});st.pass=pw;try{sessionStorage.setItem('cal-k',pw)}catch(_){}$('cp-lock').hidden=true;$('cp-pass').value='';st.edit=true;render()}
     catch(err){$('cp-pass-err').textContent=err.status===401?T('Senha incorreta.','Wrong password.'):T('Não consegui conferir. Tente de novo.','Could not check. Try again.')}};
 
-  // editor
+  // editor (uma copy ou várias de uma vez)
   function selRender(){$('cp-sel').innerHTML=st.sel.map(p=>prodChip(p,'<span class="x" aria-hidden="true">✕</span>')).join('')}
-  function openDlg(x){
-    st.cur=x||null;st.sel=x?JSON.parse(JSON.stringify(x.products||[])):(st.prod?[st.prod]:[]);
-    $('cp-dlg-t').textContent=x?T('Editar copy','Edit copy'):T('Nova copy','New copy');
+  const splitLines=v=>v.split(/\r?\n/).map(l=>l.replace(/^\s*(?:[*•\-–—]|\d+[.)])\s*/,'').trim()).filter(Boolean);
+  function count(){const v=$('cp-text').value;$('cp-count').textContent=st.bulk?splitLines(v).length+' '+T('copys','copies'):[...v].length}
+  function openDlg(x,bulk){
+    st.bulk=!!bulk;st.cur=x||null;st.sel=x?JSON.parse(JSON.stringify(x.products||[])):(st.prod?[st.prod]:[]);
+    $('cp-dlg-t').textContent=bulk?T('Várias copys de uma vez','Several copies at once'):x?T('Editar copy','Edit copy'):T('Nova copy','New copy');
+    $('cp-l-text').textContent=bulk?T('Copys (uma por linha)','Copies (one per line)'):T('Copy','Copy');$('cp-hint').hidden=!bulk;$('cp-text').rows=bulk?12:5;
+    $('cp-funnel').innerHTML=`<option value="">${T('— escolher —','— choose —')}</option>`+st.funnel.map(f=>`<option>${esc(f)}</option>`).join('');
+    $('cp-funnel').value=x?x.funnel||'':(st.fun!=='all'?st.fun:'');$('cp-theme').value=x?x.theme||'':(st.theme!=='all'?st.theme:'');
     $('cp-type').value=x?x.type||'':(st.type!=='all'?st.type:'');$('cp-text').value=x?x.text:'';$('cp-tags').value=x?(x.tags||[]).join(', '):'';$('cp-notes').value=x?x.notes||'':'';
-    $('cp-pq').value='';$('cp-res').innerHTML='';$('cp-save-err').textContent='';$('cp-del').hidden=!x;$('cp-count').textContent=[...$('cp-text').value].length;
+    $('cp-pq').value='';$('cp-res').innerHTML='';$('cp-save-err').textContent='';$('cp-del').hidden=!(x&&approver());count();
     selRender();$('cp-dlg').showModal();setTimeout(()=>$('cp-text').focus(),30);
   }
   $('cp-new').onclick=()=>openDlg(null);
+  $('cp-bulk').onclick=()=>openDlg(null,true);
   $('cp-x').onclick=$('cp-cancel').onclick=()=>$('cp-dlg').close();
-  $('cp-text').oninput=()=>{$('cp-count').textContent=[...$('cp-text').value].length};
+  $('cp-text').oninput=count;
   $('cp-sel').addEventListener('click',e=>{const b=e.target.closest('.cp-prod');if(!b)return;st.sel=st.sel.filter(p=>p.id!==b.dataset.pid);selRender()});
   let pt,pseq=0,last=[];
   $('cp-pq').addEventListener('input',e=>{clearTimeout(pt);const q=e.target.value.trim();if(q.length<2){$('cp-res').innerHTML='';return}
@@ -1656,17 +1800,20 @@ window.__S=function(IG,FOL){(function(){
     if(!st.sel.some(s=>s.id===p.id))st.sel.push({id:p.id,t:p.t,h:p.h,sku:p.sku,img:p.img,url:p.url});else st.sel=st.sel.filter(s=>s.id!==p.id);
     selRender();b.querySelector('em').textContent=st.sel.some(s=>s.id===p.id)?T('ligado ✓','linked ✓'):'+'});
   $('cp-form').onsubmit=async e=>{e.preventDefault();
-    const item={id:st.cur?st.cur.id:undefined,type:$('cp-type').value.trim(),text:$('cp-text').value,tags:$('cp-tags').value.split(',').map(s=>s.trim()).filter(Boolean),notes:$('cp-notes').value,products:st.sel};
-    if(!item.text.trim()){$('cp-save-err').textContent=T('Escreva a copy.','Write the copy.');return}
+    const base={funnel:$('cp-funnel').value,theme:$('cp-theme').value.trim(),type:$('cp-type').value.trim(),tags:$('cp-tags').value.split(',').map(s=>s.trim()).filter(Boolean),notes:$('cp-notes').value,products:st.sel};
+    const texts=st.bulk?splitLines($('cp-text').value):[$('cp-text').value];
+    if(!texts.length||!texts[0].trim()){$('cp-save-err').textContent=T('Escreva a copy.','Write the copy.');return}
     $('cp-save').disabled=true;$('cp-save-err').textContent='';
-    try{const j=await api('POST',{password:st.pass,action:'save',mk:MK,item});st.items=j.items;st.updated=j.updated;$('cp-dlg').close();render()}
-    catch(err){$('cp-save-err').textContent=err.status===401?T('Senha expirou. Feche e clique em Editar de novo.','Password expired. Close and click Edit again.'):T('Não salvou. Tente de novo.','Could not save. Try again.');if(err.status===401){st.pass=null;st.edit=false}}
+    try{const j=st.bulk?await api('POST',{auth:auth(),action:'bulk',mk:MK,items:texts.map(text=>({...base,text}))})
+                     :await api('POST',{auth:auth(),action:'save',mk:MK,item:{...base,id:st.cur?st.cur.id:undefined,text:texts[0]}});
+      apply(j);$('cp-dlg').close();render()}
+    catch(err){$('cp-save-err').textContent=fail(err)}
     finally{$('cp-save').disabled=false}};
   $('cp-del').onclick=async()=>{if(!st.cur)return;
-    if($('cp-del').dataset.sure!=='1'){$('cp-del').dataset.sure='1';$('cp-del').textContent=T('Confirmar exclusão','Confirm delete');setTimeout(()=>{$('cp-del').dataset.sure='';$('cp-del').textContent=T('Excluir','Delete')},4000);return}
-    $('cp-del').dataset.sure='';$('cp-del').textContent=T('Excluir','Delete');
-    try{const j=await api('POST',{password:st.pass,action:'delete',mk:MK,id:st.cur.id});st.items=j.items;st.updated=j.updated;$('cp-dlg').close();render()}
-    catch(err){$('cp-save-err').textContent=T('Não excluiu. Tente de novo.','Could not delete. Try again.')}};
+    if($('cp-del').dataset.sure!=='1'){$('cp-del').dataset.sure='1';$('cp-del').textContent=T('Confirmar remoção','Confirm removal');setTimeout(()=>{$('cp-del').dataset.sure='';$('cp-del').textContent=T('Remover','Remove')},4000);return}
+    $('cp-del').dataset.sure='';$('cp-del').textContent=T('Remover','Remove');
+    try{apply(await api('POST',{auth:auth(),action:'delete',mk:MK,id:st.cur.id}));$('cp-dlg').close();render()}
+    catch(err){$('cp-save-err').textContent=fail(err)}};
 
   function maybeLoad(){if(location.hash==='#copy'&&!st.loaded){st.loaded=true;load()}}
   window.addEventListener('hashchange',maybeLoad);maybeLoad();
