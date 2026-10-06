@@ -1621,10 +1621,11 @@ window.__S=function(IG,FOL){(function(){
   try{st.idTok=sessionStorage.getItem('cp-g')||null}catch(e){}
   try{const t=localStorage.getItem('cp-type');if(t)st.type=t;const s=localStorage.getItem('cp-status');if(s)st.status=s;const f=localStorage.getItem('cp-fun');if(f)st.fun=f;const h=localStorage.getItem('cp-theme');if(h)st.theme=h}catch(e){}
   const approver=()=>!!(st.me&&st.me.approver);
+  const SHOW_APPROVAL=false; // aprovação da Marina pausada: sem selo, sem filtro de status
 
   if(EN){
     $('cp-kicker').textContent='Larroudé · Copy bank · US';$('cp-h1').innerHTML='Copy <em>bank</em>';
-    $('cp-sub').textContent='Ready-made lines to reuse in ads, videos and posts. Search by text, type or product (name or SKU) and click Copy. New copy stays "Awaiting approval" until Marina or Jess approves it.';
+    $('cp-sub').textContent='Ready-made lines to reuse in ads, videos and posts. Search by text, type or product (name or SKU) and click Copy. To add or change copy, switch to edit mode.';
     $('cp-q').placeholder='Search copy, product, SKU or theme';$('cp-l-funnel').textContent='Funnel stage';$('cp-l-theme').textContent='General theme (optional)';$('cp-theme').placeholder='E.g. Fall, Summer, Holiday';$('cp-new').textContent='+ New copy';$('cp-bulk').textContent='+ Several at once';$('cp-appr').textContent='Approve copy';
     $('cp-g-txt').textContent='Approvers sign in with their Google account (Marina and Jess).';
     $('cp-pass-l').textContent='Password to edit';$('cp-pass-ok').textContent='Enter';$('cp-foot').textContent='Copy bank saved on the site. Products come from the US store catalog (larroude.com). Updated';
@@ -1632,7 +1633,7 @@ window.__S=function(IG,FOL){(function(){
     $('cp-hint').textContent='One copy per line. Leading markers like "*", "-" or "1." are removed.';
     $('cp-l-tags').textContent='Angles / tags (comma separated)';$('cp-tags').placeholder='E.g. comfort, styling, offer';$('cp-l-prod').textContent='Linked products';
     $('cp-pq').placeholder='Search product by name or SKU';$('cp-l-notes').textContent='Notes';$('cp-del').textContent='Remove';$('cp-cancel').textContent='Cancel';$('cp-save').textContent='Save';
-  } else $('cp-sub').textContent='Frases prontas para reaproveitar em anúncios, vídeos e posts. Busque pelo texto, pelo tipo ou pelo produto (nome ou SKU) e clique em Copiar. Copy nova fica "Aguardando aprovação" até a Marina ou a Jess aprovar.';
+  } else $('cp-sub').textContent='Frases prontas para reaproveitar em anúncios, vídeos e posts. Busque pelo texto, pelo tipo ou pelo produto (nome ou SKU) e clique em Copiar. Para adicionar ou mudar, entre no modo de edição.';
 
   const auth=()=>approver()?{idToken:st.idTok}:{password:st.pass};
   async function api(method,body,qs){
@@ -1676,10 +1677,10 @@ window.__S=function(IG,FOL){(function(){
   }
   function row(x){
     const canEdit=approver()||st.edit;
-    return `<li class="cp-r ${x.st==='approved'?'approved':'pending'}" data-id="${esc(x.id)}">
+    return `<li class="cp-r ${SHOW_APPROVAL?(x.st==='approved'?'approved':'pending'):''}" data-id="${esc(x.id)}">
       <p class="cp-text">${esc(x.text)}</p>
       <span class="cp-acts">${approver()?(x.st==='approved'?`<button class="cp-b cp-i" data-act="unapprove" title="${T('Voltar para pendente','Back to pending')}" aria-label="${T('Voltar para pendente','Back to pending')}">↺</button>`:`<button class="cp-b cp-ab cp-i" data-act="approve" title="${T('Aprovar','Approve')}" aria-label="${T('Aprovar','Approve')}">✓</button>`):''}${canEdit?`<button class="cp-b cp-rm cp-i" data-act="remove" title="${T('Remover','Remove')}" aria-label="${T('Remover','Remove')}">✕</button>`:''}${canEdit?`<button class="cp-b cp-i" data-act="edit" title="${T('Editar','Edit')}" aria-label="${T('Editar','Edit')}">✎</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span>
-      <div class="cp-meta">${x.st==='approved'?`<span class="cp-st approved" title="${esc(T('Aprovada por ','Approved by ')+nameOf(x.approvedBy)+' · '+fmtDate(x.approvedAt))}">✓ ${T('Aprovada','Approved')}</span>`:`<span class="cp-st pending">${T('Aguardando aprovação','Awaiting approval')}</span>`}${x.funnel?`<span class="cp-fun f${funIdx(x.funnel)}">${esc(x.funnel)}</span>`:''}${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${x.theme?`<span class="cp-tag">${esc(x.theme)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}<span class="mono">${[...x.text].length}c</span>${x.notes?`<span title="${esc(x.notes)}">📝</span>`:''}</div>
+      <div class="cp-meta">${!SHOW_APPROVAL?'':x.st==='approved'?`<span class="cp-st approved" title="${esc(T('Aprovada por ','Approved by ')+nameOf(x.approvedBy)+' · '+fmtDate(x.approvedAt))}">✓ ${T('Aprovada','Approved')}</span>`:`<span class="cp-st pending">${T('Aguardando aprovação','Awaiting approval')}</span>`}${x.funnel?`<span class="cp-fun f${funIdx(x.funnel)}">${esc(x.funnel)}</span>`:''}${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${x.theme?`<span class="cp-tag">${esc(x.theme)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}<span class="mono">${[...x.text].length}c</span>${x.notes?`<span title="${esc(x.notes)}">📝</span>`:''}</div>
     </li>`;
   }
   function render(){
@@ -1688,7 +1689,8 @@ window.__S=function(IG,FOL){(function(){
     if(st.type!=='all'&&!(st.type in types))st.type='all';
     if(st.theme!=='all'&&!(st.theme in themes))st.theme='all';
     const funList=st.funnel.map(f=>[f,funs[f]||0]).concat(funs['']?[['',funs['']]]:[]);
-    $('cp-filters').innerHTML=`<div class="cp-fr"><span class="lbl">${T('Status','Status')}</span>`+[['all',T('Todas','All'),st.items.length],['approved',T('Aprovadas','Approved'),nA],['pending',T('Aguardando aprovação','Awaiting approval'),nP]].map(([k,l,n])=>`<button class="cp-b" data-status="${k}" aria-pressed="${st.status===k}">${l}<small>${n}</small></button>`).join('')+`</div>`+
+    if(!SHOW_APPROVAL)st.status='all';
+    $('cp-filters').innerHTML=(SHOW_APPROVAL?`<div class="cp-fr"><span class="lbl">${T('Status','Status')}</span>`+[['all',T('Todas','All'),st.items.length],['approved',T('Aprovadas','Approved'),nA],['pending',T('Aguardando aprovação','Awaiting approval'),nP]].map(([k,l,n])=>`<button class="cp-b" data-status="${k}" aria-pressed="${st.status===k}">${l}<small>${n}</small></button>`).join('')+`</div>`:'')+
       `<div class="cp-fr">${chips(T('Funil','Funnel'),'fun',funList,st.fun)}</div>`+
       `<div class="cp-fr">${chips(T('Tipo','Type'),'type',Object.keys(types).sort().map(k=>[k,types[k]]),st.type)}${Object.keys(themes).length?`<span class="sep"></span>${chips(T('Tema','Theme'),'theme',Object.keys(themes).sort().map(k=>[k,themes[k]]),st.theme)}`:''}</div>`+
       (st.prod?`<div class="cp-fr"><span class="cp-pfilter">${st.prod.img?`<img src="${esc(st.prod.img)}" alt="">`:''}${esc(st.prod.t)}<button type="button" id="cp-pclear" aria-label="${T('Tirar filtro de produto','Clear product filter')}">✕</button></span></div>`:'');
@@ -1700,8 +1702,8 @@ window.__S=function(IG,FOL){(function(){
     else if(!L.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`;
     else $('cp-list').innerHTML=G.map(g=>{
       const open=!!st.open[g.key]||!!st.q,shown=open?g.items:[],pend=g.items.filter(x=>x.st!=='approved').length;
-      const head=g.kind==='p'?`${g.p.img?`<img src="${esc(g.p.img)}" alt="">`:'<i class="ph"></i>'}<div class="cp-gt"><b title="${esc(g.p.t)}">${esc(g.p.t)}</b><small>${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small>${open?`<small>${(g.p.sku||[])[0]?esc(g.p.sku[0]):''}${g.p.url?` · <a href="${esc(g.p.url)}" target="_blank" rel="noopener">${T('ver na loja','view in store')} ↗</a>`:''}</small>`:''}</div>`
-        :`<i class="ph" aria-hidden="true">${/fall|autumn|outono/i.test(g.name)?'🍂':/summer|ver[aã]o/i.test(g.name)?'☀️':/winter|inverno/i.test(g.name)?'❄️':/spring|primavera/i.test(g.name)?'🌷':/holiday/i.test(g.name)?'✨':'✦'}</i><div class="cp-gt"><b>${esc(g.name)}</b><small>${T('copy geral','general copy')} · ${g.items.length} ${T('frases','lines')}${pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small></div>`;
+      const head=g.kind==='p'?`${g.p.img?`<img src="${esc(g.p.img)}" alt="">`:'<i class="ph"></i>'}<div class="cp-gt"><b title="${esc(g.p.t)}">${esc(g.p.t)}</b><small>${g.items.length} ${T('frases','lines')}${SHOW_APPROVAL&&pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small>${open?`<small>${(g.p.sku||[])[0]?esc(g.p.sku[0]):''}${g.p.url?` · <a href="${esc(g.p.url)}" target="_blank" rel="noopener">${T('ver na loja','view in store')} ↗</a>`:''}</small>`:''}</div>`
+        :`<i class="ph" aria-hidden="true">${/fall|autumn|outono/i.test(g.name)?'🍂':/summer|ver[aã]o/i.test(g.name)?'☀️':/winter|inverno/i.test(g.name)?'❄️':/spring|primavera/i.test(g.name)?'🌷':/holiday/i.test(g.name)?'✨':'✦'}</i><div class="cp-gt"><b>${esc(g.name)}</b><small>${T('copy geral','general copy')} · ${g.items.length} ${T('frases','lines')}${SHOW_APPROVAL&&pend?' · '+pend+' '+T('aguardando','awaiting'):''}</small></div>`;
       return `<article class="cp-grp${open?' open':''}" data-g="${esc(g.key)}"><div class="cp-gh" role="button" tabindex="0" aria-expanded="${open}" data-tog="${esc(g.key)}" title="${open?T('Fechar','Close'):T('Abrir as frases','Open the lines')}">${head}${approver()&&pend&&open?`<button class="cp-b cp-ab" data-gok="${esc(g.key)}">✓ ${T('Aprovar '+pend,'Approve '+pend)}</button>`:''}</div>
         ${open?`<ul class="cp-rows">${shown.map(row).join('')}</ul>`:''}</article>`}).join('');
     $('cp-upd').textContent=st.updated?new Date(st.updated).toLocaleString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}):'—';
