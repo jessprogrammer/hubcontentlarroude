@@ -1617,7 +1617,7 @@ window.__S=function(IG,FOL){(function(){
   const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
   const MK='US';
   const st={items:[],updated:null,loaded:false,pass:null,edit:false,idTok:null,me:null,clientId:'',funnel:['Branding','Problem awareness','Product awareness','Most aware / Conversion'],type:'all',status:'all',fun:'all',theme:'all',prod:null,q:'',cur:null,sel:[],bulk:false,open:{}};
-  try{st.pass=sessionStorage.getItem('cal-k')||null}catch(e){}
+  try{st.pass=sessionStorage.getItem('cp-k')||null}catch(e){}
   try{st.idTok=sessionStorage.getItem('cp-g')||null}catch(e){}
   try{const t=localStorage.getItem('cp-type');if(t)st.type=t;const s=localStorage.getItem('cp-status');if(s)st.status=s;const f=localStorage.getItem('cp-fun');if(f)st.fun=f;const h=localStorage.getItem('cp-theme');if(h)st.theme=h}catch(e){}
   const approver=()=>!!(st.me&&st.me.approver);
@@ -1675,10 +1675,10 @@ window.__S=function(IG,FOL){(function(){
     return [...G.entries()].map(([k,g])=>({key:k,...g})).sort((a,b)=>(a.kind==='t')-(b.kind==='t')||b.items.length-a.items.length||a.name.localeCompare(b.name));
   }
   function row(x){
-    const canEdit=approver()||(st.edit&&x.st!=='approved');
+    const canEdit=approver()||st.edit;
     return `<li class="cp-r ${x.st==='approved'?'approved':'pending'}" data-id="${esc(x.id)}">
       <p class="cp-text">${esc(x.text)}</p>
-      <span class="cp-acts">${approver()?(x.st==='approved'?`<button class="cp-b cp-i" data-act="unapprove" title="${T('Voltar para pendente','Back to pending')}" aria-label="${T('Voltar para pendente','Back to pending')}">↺</button>`:`<button class="cp-b cp-ab cp-i" data-act="approve" title="${T('Aprovar','Approve')}" aria-label="${T('Aprovar','Approve')}">✓</button>`)+`<button class="cp-b cp-rm cp-i" data-act="remove" title="${T('Remover','Remove')}" aria-label="${T('Remover','Remove')}">✕</button>`:''}${canEdit?`<button class="cp-b cp-i" data-act="edit" title="${T('Editar','Edit')}" aria-label="${T('Editar','Edit')}">✎</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span>
+      <span class="cp-acts">${approver()?(x.st==='approved'?`<button class="cp-b cp-i" data-act="unapprove" title="${T('Voltar para pendente','Back to pending')}" aria-label="${T('Voltar para pendente','Back to pending')}">↺</button>`:`<button class="cp-b cp-ab cp-i" data-act="approve" title="${T('Aprovar','Approve')}" aria-label="${T('Aprovar','Approve')}">✓</button>`):''}${canEdit?`<button class="cp-b cp-rm cp-i" data-act="remove" title="${T('Remover','Remove')}" aria-label="${T('Remover','Remove')}">✕</button>`:''}${canEdit?`<button class="cp-b cp-i" data-act="edit" title="${T('Editar','Edit')}" aria-label="${T('Editar','Edit')}">✎</button>`:''}<button class="cp-b" data-act="copy">${T('Copiar','Copy')}</button></span>
       <div class="cp-meta">${x.st==='approved'?`<span class="cp-st approved" title="${esc(T('Aprovada por ','Approved by ')+nameOf(x.approvedBy)+' · '+fmtDate(x.approvedAt))}">✓ ${T('Aprovada','Approved')}</span>`:`<span class="cp-st pending">${T('Aguardando aprovação','Awaiting approval')}</span>`}${x.funnel?`<span class="cp-fun f${funIdx(x.funnel)}">${esc(x.funnel)}</span>`:''}${x.type?`<span class="cp-type">${esc(x.type)}</span>`:''}${x.theme?`<span class="cp-tag">${esc(x.theme)}</span>`:''}${(x.tags||[]).map(t=>`<span class="cp-tag">${esc(t)}</span>`).join('')}<span class="mono">${[...x.text].length}c</span>${x.notes?`<span title="${esc(x.notes)}">📝</span>`:''}</div>
     </li>`;
   }
@@ -1780,7 +1780,7 @@ window.__S=function(IG,FOL){(function(){
     $('cp-gbox').hidden=true;$('cp-lock').hidden=false;$('cp-pass').focus();
   };
   $('cp-lock').onsubmit=async e=>{e.preventDefault();const pw=$('cp-pass').value;$('cp-pass-err').textContent='';
-    try{await api('POST',{auth:{password:pw},action:'check'});st.pass=pw;try{sessionStorage.setItem('cal-k',pw)}catch(_){}$('cp-lock').hidden=true;$('cp-pass').value='';st.edit=true;render()}
+    try{await api('POST',{auth:{password:pw},action:'check'});st.pass=pw;try{sessionStorage.setItem('cp-k',pw)}catch(_){}$('cp-lock').hidden=true;$('cp-pass').value='';st.edit=true;render()}
     catch(err){$('cp-pass-err').textContent=err.status===401?T('Senha incorreta.','Wrong password.'):T('Não consegui conferir. Tente de novo.','Could not check. Try again.')}};
 
   // editor (uma copy ou várias de uma vez)
@@ -1794,7 +1794,7 @@ window.__S=function(IG,FOL){(function(){
     $('cp-funnel').innerHTML=`<option value="">${T('— escolher —','— choose —')}</option>`+st.funnel.map(f=>`<option>${esc(f)}</option>`).join('');
     $('cp-funnel').value=x?x.funnel||'':(st.fun!=='all'?st.fun:'');$('cp-theme').value=x?x.theme||'':(st.theme!=='all'?st.theme:'');
     $('cp-type').value=x?x.type||'':(st.type!=='all'?st.type:'');$('cp-text').value=x?x.text:'';$('cp-tags').value=x?(x.tags||[]).join(', '):'';$('cp-notes').value=x?x.notes||'':'';
-    $('cp-pq').value='';$('cp-res').innerHTML='';$('cp-save-err').textContent='';$('cp-del').hidden=!(x&&approver());count();
+    $('cp-pq').value='';$('cp-res').innerHTML='';$('cp-save-err').textContent='';$('cp-del').hidden=!(x&&(approver()||st.edit));count();
     selRender();$('cp-dlg').showModal();setTimeout(()=>$('cp-text').focus(),30);
   }
   $('cp-new').onclick=()=>openDlg(null);
