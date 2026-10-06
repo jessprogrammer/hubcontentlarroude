@@ -10,11 +10,12 @@ import { get, put } from '../lib/store.js';
 import { catalog } from './products.js';
 import seedUS from '../data/copy-seed-us.js';
 import seedCyprus from '../data/copy-seed-us-cyprus.js';
+import seedBest from '../data/copy-seed-us-bestsellers.js';
 
 const MKS = ['US', 'BR'];
 // etapas do funil (consciência), iguais aos nomes dos anúncios
 export const FUNNEL = config.copyFunnel || ['Branding', 'Problem awareness', 'Product awareness', 'Most aware / Conversion'];
-const SEEDS = { US: [seedUS, seedCyprus] };
+const SEEDS = { US: [seedUS, seedCyprus, seedBest] };
 const APPROVERS = (config.copyApprovers || []).map(e => e.toLowerCase());
 const CLIENT_ID = () => process.env.GOOGLE_CLIENT_ID || '';
 const str = (v, n) => String(v == null ? '' : v).slice(0, n);
@@ -71,7 +72,7 @@ async function applySeed(mk, D, S) {
     }
     const have = new Set(D.items.map(x => x.id));
     const now = new Date().toISOString();
-    const add = S.items.filter(x => !have.has(x.id)).map(x => ({ ...clean({ ...x, type: x.type || S.type, products: prods }), st: 'pending', created: now, by: 'lista enviada pela Jess' }));
+    const add = S.items.filter(x => !have.has(x.id)).map(x => ({ ...clean({ ...x, type: x.type || S.type, theme: x.theme || S.theme || '', products: prods }), st: 'pending', created: now, by: 'lista enviada pela Jess' }));
     D.items = add.concat(D.items);
     D.seeded = (D.seeded || []).concat(S.version);
     D.updated = now;
