@@ -676,6 +676,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cp-grp:not(.open) .cp-gt b{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .cp-grp:not(.open){transition:border-color .15s}
 .cp-grp:not(.open):hover{border-color:var(--ink)}
+.cp-fon{background:var(--warn-soft);border-radius:10px;padding:8px 12px;gap:12px;font-size:13.5px}
 </style>
 </head>
 <body>
@@ -1619,7 +1620,7 @@ window.__S=function(IG,FOL){(function(){
   const st={items:[],updated:null,loaded:false,pass:null,edit:false,idTok:null,me:null,clientId:'',funnel:['Branding','Problem awareness','Product awareness','Most aware / Conversion'],type:'all',status:'all',fun:'all',theme:'all',prod:null,q:'',cur:null,sel:[],bulk:false,open:{}};
   try{st.pass=sessionStorage.getItem('cp-k')||null}catch(e){}
   try{st.idTok=sessionStorage.getItem('cp-g')||null}catch(e){}
-  try{const t=localStorage.getItem('cp-type');if(t)st.type=t;const s=localStorage.getItem('cp-status');if(s)st.status=s;const f=localStorage.getItem('cp-fun');if(f)st.fun=f;const h=localStorage.getItem('cp-theme');if(h)st.theme=h}catch(e){}
+  try{['cp-type','cp-status','cp-fun','cp-theme'].forEach(k=>localStorage.removeItem(k))}catch(e){} // filtros não ficam guardados: o painel sempre abre mostrando tudo
   const approver=()=>!!(st.me&&st.me.approver);
   const SHOW_APPROVAL=false; // aprovação da Marina pausada: sem selo, sem filtro de status
 
@@ -1697,6 +1698,7 @@ window.__S=function(IG,FOL){(function(){
     $('cp-types').innerHTML=Object.keys(types).filter(Boolean).map(k=>`<option value="${esc(k)}">`).join('');
     $('cp-themes').innerHTML=['Fall','Winter','Holiday','Spring','Summer'].concat(Object.keys(themes)).filter((v,i,a)=>a.indexOf(v)===i).map(k=>`<option value="${esc(k)}">`).join('');
     const L=st.items.filter(x=>matches(x));
+    if(L.length<st.items.length)$('cp-filters').insertAdjacentHTML('beforeend',`<div class="cp-fr cp-fon"><span>${T('Filtro ativo: mostrando','Filter on: showing')} <b>${L.length}</b> ${T('de','of')} ${st.items.length} copys</span><button class="cp-b cp-primary" type="button" id="cp-all">${T('Ver tudo','Show all')}</button></div>`);
     const G=groups(L);
     if(!st.items.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy ainda.','No copy yet.')}</p>`;
     else if(!L.length)$('cp-list').innerHTML=`<p class="empty">${T('Nenhuma copy com esses filtros.','No copy matches these filters.')}</p>`;
@@ -1751,10 +1753,11 @@ window.__S=function(IG,FOL){(function(){
 
   // filtros, busca, copiar, aprovar, remover
   $('cp-filters').addEventListener('click',e=>{
-    const s=e.target.closest('[data-status]');if(s){st.status=s.dataset.status;try{localStorage.setItem('cp-status',st.status)}catch(_){}render();return}
-    const b=e.target.closest('[data-type]');if(b){st.type=b.dataset.type;try{localStorage.setItem('cp-type',st.type)}catch(_){}render();return}
-    const f=e.target.closest('[data-fun]');if(f){st.fun=f.dataset.fun;try{localStorage.setItem('cp-fun',st.fun)}catch(_){}render();return}
-    const h=e.target.closest('[data-theme]');if(h){st.theme=h.dataset.theme;try{localStorage.setItem('cp-theme',st.theme)}catch(_){}render();return}
+    const s=e.target.closest('[data-status]');if(s){st.status=s.dataset.status;render();return}
+    const b=e.target.closest('[data-type]');if(b){st.type=b.dataset.type;render();return}
+    const f=e.target.closest('[data-fun]');if(f){st.fun=f.dataset.fun;render();return}
+    if(e.target.closest('#cp-all')){st.type='all';st.fun='all';st.theme='all';st.status='all';st.prod=null;st.q='';$('cp-q').value='';render();return}
+    const h=e.target.closest('[data-theme]');if(h){st.theme=h.dataset.theme;render();return}
     if(e.target.closest('#cp-pclear')){st.prod=null;render()}});
   let qt;$('cp-q').addEventListener('input',e=>{clearTimeout(qt);qt=setTimeout(()=>{st.q=e.target.value.trim();render()},120)});
   $('cp-list').addEventListener('click',async e=>{
