@@ -1079,7 +1079,7 @@ function shownSt(x){const a=apOf(x);return a&&a.st!=='error'?'Delivered':x.st}
 function apprBox(x){
   const a=apOf(x);
   if(a&&a.st!=='error')return `<div class="ap-n">✓ ${EN?'Approved · updating the sheet':'Aprovado · atualizando a planilha'}</div>`;
-  if(!NEEDS.test(x.st||'')||!x.row||!x.sid)return '';
+  if(!NEEDS.test(x.st||'')||!x.row||!(x.ref||x.sid))return '';
   const err=a&&a.st==='error'?`<div class="ap-n ap-err">${EN?'Could not update the sheet':'Não deu para mudar na planilha'}${a.msg?': '+esc(a.msg):''}</div>`:'';
   return err+`<div class="ap" data-k="${esc(apKey(x))}"><button class="ap-b" type="button" data-ap>${EN?'Approve':'Aprovar'}</button></div>`;
 }
@@ -1087,7 +1087,7 @@ function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};(j.
 async function sendAppr(box,pw){
   const x=DATA.find(y=>apKey(y)===box.dataset.k);if(!x)return;
   box.innerHTML=`<span class="ap-n">${EN?'Approving…':'Aprovando…'}</span>`;
-  let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pw,mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,st:x.st,camp:x.camp+' '+x.detail})})}catch(e){r=null}
+  let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pw,mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail})})}catch(e){r=null}
   if(r&&r.ok){try{sessionStorage.setItem('cp-k',pw)}catch(e){}APPR[apKey(x)]={k:apKey(x),st:'pending'};render();return}
   if(r&&r.status===401){try{sessionStorage.removeItem('cp-k')}catch(e){}askPw(box,EN?'Wrong password':'Senha errada');return}
   box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`;
