@@ -23,6 +23,26 @@ async function scriptEmail(req) {
   return config.ingestEmails.map(e => e.toLowerCase()).includes(email) ? email : null;
 }
 
+// linhas da Creative Request com status de aprovação. US: aba "US Request - Meta" (sem nome de aba). BR: abas lidas pelo script.
+// Colunas: B(1) peça, C(2) tipo, G(6) objetivo, J(9) status, K(10) produto/campanha (só BR), U(20) link do Air, W(22) entrega
+const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+export const fpOf = (mk, r) => norm(mk === 'BR' ? (r[10] || r[1]) : r[1]).slice(0, 60);
+async function needRows(mk) {
+  const doc = await get(mk === 'BR' ? 'sheet:criativosBR' : 'sheet:criativos');
+  if (!doc) return [];
+  const out = [];
+  doc.rows.forEach((r, i) => {
+    if (!NEEDS.test(String(r[9] || ''))) return;
+    const row = r[26] ? +r[26] : i + 1, tab = mk === 'BR' ? (r[25] || '') : '';
+    const link = String(r[20] || '');
+    const sid = (link.match(/\/b\/([0-9a-f]{8})/) || [])[1] || '';
+    const air = (link.match(/https:\/\/app\.air\.inc\/[^\s,;]+/) || [])[0] || '';
+    out.push({ k: mk + '|' + tab + '|' + row, mk, tab, row, st: String(r[9]).trim(), peca: str(r[1], 160), tipo: str(r[2], 60), obj: str(r[6], 40),
+      camp: mk === 'BR' ? str(r[10], 200) : '', date: str(r[22], 20), air, sid, fp: fpOf(mk, r) });
+  });
+  return out;
+}
+
 const load = async () => (await get(KEY)) || { items: {} };
 // guarda só os últimos 14 dias
 function prune(D) {
@@ -42,7 +62,10 @@ export default async function handler(req, res) {
         return res.status(200).json({ items: Object.values(D.items).filter(x => x.st === 'pending') });
       }
       const D = await load();
-      return res.status(200).json({ items: Object.values(D.items).map(({ k, mk, st, at, msg }) => ({ k, mk, st, at, msg })) });
+      const out = { items: Object.values(D.items).map(({ k, mk, st, at, msg }) => ({ k, mk, st, at, msg })) };
+      // lista "Para aprovar": todas as linhas da planilha com status de aprovação, mesmo sem criativo achado no Air
+      if (q.list) out.need = (await needRows('US')).concat(await needRows('BR'));
+      return res.status(200).json(out);
     }
     if (req.method !== 'POST') return res.status(405).json({ error: 'método' });
     let body = req.body;
@@ -64,11 +87,12 @@ export default async function handler(req, res) {
     if (!pass || String(body.password || '') !== pass) { await new Promise(r => setTimeout(r, 600)); return res.status(401).json({ error: 'senha' }) }
     const mk = body.mk === 'BR' ? 'BR' : 'US';
     const row = parseInt(body.row, 10), tab = str(body.tab, 100), sid = str(body.sid, 8);
-    if (!(row > 1) || !/^[0-9a-f]{8}$/.test(sid)) return res.status(400).json({ error: 'linha' });
+    const fp = str(body.fp, 60);
+    if (!(row > 1) || !(/^[0-9a-f]{8}$/.test(sid) || fp)) return res.status(400).json({ error: 'linha' });
     if (!NEEDS.test(String(body.st || ''))) return res.status(400).json({ error: 'status' });
     const k = mk + '|' + tab + '|' + row;
     const D = prune(await load());
-    D.items[k] = { k, mk, tab, row, sid, camp: str(body.camp, 120), from: str(body.st, 60), st: 'pending', at: new Date().toISOString() };
+    D.items[k] = { k, mk, tab, row, sid, fp, camp: str(body.camp, 120), from: str(body.st, 60), st: 'pending', at: new Date().toISOString() };
     await put(KEY, D);
     res.status(200).json({ ok: true, k });
   } catch (e) { res.status(502).json({ error: String(e.message || e).slice(0, 200) }) }
