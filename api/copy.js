@@ -8,6 +8,7 @@
 import config from '../config.js';
 import { get, put } from '../lib/store.js';
 import { catalog } from './products.js';
+import skills from '../lib/skills.js';
 import seedUS from '../data/copy-seed-us.js';
 import seedCyprus from '../data/copy-seed-us-cyprus.js';
 import seedBest from '../data/copy-seed-us-bestsellers.js';
@@ -92,6 +93,8 @@ async function applySeed(mk, D, S) {
 const pub = (mk, D) => ({ mk, items: D.items.map(x => ({ ...x, st: x.st || 'pending' })), updated: D.updated || null, clientId: CLIENT_ID(), approvers: APPROVERS, funnel: FUNNEL });
 
 export default async function handler(req, res) {
+  // painel Skills (biblioteca das skills do time), no mesmo endpoint e com a mesma senha
+  if (req.query && req.query.src === 'skills') return skills(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     const q = req.query || {};
