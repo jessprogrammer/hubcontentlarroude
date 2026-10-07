@@ -118,7 +118,11 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
   try {
     let D = await get(KEY);
-    if (!D || Date.now() - Date.parse(D.updated) > FRESH_MS || (D.errors && D.errors.length)) {
+    // a reconstrução leva até ~1 min: o site recebe na hora o que já está salvo; quem atualiza é o Apps Script (?refresh=1, a cada 10 min).
+    // Só reconstrói aqui se não houver nada salvo ou se os dados tiverem mais de 3 h.
+    const age = D ? Date.now() - Date.parse(D.updated) : Infinity;
+    const want = (req.query && req.query.refresh) ? (age > FRESH_MS / 4 || (D.errors && D.errors.length)) : age > 3 * FRESH_MS;
+    if (!D || want) {
       const fresh = await build();
       if (Object.keys(fresh.ads).length || !D) { D = fresh; await put(KEY, D) }
     }
