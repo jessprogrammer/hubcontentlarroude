@@ -67,9 +67,9 @@ function parseDate(label, folder) {
 async function resolveShort(codes) {
   let M = {};
   try { M = (await get('airsc')) || {} } catch (e) {}
-  const miss = [...new Set(codes)].filter(c => !(c in M)).slice(0, 60);
+  const miss = [...new Set(codes)].filter(c => !(c in M)).slice(0, 120);
   if (miss.length) {
-    await pool(miss, 6, async c => { try { const j = await getJSON(API + c, {}, 2); M[c] = j && j.type === 'board' && j.data && j.data.id ? j.data.id.slice(0, 8) : '' } catch (e) {} });
+    await pool(miss, 8, async c => { try { const j = await getJSON(API + c, {}, 2); M[c] = j && j.type === 'board' && j.data && j.data.id ? j.data.id.slice(0, 8) : '' } catch (e) {} });
     try { await put('airsc', M) } catch (e) {}
   }
   return M;
@@ -79,7 +79,10 @@ async function sheetIndex(key) {
   if (!doc) return {};
   const idx = {};
   const short = l => [...l.matchAll(/app\.air\.inc\/a\/([0-9a-z]{6,12})(?![0-9a-z\/]*\/b\/)/gi)].map(m => m[1]);
-  const SC = await resolveShort(doc.rows.flatMap(r => /needs approval|needs to approve/i.test(String(r[9] || '')) || !/\/b\//.test(String(r[20] || '')) ? short(String(r[20] || '')) : []));
+  // primeiro as linhas esperando aprovação, depois as mais novas (fim da planilha)
+  const need = r => /needs approval|needs to approve/i.test(String(r[9] || ''));
+  const codes = doc.rows.filter(need).concat(doc.rows.slice().reverse().filter(r => !need(r))).flatMap(r => short(String(r[20] || '')));
+  const SC = await resolveShort(codes);
   doc.rows.forEach((r, i) => {
     const link = String(r[20] || '');
     const refs = [...link.matchAll(/\/b\/([0-9a-f]{8})/g)].map(m => [m[1], '/b/' + m[1]]);
@@ -148,7 +151,7 @@ async function build() {
 
 export default async function handler(req, res) {
   try {
-    const data = await cached('air4', 5 * 60e3, build);
+    const data = await cached('air5', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=600, stale-while-revalidate=86400');
     res.status(200).json(data);
   } catch (e) {
