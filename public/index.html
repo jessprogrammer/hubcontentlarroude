@@ -882,9 +882,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
         <header>
           <div class="lbl">Larroudé · Instagram @larroude</div>
           <h1>Social</h1>
-          <p class="sub">Desempenho dos posts do feed e dos reels do @larroude, vindo direto da API do Instagram (Meta). Escolha o período, veja o que funcionou melhor por formato e abra qualquer post no Instagram.</p>
+          <p class="sub">Desempenho dos posts do feed e dos reels do @larroude, vindo direto da API do Instagram (Meta), e o calendário de posts do mês.</p>
         </header>
 
+        <div class="sc-tabs" role="tablist" aria-label="Social"><button class="sc-tab" type="button" role="tab" data-sct="m" aria-selected="true">Métricas</button><button class="sc-tab" type="button" role="tab" data-sct="c" aria-selected="false">Calendário</button></div>
+
+        <div id="so-met">
         <div class="months" id="so-per" role="tablist" aria-label="Período"></div>
 
         <div class="dt-kpis" id="so-kpis"></div>
@@ -927,6 +930,220 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
         </section>
 
         <footer>Fonte: API do Instagram (Meta), perfil @larroude. Alcance e views de cada post são os acumulados até a data de atualização. Seguidores: novos e perdidos vêm da métrica "follows and unfollows" do Instagram. Atualizado em <span id="so-upd">…</span>.</footer>
+        </div>
+<style>
+/* ===== Social: abas Métricas / Calendário ===== */
+.sc-tabs{display:flex;width:max-content;max-width:100%;gap:4px;background:var(--soft);border-radius:999px;padding:4px;margin:4px 0 18px}
+.sc-tab{all:unset;cursor:pointer;font-size:14px;padding:7px 18px;border-radius:999px;color:var(--muted)}
+.sc-tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08);font-weight:600}
+.sc-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sc-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.sc-mts{display:flex;gap:6px;flex-wrap:wrap}
+.sc-b{font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line);background:var(--surface);padding:6px 14px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.sc-b:hover{border-color:var(--ink)}
+.sc-b[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sc-b.sc-pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.sc-b.sc-del{color:var(--late,#B3261E);margin-right:auto}
+.sc-b.sc-del.sure{background:var(--late,#B3261E);color:#fff;border-color:transparent}
+.sc-sp{flex:1}
+.sc-lock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-bottom:12px}
+.sc-lock[hidden]{display:none}
+.sc-lock input,.sc-fl input,.sc-fl select,.sc-fl textarea{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.sc-lock input{min-width:180px}
+.sc-err{color:var(--late,#B3261E);font-size:13px}
+.sc-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:0 0 10px}
+.sc-leg span{display:inline-flex;align-items:center;gap:6px}
+.sc-leg i{width:10px;height:10px;border-radius:3px;background:var(--c)}
+.sc-leg i.sg{background:transparent;border:1.5px dashed var(--muted)}
+.sc-fr{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.sc-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--line);gap:1px}
+.sc-wd{background:var(--bg);font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:8px 10px}
+.sc-day{background:var(--surface);min-height:128px;padding:8px;display:flex;flex-direction:column;gap:5px;min-width:0}
+.sc-day.out{background:var(--bg)}
+.sc-day.out .sc-dn{opacity:.4}
+.sc-day.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.sc-dh{display:flex;justify-content:space-between;align-items:center}
+.sc-dn{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.sc-day.today .sc-dn{color:var(--accent);font-weight:600}
+.sc-add{all:unset;cursor:pointer;font-size:15px;line-height:1;color:var(--muted);padding:0 4px;border-radius:6px}
+.sc-add:hover{color:var(--accent);background:var(--accent-soft)}
+.sc-it{display:block;border-left:3px solid var(--c);background:color-mix(in srgb,var(--c) 9%,var(--surface));border-radius:6px;padding:4px 7px;font-size:12px;line-height:1.3;color:var(--ink);min-width:0}
+.sc-it b{display:block;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--c);font-weight:600}
+.sc-it a{color:inherit;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--c) 50%,transparent);text-underline-offset:2px}
+.sc-it .pc{display:inline-block;margin-top:2px;font-size:11px;color:var(--muted)}
+.sc-it.sg{border:1.5px dashed var(--c);border-left-width:3px;background:transparent}
+button.sc-it{all:unset;box-sizing:border-box;display:block;cursor:pointer;border:1.5px dashed var(--c);border-left:3px solid var(--c);border-radius:6px;padding:4px 7px;font-size:12px;line-height:1.3;color:var(--ink);text-align:left;width:100%}
+button.sc-it:hover{background:color-mix(in srgb,var(--c) 9%,var(--surface))}
+.sc-it .tx{overflow-wrap:anywhere}
+.sc-empty{padding:40px 0;color:var(--muted)}
+.sc-dlg{border:1px solid var(--line);border-radius:14px;padding:0;width:min(520px,94vw);background:var(--surface);color:var(--ink)}
+.sc-dlg::backdrop{background:rgba(14,12,15,.45)}
+.sc-dlg form{display:grid}
+.sc-dlg-h{display:flex;justify-content:space-between;align-items:center;padding:14px 18px;border-bottom:1px solid var(--line);font-family:var(--display);font-size:22px}
+.sc-dlg-b{padding:14px 18px;display:grid;gap:12px}
+.sc-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sc-fl{display:grid;gap:6px}
+.sc-fl textarea{resize:vertical;line-height:1.45}
+.sc-dlg-f{display:flex;gap:8px;align-items:center;justify-content:flex-end;padding:12px 18px;border-top:1px solid var(--line)}
+.sc-upd{font-size:12px;color:var(--muted);margin-top:12px}
+@media (max-width:760px){
+  .sc-grid{grid-template-columns:1fr;background:transparent;border:0;gap:8px}
+  .sc-wd,.sc-day.out,.sc-day.blank{display:none}
+  .sc-day{min-height:0;border:1px solid var(--line);border-radius:12px}
+  .sc-row2{grid-template-columns:1fr}
+}
+</style>
+<div id="so-cal" hidden>
+  <div class="sc-top">
+    <div class="sc-mts" id="sc-mts" role="group" aria-label="Mês"></div>
+    <span class="sc-sp"></span>
+    <button class="sc-b" type="button" id="sc-edit">Editar 🔒</button>
+  </div>
+  <form class="sc-lock" id="sc-lock" hidden>
+    <label for="sc-pass">Senha do Copy</label>
+    <input id="sc-pass" type="password" autocomplete="current-password">
+    <button class="sc-b sc-pri" type="submit">Entrar</button>
+    <span class="sc-err" id="sc-pass-err"></span>
+  </form>
+  <div class="sc-top">
+    <div class="sc-fr" id="sc-fmts" role="group" aria-label="Formato"></div>
+  </div>
+  <div class="sc-leg"><span><i style="--c:var(--gif)"></i>Stories</span><span><i style="--c:var(--static)"></i>Feed</span><span><i style="--c:var(--video)"></i>Reels</span><span><i class="sg"></i>Sugestão (feita no hub)</span></div>
+  <div id="sc-grid" class="sc-grid"><div class="ld"><i></i><span>Carregando…</span></div></div>
+  <p class="sc-upd">Vem das abas de mês da planilha <a href="https://docs.google.com/spreadsheets/d/1CBE4vnzIG5pb_Bkpr6POLELYK1Je0Zrwh3gKUAwkpfY/edit" target="_blank" rel="noopener">Social Media Calendar 2026</a>, atualizada a cada 10 min (última leitura: <span id="sc-upd">…</span>). As sugestões ficam salvas no hub, sem mexer na planilha.</p>
+  <dialog class="sc-dlg" id="sc-dlg">
+    <form id="sc-form">
+      <div class="sc-dlg-h"><b id="sc-dlg-t">Nova sugestão</b><button class="sc-b" type="button" id="sc-x" aria-label="Fechar">✕</button></div>
+      <div class="sc-dlg-b">
+        <div class="sc-row2">
+          <label class="sc-fl"><span class="lbl">Data</span><input id="sc-date" type="date" required></label>
+          <label class="sc-fl"><span class="lbl">Formato</span><select id="sc-fmt"><option value="">—</option><option>Stories</option><option>Feed</option><option>Reels</option></select></label>
+        </div>
+        <label class="sc-fl"><span class="lbl">Sugestão</span><textarea id="sc-text" rows="3" required placeholder="Ex.: Reels com o drop de novembro"></textarea></label>
+        <label class="sc-fl"><span class="lbl">Notas (opcional)</span><textarea id="sc-notes" rows="2"></textarea></label>
+      </div>
+      <div class="sc-dlg-f">
+        <button class="sc-b sc-del" type="button" id="sc-del" hidden>Remover</button>
+        <span class="sc-err" id="sc-save-err"></span>
+        <button class="sc-b" type="button" id="sc-cancel">Cancelar</button>
+        <button class="sc-b sc-pri" type="submit">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
+  const MN=EN?['January','February','March','April','May','June','July','August','September','October','November','December']:['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const WD=EN?['Mon','Tue','Wed','Thu','Fri','Sat','Sun']:['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+  if(EN){const set=(sel,t)=>{const e=document.querySelector(sel);if(e)e.textContent=t};set('.sc-tab[data-sct="m"]','Metrics');set('.sc-tab[data-sct="c"]','Calendar');set('label[for="sc-pass"]','Copy password');set('#sc-lock button','Enter');set('#sc-del','Remove');set('#sc-cancel','Cancel');set('#sc-form button[type=submit]','Save');
+    const lg=document.querySelectorAll('.sc-leg span');if(lg[3])lg[3].lastChild.textContent='Suggestion (added in the hub)';
+    document.querySelectorAll('.sc-fl .lbl').forEach(l=>{l.textContent={Data:'Date',Formato:'Format','Sugestão':'Suggestion','Notas (opcional)':'Notes (optional)'}[l.textContent]||l.textContent});
+    $('sc-text').placeholder='E.g. Reels with the November drop';
+    const u=document.querySelector('.sc-upd');if(u)u.innerHTML='From the month tabs of the <a href="https://docs.google.com/spreadsheets/d/1CBE4vnzIG5pb_Bkpr6POLELYK1Je0Zrwh3gKUAwkpfY/edit" target="_blank" rel="noopener">Social Media Calendar 2026</a> sheet, refreshed every 10 min (last read: <span id="sc-upd">…</span>). Suggestions are saved in the hub without touching the sheet.'}
+  const COL={Stories:'var(--gif)',Feed:'var(--static)',Reels:'var(--video)','':'var(--none)'};
+  const pad=n=>String(n).padStart(2,'0');
+  const td=new Date(),TODAY=td.getFullYear()+'-'+pad(td.getMonth()+1)+'-'+pad(td.getDate());
+  const st={items:[],sug:[],months:[],m:TODAY.slice(0,7),fmt:'all',pass:null,edit:false,cur:null,loaded:false};
+  try{st.pass=sessionStorage.getItem('cp-k')||null}catch(e){}
+
+  // abas Métricas / Calendário
+  const tabs=document.querySelectorAll('.sc-tab');
+  function showTab(t){tabs.forEach(b=>b.setAttribute('aria-selected',String(b.dataset.sct===t)));$('so-met').hidden=t!=='c'?false:true;$('so-cal').hidden=t!=='c';if(t==='c'&&!st.loaded)load();try{sessionStorage.setItem('sc-tab',t)}catch(e){}}
+  tabs.forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.sct)));
+  let t0='m';try{t0=sessionStorage.getItem('sc-tab')||'m'}catch(e){}
+  showTab(t0);
+
+  async function load(){
+    st.loaded=true;
+    try{
+      const j=await fetch('/api/calendar?src=social&t='+Date.now()).then(r=>r.json());
+      if(j.error)throw new Error(j.error);
+      st.items=j.items||[];st.sug=j.sug||[];st.months=(j.months||[]).map(m=>m.key);
+      $('sc-upd').textContent=j.updated?new Date(j.updated).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'}):T('ainda não chegou','not received yet');
+      render();
+    }catch(e){$('sc-grid').innerHTML='<p class="sc-empty">'+T('Não consegui ler o calendário agora. Recarregue a página em instantes.','Could not read the calendar right now. Reload in a moment.')+'</p>'}
+  }
+  function monthList(){
+    const s=new Set(st.months.concat(st.sug.map(x=>x.date.slice(0,7))).concat([TODAY.slice(0,7)]));
+    return [...s].filter(Boolean).sort();
+  }
+  function render(){
+    const ms=monthList();if(!ms.includes(st.m))st.m=ms[ms.length-1];
+    $('sc-mts').innerHTML=ms.map(m=>`<button class="sc-b" type="button" data-m="${m}" aria-pressed="${m===st.m}">${MN[+m.slice(5)-1]} ${m.slice(2,4)==='26'?'':m.slice(0,4)}</button>`).join('');
+    const inM=x=>x.date.slice(0,7)===st.m;
+    const cnt=f=>st.items.filter(x=>inM(x)&&(f==='all'||x.fmt===f)).length+st.sug.filter(x=>inM(x)&&(f==='all'||x.fmt===f)).length;
+    $('sc-fmts').innerHTML='<span class="lbl">'+T('Formato','Format')+'</span>'+[['all',T('Todos','All')],['Stories','Stories'],['Feed','Feed'],['Reels','Reels']].map(([k,l])=>`<button class="sc-b" type="button" data-fmt="${k}" aria-pressed="${st.fmt===k}">${l} <small style="opacity:.6">${cnt(k)}</small></button>`).join('');
+    $('sc-edit').textContent=st.edit?T('Sair da edição','Done editing'):T('Editar 🔒','Edit 🔒');
+    // grade: semanas de segunda a domingo cobrindo o mês
+    const [y,mo]=st.m.split('-').map(Number);
+    const first=new Date(y,mo-1,1),start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+    const last=new Date(y,mo,0),end=new Date(last);end.setDate(last.getDate()+(7-((last.getDay()+6)%7)-1));
+    const keyOf=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+    const okF=x=>st.fmt==='all'||x.fmt===st.fmt;
+    const byDay={};st.items.filter(okF).forEach(x=>(byDay[x.date]=byDay[x.date]||{p:[],s:[]}).p.push(x));st.sug.filter(okF).forEach(x=>(byDay[x.date]=byDay[x.date]||{p:[],s:[]}).s.push(x));
+    let h=WD.map(w=>`<div class="sc-wd">${w}</div>`).join('');
+    for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1)){
+      const k=keyOf(d),out=d.getMonth()!==mo-1,D=byDay[k]||{p:[],s:[]};
+      const piece=x=>{const t=x.piece&&!/^here$/i.test(x.piece)?x.piece:'';return x.pieceUrl?`<a class="pc" href="${esc(x.pieceUrl)}" target="_blank" rel="noopener">${t?esc(t):T('Ver peça','View piece')} ↗</a>`:t?`<span class="pc">${esc(t)}</span>`:''};
+      const p=D.p.map(x=>`<div class="sc-it" style="--c:${COL[x.fmt]}"><b>${x.fmt}</b><span class="tx">${x.req?(x.reqUrl?`<a href="${esc(x.reqUrl)}" target="_blank" rel="noopener">${esc(x.req)}</a>`:esc(x.req)):'<span class="pc">'+T('sem request','no request')+'</span>'}</span>${piece(x)?'<br>'+piece(x):''}</div>`).join('');
+      const s=D.s.map(x=>st.edit?`<button class="sc-it" type="button" data-sid="${esc(x.id)}" style="--c:${COL[x.fmt||'']}" title="${T('Editar sugestão','Edit suggestion')}"><b>💡 ${x.fmt||T('Sugestão','Suggestion')}</b><span class="tx">${esc(x.text)}</span></button>`:`<div class="sc-it sg" style="--c:${COL[x.fmt||'']}"${x.notes?` title="${esc(x.notes)}"`:''}><b>💡 ${x.fmt||T('Sugestão','Suggestion')}</b><span class="tx">${esc(x.text)}</span></div>`).join('');
+      const blank=!D.p.length&&!D.s.length;
+      h+=`<div class="sc-day${out?' out':''}${k===TODAY?' today':''}${blank?' blank':''}"><div class="sc-dh"><span class="sc-dn">${WD[(d.getDay()+6)%7]} ${d.getDate()}${out?'/'+(d.getMonth()+1):''}</span>${st.edit?`<button class="sc-add" type="button" data-add="${k}" aria-label="${T('Nova sugestão em ','New suggestion on ')}${d.getDate()}/${d.getMonth()+1}" title="${T('Nova sugestão','New suggestion')}">+</button>`:''}</div>${p}${s}</div>`;
+    }
+    $('sc-grid').innerHTML=h;
+    // no celular, dias vazios somem; no modo edição eles continuam para dar para adicionar
+    $('sc-grid').querySelectorAll('.sc-day.blank').forEach(e=>{if(st.edit)e.classList.remove('blank')});
+  }
+  $('sc-mts').addEventListener('click',e=>{const b=e.target.closest('[data-m]');if(!b)return;st.m=b.dataset.m;render()});
+  $('sc-fmts').addEventListener('click',e=>{const b=e.target.closest('[data-fmt]');if(!b)return;st.fmt=b.dataset.fmt;render()});
+  $('sc-edit').addEventListener('click',()=>{
+    if(st.edit){st.edit=false;render();return}
+    if(st.pass){st.edit=true;render();return}
+    $('sc-lock').hidden=false;$('sc-pass').focus();
+  });
+  async function post(body){
+    const r=await fetch('/api/calendar?src=social',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:st.pass,...body})});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok){const e=new Error(j.error||'erro');e.status=r.status;throw e}
+    return j;
+  }
+  $('sc-lock').addEventListener('submit',async e=>{
+    e.preventDefault();const pw=$('sc-pass').value;if(!pw)return;$('sc-pass-err').textContent='';
+    st.pass=pw;
+    try{await post({action:'check'});try{sessionStorage.setItem('cp-k',pw)}catch(_){}$('sc-lock').hidden=true;$('sc-pass').value='';st.edit=true;render()}
+    catch(err){st.pass=null;$('sc-pass-err').textContent=err.status===401?T('Senha errada','Wrong password'):T('Não deu certo. Tente de novo.','Something went wrong. Try again.')}
+  });
+  function open(x,date){
+    st.cur=x||null;
+    $('sc-dlg-t').textContent=x?T('Editar sugestão','Edit suggestion'):T('Nova sugestão','New suggestion');
+    $('sc-date').value=x?x.date:date||(st.m+'-01');$('sc-fmt').value=x?x.fmt||'':(st.fmt!=='all'?st.fmt:'');
+    $('sc-text').value=x?x.text:'';$('sc-notes').value=x?x.notes||'':'';
+    $('sc-del').hidden=!x;$('sc-del').classList.remove('sure');$('sc-del').textContent=T('Remover','Remove');$('sc-save-err').textContent='';
+    $('sc-dlg').showModal();$('sc-text').focus();
+  }
+  $('sc-grid').addEventListener('click',e=>{
+    const a=e.target.closest('[data-add]');if(a){open(null,a.dataset.add);return}
+    const s=e.target.closest('[data-sid]');if(s){open(st.sug.find(x=>x.id===s.dataset.sid))}
+  });
+  const close=()=>$('sc-dlg').close();
+  $('sc-x').addEventListener('click',close);$('sc-cancel').addEventListener('click',close);
+  function fail(err){if(err.status===401){st.pass=null;st.edit=false;try{sessionStorage.removeItem('cp-k')}catch(_){}close();$('sc-lock').hidden=false;$('sc-pass-err').textContent=T('Senha mudou. Entre de novo.','Password changed. Sign in again.');render();return}$('sc-save-err').textContent=T('Não deu certo. Tente de novo.','Something went wrong. Try again.')}
+  $('sc-form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const item={id:st.cur?st.cur.id:undefined,date:$('sc-date').value,fmt:$('sc-fmt').value,text:$('sc-text').value.trim(),notes:$('sc-notes').value};
+    if(!item.date||!item.text){$('sc-save-err').textContent=T('Preencha data e sugestão.','Fill in date and suggestion.');return}
+    try{const j=await post({action:'save',item});st.sug=j.sug||st.sug;st.m=item.date.slice(0,7);close();render()}catch(err){fail(err)}
+  });
+  $('sc-del').addEventListener('click',async()=>{
+    const b=$('sc-del');if(!b.classList.contains('sure')){b.classList.add('sure');b.textContent=T('Remover mesmo?','Remove for good?');return}
+    try{const j=await post({action:'delete',id:st.cur.id});st.sug=j.sug||[];close();render()}catch(err){fail(err)}
+  });
+})();
+</script>
+
       </div>
     </section>
     <section class="view" id="v-calendario" aria-label="Calendário" hidden>
