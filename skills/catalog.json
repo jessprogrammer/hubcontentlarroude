@@ -1,0 +1,94 @@
+{
+ "generated": "2026-10-07T19:00:04.197356Z",
+ "skills": [
+  {
+   "title": "ADS e Social no Figma",
+   "color": "rosa",
+   "what": "Monta os criativos de ADS (US e BR) e de Stories/Feed no Figma a partir da tarefa do Asana: escolhe a base aprovada e fotos reais do Air, faz os 3 formatos, revisa uma vez, sobe no Air e avisa no Asana.",
+   "formats": [
+    "ADS US",
+    "ADS BR",
+    "Stories",
+    "Feed",
+    "Estático",
+    "Carrossel",
+    "GIF"
+   ],
+   "ask": "Faz a tarefa [nome ou link do Asana]",
+   "guides": [
+    "flow",
+    "map"
+   ],
+   "id": "larroude-ads-figma",
+   "zip": "zips/larroude-ads-figma.zip",
+   "size": 3977878,
+   "files": 156,
+   "version": "01/10/2026",
+   "updated": "2026-10-06",
+   "descEn": "Create, adapt, QA and deliver Larroudé creatives in the Figma file \"FIGMA ZAINERS NOVO\" — paid ads (ADS US / ADS BR: STATIC, CAROUSEL, GIF) and organic Instagram (Stories / Feed) — using real photos from Air or larroude.com, then export to Air and notify on Asana. Use whenever a Larroudé Asana task ([ADS US], [ADS BR], Stories, Feed), SKU list, collection ID, or \"fazer os 3 formatos / carrossel / gif\" request appears.\r",
+   "docs": [
+    {
+     "id": "leiame",
+     "title": "Como instalar e usar",
+     "md": "# Skill · Larroudé · Criativos no Figma\n\n## Instalar\n- **claude.ai:** Settings → Capabilities → Skills → Upload skill → selecione `larroude-ads-figma.zip` → ative.\n- **Claude Code:** descompacte em `~/.claude/skills/larroude-ads-figma/`.\n\n## Pré-requisitos\n- Conector **Figma** com acesso ao arquivo \"FIGMA ZAINERS NOVO\".\n- Conector **Air** (workspace da Larroudé).\n- Conector **Asana** (ler a tarefa e comentar a entrega).\n- Python com Pillow e numpy, para os scripts de foto.\n- **Fontes:**\n  - Platform, Plain e Items instaladas.\n  - Arquivos em `G:\\…\\Publico\\CONTEÚDO\\Brand Larroude\\Fonts\\Fonts` ou em Air › Graphic Design / Brand.\n  - Very Vogue precisa estar disponível para a organização no Figma; senão o Claude não consegue editar esses textos.\n\n## Permissões (importante)\nO fluxo faz ações fora do computador:\n- exportar imagens do Figma;\n- subir arquivos no Air (criar pastas e importar);\n- comentar no Asana mencionando uma pessoa.\n\nNa primeira vez que cada ação aparecer, o Claude Code pode pedir permissão ou bloqueá-la. **Libere quando ele pedir**, ou autorize no chat (\"autorizo exportar do Figma, subir no Air e comentar no Asana\"). Sem isso a entrega para no meio.\n\n## Como usar\nMande a tarefa do Asana (link ou nome). O Claude:\n1. lê a tarefa;\n2. escolhe a base aprovada e as fotos;\n3. monta, faz 1 rodada de QA e entrega para revisão.\n\nDepois da aprovação ele sobe no Air e comenta na tarefa.\nQuando você ajustar uma peça, ele lê o que mudou e aprende.\n\nVersão 01/10/2026\n"
+    },
+    {
+     "id": "regras",
+     "title": "Regras firmes",
+     "md": "# Regras firmes · checklist\n**Status: APROVADO (01/10/2026).** Revisável a qualquer momento pela pessoa responsável.\nSão as poucas regras que **sempre** valem. Todo o resto (crop, posição, escolhas de composição) é contexto e julgamento, caso a caso.\nRode este checklist **antes de montar** e **no QA**. Se uma regra não puder ser cumprida, avise na entrega; não ignore.\n\n## Fluxo e material\n- [ ] 1. Li **só a tarefa atual**. A base é a categoria dos APPROVED LAYOUTS ou a base V/Q/H, **nunca** o último trabalho feito.\n- [ ] 2. Nomes = nome da tarefa + formato (`_A/_B/_C`). No carrossel: letra do formato + número do card.\n- [ ] 3. Formatos: A 1080×1920 · B 1200×1200 · C 1200×628 (salvo instrução da tarefa).\n- [ ] 4. Lugar no canvas:\n  - **ADS:** à direita, em colunas de 2 tarefas.\n  - **Stories/Feed:** na coluna mais recente da seção.\n- [ ] 5. Só **fotos reais** (nunca geradas por IA).\n  - SKUs da tarefa respeitados.\n  - Produto cancelado nunca entra.\n  - Produto fora do site entra, mas é sinalizado.\n- [ ] 6. Nenhuma foto repetida entre criativos da mesma tarefa. Foto usada nos últimos 10 dias só por falta de material ou pedido, e é sinalizada.\n\n## Composição\n- [ ] 7. **Colagem:** até 3 fotos do mesmo story ou fundo, sem barra branca entre as imagens.\n- [ ] 8. Calçado inteiro quando aparece (bico + salto). O par enquadrado, não um pé cortado.\n- [ ] 9. **Carrossel:** título/copy **só no 1º card**; os demais cards têm só o logo.\n- [ ] 10. **GIF:** troca de imagens em corte seco, no mínimo 10 s, logo branco.\n\n## Tipografia e logo\n- [ ] 11. **Preto só sobre branco ou cor clara**, sem dividir espaço com mais nada. Arte escura ou contrastada sem fundo branco leva texto e logo **brancos**. A cor pode variar por formato.\n- [ ] 12. **Wordmark Larroudé:** acento **sempre rosa** (#F44C7F). **Mesmo tamanho em todas as peças do mesmo formato.**\n- [ ] 13. Logo de collab (ex.: \"Larroudé by Nicolò B.\"): lockup intocável, só escalar.\n- [ ] 14. Logo dentro da margem Meta no 1080×1920 (x 65–1015, y 269–1536). Nos outros formatos, respiro ≥ 40 px.\n- [ ] 15. **Nunca** converter texto em vetor/contorno.\n\n## Entrega\n- [ ] 16. Air só **depois da aprovação**:\n  - criar pasta `STATIC/NN` ou `GIF/NN` por arte;\n  - conferir a contagem;\n  - comentar com menção real: @Monique Tauane da Silva (ADS) ou @Bruna Klaus (social) + link.\n- [ ] 17. Nunca apagar trabalho, cards ou arquivos de outra pessoa.\n"
+    }
+   ]
+  },
+  {
+   "title": "Banners, Pop-ups, Footers e Whats",
+   "color": "azul",
+   "what": "Monta banners do site (Hero, Middle, Slim, Collection Slider, Grid), pop-ups, footers de e-mail e cards de WhatsApp no Figma, com o texto da seção COPY da tarefa e fotos reais do Air. Revisa uma vez, sobe no Air e avisa no Asana.",
+   "formats": [
+    "Banners do site",
+    "Pop-up",
+    "Footer de e-mail",
+    "Card WhatsApp"
+   ],
+   "ask": "Faz a tarefa [nome exato da tarefa do Asana, ex.: POPUP_BR 06 a 11/10 - The Hit List]",
+   "guides": [],
+   "id": "larroude-banners-whats-figma",
+   "zip": "zips/larroude-banners-whats-figma.zip",
+   "size": 40677,
+   "files": 25,
+   "version": "06/10/2026",
+   "updated": "2026-10-06",
+   "descEn": "Create, adapt, QA and deliver Larroudé site banners (Hero, Middle, Slim/Collection Slider, Grid/Categoria), email footers, website pop-ups and WhatsApp cards in the Figma file \"FIGMA ZAINERS NOVO\", using real photos from Air or larroude.com, then export to Air and notify on Asana. Use whenever an Asana task like \"POPUP_BR …\", \"WPP_BR …\", \"[FOOTER BR] …\", \"[BANNER Hero + Collection_Slider] …\", \"Herobanner_…\", or any request for Larroudé site banners, pop-ups, footers or WhatsApp cards appears.\r",
+   "docs": [
+    {
+     "id": "leiame",
+     "title": "Como instalar e usar",
+     "md": "# Skill · Larroudé · Banners, Pop Ups, Footers e Cards de WhatsApp no Figma\r\n\r\n## Instalar\r\n- **claude.ai:** Settings → Capabilities → Skills → Upload skill → selecione `larroude-banners-whats-figma.zip` → ative.\r\n- **Claude Code:** descompacte em `C:\\Users\\<seu-usuário>\\.claude\\skills\\larroude-banners-whats-figma\\`.\r\n\r\n## Pré-requisitos\r\n- **Conector Figma**, com acesso de edição ao arquivo \"FIGMA ZAINERS NOVO\" (abas Card Whats, POP UP, Banners, Emails Brasil e Email USA).\r\n- **Conector Air**, no workspace da Larroudé.\r\n- **Conector Asana**, para ler a tarefa e comentar a entrega.\r\n- **Python** com Pillow e numpy (e pymupdf, para ler docs de copy).\r\n- **Fontes:**\r\n  - Platform, Plain, Graphik e Items, instaladas.\r\n  - **Very Vogue Text** não carrega no conector. O Claude copia o texto pronto de outra artboard e redimensiona (`clonar_texto_campanha.js`).\r\n\r\n## Permissões (importante)\r\nO fluxo faz ações fora do computador:\r\n- exportar imagens do Figma;\r\n- subir arquivos no Air (criar pastas e importar);\r\n- comentar no Asana mencionando uma pessoa.\r\n\r\nNa primeira vez que cada ação aparecer, **libere quando o Claude pedir**, ou autorize no chat (\"autorizo exportar do Figma, subir no Air e comentar no Asana\"). Sem isso a entrega para no meio.\r\n\r\n## Como usar\r\nMande o nome exato da tarefa do Asana (ex.: `POPUP_BR 06 a 11/10 - The Hit List`). O Claude:\r\n1. lê a tarefa (a COPY é a fonte do texto) e os anexos;\r\n2. escolhe a base: a peça aprovada mais recente do formato, a que fica mais embaixo da coluna;\r\n3. busca as fotos no Air e confere se os produtos estão na ação;\r\n4. monta, faz 1 rodada de QA e mostra a conferência entre o texto da arte e a COPY.\r\n\r\nVocê faz o ajuste fino e ele lê o que você mudou para aprender. Depois da aprovação, ele sobe no Air e comenta na tarefa.\r\n\r\n**Versão:** 06/10/2026. As decisões em aberto estão em `references/pendencias.md`.\r\n"
+    },
+    {
+     "id": "regras",
+     "title": "Regras firmes",
+     "md": "# Regras firmes · checklist\r\nVersão 06/10/2026. Valem sempre. Rode **antes de montar** e **no QA**. Se uma regra não puder ser cumprida, sinalize na entrega; não ignore.\r\n\r\n## Tarefa e texto\r\n- [ ] 1. Li a **tarefa atual** no Asana antes de abrir o Figma (o nome da peça é o nome da tarefa).\r\n- [ ] 2. O texto da arte é o da **seção COPY**, palavra por palavra. Só as quebras de linha podem mudar. Em conflito com outra linha da tarefa (ex.: \"DISCLAIMER:\"), vale a COPY.\r\n- [ ] 3. Peças irmãs (card de WhatsApp, email, pop up de outro dia) servem de referência de **layout e foto**, **nunca de texto**.\r\n- [ ] 4. O CTA do **pop up** fica **fora** da arte. No footer e nos banners de Hero e Middle, ele entra.\r\n- [ ] 5. O assunto da campanha (ex.: \"THE HIT LIST\") pode entrar como eyebrow/assinatura, mesmo sem estar na COPY.\r\n\r\n## Formato, nome e lugar\r\n- [ ] 6. Tamanhos: Card Whats 1024² · Pop Up **600²** · Hero 3200×1600/1920×3200 · Middle 3200×1200/1920×2560 · Slim/Collection Slider 3200×400/3200×1000 · Grid 1600² / Categoria 1080² · Footer 700×255.\r\n- [ ] 7. Nome = nome da tarefa, **sem `/`** (troque por `-`). `XXX_` = ID da coleção do Shopify.\r\n- [ ] 8. Lugar no canvas: seguindo a organização da aba (`mapa-figma-air.md`). O mais recente fica **embaixo** da coluna, e as versões da mesma tarefa ficam lado a lado.\r\n- [ ] 9. Banners saem em **par DESK + MOB**. O Grid é peça única.\r\n\r\n## Fotos\r\n- [ ] 10. Só fotos reais (nunca IA). Nada de peça final de ads com texto ou logo como foto.\r\n- [ ] 11. Os produtos das fotos estão na **lista da ação**, na planilha ou em PRODUCTS. Produto fora do site entra, mas é sinalizado.\r\n- [ ] 12. **Nenhuma foto repetida dentro da mesma tarefa.** Entre canais da mesma campanha, pode.\r\n- [ ] 13. Calçado inteiro e reconhecível, sem texto em cima do produto.\r\n  - Foto única: zoom fechado.\r\n  - Faixa ou grade estreita: zoom aberto.\r\n\r\n## Tipografia e cor\r\n- [ ] 14. Texto branco só sobre área escura ou calma. Preto só sobre branco ou cor clara, sem dividir espaço com mais nada.\r\n- [ ] 15. Disclaimer legível. Se o fundo for claro, use degradê escuro no rodapé.\r\n- [ ] 16. Sem palavra solta na última linha. Estreite a caixa de texto para equilibrar as linhas.\r\n- [ ] 17. Wordmark com acento **sempre rosa**. Lockup de collab intocável (só escalar).\r\n- [ ] 18. Nunca converter texto em vetor.\r\n\r\n## Entrega\r\n- [ ] 19. Air e Asana **só depois da aprovação**. O footer de email não vai para o Air: fica no Figma para revisão e exportação do CRM.\r\n- [ ] 20. Arquivos juntos na pasta da campanha. Confira a contagem antes de comentar.\r\n- [ ] 21. Comentário com menção real (Pop Up/Whats: @Luiza Amanda Moreira + \"disponível aqui!\" + link). Banners do site: @Monique Tauane da Silva.\r\n- [ ] 22. Nunca apagar ou mover trabalho de outra pessoa sem pedido.\r\n"
+    },
+    {
+     "id": "pendencias",
+     "title": "Pendências",
+     "md": "# Pendências (decisões em aberto)\r\nAtualize quando forem respondidas.\r\n\r\n1. **Banners US:** convenção de nome e de coluna para as próximas campanhas US ainda não testada nesta skill.\r\n\r\n## Respondidas (06/10/2026)\r\n- **Pastas do Air:**\r\n  - Card Whats → `Whatsapp › 2026 › <MÊS AA> › <DD.MM Campanha>`;\r\n  - Banners → `Site › Banners Home › <DD.MM Campanha>`;\r\n  - Pop Up → `Site › Pop Up › 2026 › <MÊS AA> › <DD.MM Campanha>`.\r\n- **Footer de email:** não vai para o Air. A pessoa é marcada no Figma para revisar e o CRM exporta depois.\r\n- **Very Vogue Text:** use como der, copiando o texto de outra artboard (`clonar_texto_campanha.js`).\r\n- **\"60% off\" × \"60% OFF\":** ignorar. A caixa do lockup da campanha não precisa ser sinalizada.\r\n- **Footers antigos** (arquivo das abas de email): deixar como estão.\r\n- **Entrega de Banners do site:** marcar @Monique Tauane da Silva.\r\n"
+    }
+   ]
+  }
+ ],
+ "guides": [
+  {
+   "id": "flow",
+   "file": "guias/creative-flow.html",
+   "title": "Creative Flow",
+   "what": "O fluxo explicado para o time: os 9 passos, as regras, o jogo do texto preto ou branco e como pedir. Tem modo apresentação."
+  },
+  {
+   "id": "map",
+   "file": "guias/skill-map.html",
+   "title": "Skill Map",
+   "what": "Mapa clicável de tudo que a skill de ADS sabe: fluxo, ferramentas, fotos, layout, cor, nomes, revisão e entrega."
+  }
+ ]
+}
