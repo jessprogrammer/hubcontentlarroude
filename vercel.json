@@ -1,5 +1,5 @@
 {
-  "functions": { "api/*.js": { "maxDuration": 60 } },
+  "functions": { "api/*.js": { "maxDuration": 60, "includeFiles": "skills/**" } },
   "headers": [
     { "source": "/(.*)", "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }] }
   ]
