@@ -695,6 +695,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
       <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
+      <a class="nav" href="#skills" data-v="skills"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Skills</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -828,6 +829,128 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   </dialog>
 </div>
     </section>
+    <section class="view notr" id="v-skills" aria-label="Skills" hidden>
+<style>
+.sk-lock{display:flex;gap:8px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;max-width:560px}
+.sk-lock[hidden],#sk-body[hidden]{display:none}
+.sk-lock input{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:180px}
+.sk-b{font:inherit;font-size:13.5px;color:var(--ink);border:1px solid var(--line);background:var(--surface);padding:7px 15px;border-radius:999px;cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.sk-b:hover{border-color:var(--ink)}
+.sk-b.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.sk-err{color:var(--late,#B3261E);font-size:13px}
+.sk-h2{font-family:var(--display);font-size:26px;font-weight:400;margin:28px 0 12px}
+.sk-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,460px),1fr));gap:16px;align-items:start}
+.sk-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:grid}
+.sk-band{height:8px;background:var(--c)}
+.sk-in{padding:18px 20px;display:grid;gap:14px}
+.sk-t{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.sk-t h3{margin:0;font-family:var(--display);font-weight:400;font-size:26px;line-height:1.1}
+.sk-t code{font-family:var(--mono);font-size:11px;color:var(--muted);display:block;margin-top:4px}
+.sk-ver{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right;white-space:nowrap}
+.sk-ver b{display:block;color:var(--ink);font-size:12px}
+.sk-what{margin:0;font-size:15px;line-height:1.5}
+.sk-chips{display:flex;flex-wrap:wrap;gap:6px}
+.sk-chips span{font-size:12px;padding:3px 10px;border-radius:999px;background:color-mix(in srgb,var(--c) 12%,var(--surface));color:var(--ink);border:1px solid color-mix(in srgb,var(--c) 30%,transparent)}
+.sk-ask{display:flex;gap:10px;align-items:center;background:var(--bg);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+.sk-ask span{flex:1;font-family:var(--mono);font-size:13px;overflow-wrap:anywhere}
+.sk-acts{display:flex;gap:8px;flex-wrap:wrap}
+.sk-doc{border-top:1px solid var(--line)}
+.sk-doc summary{cursor:pointer;list-style:none;padding:12px 20px;font-size:14px;font-weight:600;display:flex;justify-content:space-between}
+.sk-doc summary::-webkit-details-marker{display:none}
+.sk-doc summary::after{content:"+";color:var(--muted);font-weight:400;font-size:18px;line-height:1}
+.sk-doc[open] summary::after{content:"–"}
+.sk-md{padding:0 20px 16px;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+.sk-md h4{font-size:12px;font-family:var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 6px;font-weight:600}
+.sk-md p{margin:6px 0}
+.sk-md ul{margin:4px 0;padding-left:20px}
+.sk-md li{margin:3px 0}
+.sk-md li.ck{list-style:none;margin-left:-18px}
+.sk-md li.ck::before{content:"☐ ";color:var(--muted)}
+.sk-md code{font-family:var(--mono);font-size:12px;background:var(--soft);padding:1px 5px;border-radius:5px}
+.sk-md table{border-collapse:collapse;font-size:13px;margin:6px 0;width:100%}
+.sk-md td,.sk-md th{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.sk-guides{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:12px}
+.sk-g{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;display:grid;gap:8px;text-decoration:none;color:var(--ink)}
+.sk-g:hover{border-color:var(--ink)}
+.sk-g b{font-family:var(--display);font-weight:400;font-size:22px}
+.sk-g span{font-size:14px;color:var(--muted)}
+.sk-g i{font-style:normal;font-size:13px;color:var(--accent)}
+.sk-note{margin-top:24px;background:var(--soft);border-radius:12px;padding:14px 16px;font-size:14px;line-height:1.5}
+</style>
+<div class="wrap">
+  <header>
+    <div class="lbl">Larroudé · Skills do time · Claude</div>
+    <h1>Skills</h1>
+    <p class="sub">As automações que o time montou para o Claude: o que cada uma faz, como pedir e a versão mais nova para baixar. As skills rodam dentro do Claude de cada pessoa; aqui é a biblioteca.</p>
+  </header>
+  <form class="sk-lock" id="sk-lock">
+    <label for="sk-pass">Senha do Copy</label>
+    <input id="sk-pass" type="password" autocomplete="current-password">
+    <button class="sk-b pri" type="submit">Entrar</button>
+    <span class="sk-err" id="sk-err"></span>
+  </form>
+  <div id="sk-body" hidden>
+    <div class="sk-grid" id="sk-grid"></div>
+    <h2 class="sk-h2">Guias para o time</h2>
+    <div class="sk-guides" id="sk-guides"></div>
+    <div class="sk-note"><b>Para atualizar uma skill:</b> quem melhorou a skill manda o .zip novo para a Jess. Ele entra no hub com a data de atualização, e o botão "Baixar" passa a entregar a versão nova. Os links de download valem por 2 horas.</div>
+  </div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
+  const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const COL={rosa:'#E9519E',azul:'#2464AB',vermelho:'#D11524',lilas:'#A685DB',ink:'var(--ink)'};
+  let pw=null,loaded=false;try{pw=sessionStorage.getItem('cp-k')||null}catch(e){}
+  // markdown simples: títulos, listas, checklist, negrito, código e tabelas
+  function inl(s){return esc(s).replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>').replace(/(^|[^*])\*([^*]+)\*/g,'$1<i>$2</i>')}
+  function md(src){
+    const L=String(src||'').replace(/^---[\s\S]*?---\n/,'').split('\n');let h='',list=0,tbl=[];
+    const close=()=>{if(list){h+='</ul>';list=0}if(tbl.length){h+='<table>'+tbl.map((r,i)=>'<tr>'+r.map(c=>i?'<td>'+inl(c)+'</td>':'<th>'+inl(c)+'</th>').join('')+'</tr>').join('')+'</table>';tbl=[]}};
+    for(const raw of L){const l=raw.replace(/\s+$/,'');
+      if(/^\s*\|/.test(l)){if(list){h+='</ul>';list=0}if(/^\s*\|[\s:|-]+\|\s*$/.test(l))continue;tbl.push(l.trim().replace(/^\||\|$/g,'').split('|').map(c=>c.trim()));continue}
+      if(tbl.length)close();
+      let m;
+      if(m=l.match(/^#{1,6}\s+(.*)/)){close();h+='<h4>'+inl(m[1])+'</h4>';continue}
+      if(m=l.match(/^\s*[-*]\s+\[[ x]\]\s+(.*)/)){if(!list){h+='<ul>';list=1}h+='<li class="ck">'+inl(m[1])+'</li>';continue}
+      if(m=l.match(/^\s*(?:[-*]|\d+\.)\s+(.*)/)){if(!list){h+='<ul>';list=1}h+='<li>'+inl(m[1])+'</li>';continue}
+      if(!l.trim()){close();continue}
+      if(list&&/^\s{2,}/.test(raw)){h=h.replace(/<\/li>$/,' '+inl(l.trim())+'</li>');continue}
+      close();h+='<p>'+inl(l)+'</p>';
+    }
+    close();return h;
+  }
+  const fmtDate=d=>{const [y,m,dd]=d.split('-');return dd+'/'+m+'/'+y};
+  const kb=n=>n>1e6?(n/1e6).toFixed(1)+' MB':Math.round(n/1e3)+' KB';
+  function render(j){
+    $('sk-grid').innerHTML=j.skills.map(s=>`<article class="sk-card" style="--c:${COL[s.color]||COL.ink}"><div class="sk-band"></div><div class="sk-in">
+      <div class="sk-t"><div><h3>${esc(s.title)}</h3><code>${esc(s.id)}</code></div><div class="sk-ver"><b>${T('Atualizada','Updated')} ${fmtDate(s.updated)}</b>${s.version?T('versão ','version ')+esc(s.version)+' · ':''}${s.files} ${T('arquivos','files')}</div></div>
+      <p class="sk-what">${esc(s.what)}</p>
+      <div class="sk-chips">${s.formats.map(f=>`<span>${esc(f)}</span>`).join('')}</div>
+      <div class="sk-ask"><span>${esc(s.ask)}</span><button class="sk-b" type="button" data-copy="${esc(s.ask)}">${T('Copiar pedido','Copy prompt')}</button></div>
+      <div class="sk-acts"><a class="sk-b pri" href="${esc(s.url)}" download>${T('Baixar','Download')} .zip <small style="opacity:.75">${kb(s.size)}</small></a>${(s.guides||[]).map(g=>{const G=j.guides.find(x=>x.id===g);return G?`<a class="sk-b" href="${esc(G.url)}" target="_blank" rel="noopener">${esc(G.title)} ↗</a>`:''}).join('')}</div>
+    </div>${s.docs.map(d=>`<details class="sk-doc"><summary>${esc(d.title)}</summary><div class="sk-md">${md(d.md)}</div></details>`).join('')}</article>`).join('');
+    $('sk-guides').innerHTML=j.guides.map(g=>`<a class="sk-g" href="${esc(g.url)}" target="_blank" rel="noopener"><b>${esc(g.title)}</b><span>${esc(g.what)}</span><i>${T('Abrir','Open')} ↗</i></a>`).join('');
+  }
+  async function load(p){
+    const r=await fetch('/api/copy?src=skills',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:p,action:'list'})});
+    if(r.status===401){const e=new Error('senha');e.status=401;throw e}
+    const j=await r.json();if(!r.ok)throw new Error(j.error||'erro');return j;
+  }
+  async function open(p){
+    try{const j=await load(p);pw=p;try{sessionStorage.setItem('cp-k',p)}catch(_){}render(j);$('sk-lock').hidden=true;$('sk-body').hidden=false;loaded=true}
+    catch(e){if(e.status===401){try{sessionStorage.removeItem('cp-k')}catch(_){}pw=null;$('sk-err').textContent=T('Senha errada','Wrong password')}else $('sk-err').textContent=T('Não deu certo. Tente de novo.','Something went wrong. Try again.')}
+  }
+  $('sk-lock').addEventListener('submit',e=>{e.preventDefault();const v=$('sk-pass').value;if(v){$('sk-err').textContent='';open(v);$('sk-pass').value=''}});
+  $('sk-grid').addEventListener('click',async e=>{const b=e.target.closest('[data-copy]');if(!b)return;try{await navigator.clipboard.writeText(b.dataset.copy);const t=b.textContent;b.textContent=T('Copiado ✓','Copied ✓');setTimeout(()=>b.textContent=t,1400)}catch(_){}});
+  function maybe(){if(location.hash==='#skills'&&!loaded&&pw)open(pw)}
+  window.addEventListener('hashchange',maybe);maybe();
+  if(EN){document.querySelector('label[for="sk-pass"]').textContent='Copy password';document.querySelector('#sk-lock button').textContent='Enter'}
+})();
+</script>
+    </section>
+
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
       <div class="wrap dt-lockwrap" id="dt-lock">
         <form class="dt-lock" id="dt-form" autocomplete="off">
@@ -1583,12 +1706,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':'Air + planilhas de pedidos – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
