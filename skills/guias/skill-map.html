@@ -1,0 +1,225 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Larroudé Skill Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&display=swap">
+<style>
+/* Layout: mind map — skill at the centre, 9 coloured branches on a ring joined by curves; clicking a branch opens its expandable detail cards below. "Ver tudo" turns the map into a full outline. */
+:root{
+  --bg:#FFFFFF; --ink:#111111; --soft:#F2F2F2; --soft2:#E8E8E8; --muted:#5E5E5E; --line:#D9D9D9;
+  --rosa:#E9519E; --vermelho:#D11524; --lilas:#A685DB; --azul:#2464AB; --acento:#F44C7F; --verde:#1E8A55; --laranja:#E0702A;
+  --f:"Archivo","Arial Black","Helvetica Neue",Arial,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0E0E0E;--ink:#F5F5F5;--soft:#1C1C1C;--soft2:#262626;--muted:#B0B0B0;--line:#333333;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E0E0E;--ink:#F5F5F5;--soft:#1C1C1C;--soft2:#262626;--muted:#B0B0B0;--line:#333333;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f);font-size:17px;line-height:1.45}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:20px 80px;display:grid;gap:20px}
+h1,h2,h3,p{margin:0} h1,h2{text-wrap:balance}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--acento);outline-offset:3px}
+.tag{font-weight:800;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.wm{font-weight:800;letter-spacing:-.02em}
+.wm .e{position:relative;display:inline-block}
+.wm .e::after{content:"";position:absolute;left:50%;top:-.14em;width:.34em;height:.13em;background:var(--acento);border-radius:2px;transform:rotate(-24deg)}
+
+.top{display:flex;justify-content:space-between;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.top h1{font-weight:900;font-stretch:115%;text-transform:uppercase;font-size:clamp(34px,5.6vw,72px);line-height:.92;letter-spacing:-.02em}
+.top h1 span{color:var(--rosa)}
+.top p{color:var(--muted);max-width:46ch;margin-top:10px}
+.modes{display:inline-flex;background:var(--soft);border-radius:999px;padding:4px}
+.modes button{border:0;background:transparent;border-radius:999px;padding:10px 18px;font-weight:900;text-transform:uppercase;font-size:14px}
+.modes button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+
+/* map */
+.map{position:relative;width:100%;aspect-ratio:16/9.2;background:var(--soft);border-radius:28px;overflow:hidden}
+.map svg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.map path{fill:none;stroke-width:3;stroke-linecap:round;opacity:.55;transition:opacity .2s,stroke-width .2s}
+.map path.on{opacity:1;stroke-width:5}
+.root{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);background:var(--ink);color:var(--bg);border-radius:26px;padding:18px 22px;text-align:center;display:grid;gap:4px;width:min(250px,26%);z-index:2}
+.root b{font-weight:900;font-stretch:112%;text-transform:uppercase;font-size:clamp(16px,1.9vw,24px);line-height:1}
+.root small{font-size:13px;opacity:.75}
+.node{position:absolute;transform:translate(-50%,-50%);border:0;border-radius:20px;padding:12px 16px;color:#fff;text-align:left;display:grid;gap:2px;width:min(210px,19%);z-index:2;transition:transform .15s,box-shadow .15s}
+.node:hover{transform:translate(-50%,-50%) scale(1.04)}
+.node .n{font-weight:900;font-size:12px;letter-spacing:.1em;opacity:.85}
+.node .t{font-weight:900;font-size:clamp(14px,1.45vw,19px);line-height:1.05;text-transform:uppercase}
+.node .c{font-size:12px;opacity:.9}
+.node[aria-pressed="true"]{box-shadow:0 0 0 4px var(--bg),0 0 0 7px var(--ink)}
+.hint{position:absolute;left:16px;bottom:14px;font-size:13px;font-weight:700;color:var(--muted)}
+
+/* stacked branches (phone) */
+.stack{display:none;gap:8px;grid-template-columns:1fr 1fr}
+.stack .node{position:static;transform:none;width:auto}
+.stack .node:hover{transform:none}
+
+/* detail */
+.detail{border-radius:28px;padding:clamp(18px,3vw,30px);display:grid;gap:18px;color:#fff}
+.detail .head{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.detail h2{font-weight:900;font-stretch:115%;text-transform:uppercase;font-size:clamp(30px,4.4vw,56px);line-height:.92;letter-spacing:-.015em}
+.detail .lead{font-size:clamp(17px,1.8vw,21px);max-width:60ch;opacity:.95;margin-top:8px}
+.detail .nav{display:flex;gap:8px}
+.detail .nav button{border:0;border-radius:999px;padding:10px 16px;font-weight:900;background:#ffffff2e;color:#fff}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.card{background:var(--bg);color:var(--ink);border-radius:18px;overflow:hidden}
+.card summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start}
+.card summary::-webkit-details-marker{display:none}
+.card .k{font-weight:900;font-size:13px;border-radius:8px;padding:2px 7px;color:#fff;align-self:start}
+.card .h{font-weight:900;font-size:17px;line-height:1.15}
+.card .s{display:block;font-weight:500;font-size:14px;color:var(--muted);margin-top:2px}
+.card .plus{font-weight:900;font-size:20px;line-height:1;transition:transform .2s}
+.card[open] .plus{transform:rotate(45deg)}
+.card .body{padding:0 16px 16px 16px;display:grid;gap:8px;font-size:15px}
+.card .body ul{margin:0;padding-left:18px;display:grid;gap:4px}
+.card .body .ex{background:var(--soft);border-radius:10px;padding:8px 10px;font-size:14px}
+.card .body .ex b{font-weight:800}
+.card .body code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:var(--soft);border-radius:6px;padding:1px 6px;word-break:break-all}
+
+/* outline */
+.outline{display:grid;gap:14px}
+.ob{border-radius:22px;background:var(--soft);padding:18px 20px;display:grid;gap:10px}
+.ob .oh{display:flex;gap:12px;align-items:center}
+.ob .dot{width:18px;height:18px;border-radius:50%;flex:none}
+.ob h3{font-weight:900;text-transform:uppercase;font-size:22px}
+.ob ol{margin:0;padding-left:22px;display:grid;gap:6px;columns:2;column-gap:28px}
+.ob li{break-inside:avoid;font-size:15px}
+.ob li b{font-weight:800}
+.ob li span{color:var(--muted)}
+
+.c-rosa{background:var(--rosa)}.c-vermelho{background:var(--vermelho)}.c-lilas{background:var(--lilas)}.c-azul{background:var(--azul)}.c-ink{background:#1b1b1b}.c-verde{background:var(--verde)}.c-laranja{background:var(--laranja)}
+
+@media (max-width:1000px){.cards{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){.map{display:none}.stack{display:grid}.ob ol{columns:1}}
+@media (max-width:560px){.cards{grid-template-columns:1fr}.stack{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="tag"><span class="wm">Larroud<span class="e">e</span></span> · Skill de criativos no Figma</div>
+      <h1>Mapa <span>completo</span><br>da skill</h1>
+      <p>Toque em um tema para abrir os detalhes. Cada cartão expande com a explicação.</p>
+    </div>
+    <div class="modes" role="group" aria-label="Visualização">
+      <button id="mMap" aria-pressed="true">Mapa</button>
+      <button id="mAll" aria-pressed="false">Ver tudo</button>
+    </div>
+  </div>
+
+  <div id="mapView" style="display:grid;gap:20px">
+    <div class="map" id="map">
+      <svg id="lines" aria-hidden="true"></svg>
+      <div class="root"><b>Skill<br>Larroudé</b><small>da tarefa no Asana à entrega no Air</small></div>
+      <span class="hint">Toque em um tema</span>
+    </div>
+    <div class="stack" id="stack"></div>
+    <section class="detail" id="detail" aria-live="polite"></section>
+  </div>
+
+  <div id="allView" class="outline" hidden></div>
+</div>
+
+<script>
+const COL={rosa:'#E9519E',vermelho:'#D11524',lilas:'#A685DB',azul:'#2464AB',ink:'#1b1b1b',verde:'#1E8A55',laranja:'#E0702A'};
+const B=[
+{id:'fluxo',t:'Fluxo da tarefa',c:'9 etapas, do pedido à entrega',col:'rosa',lead:'O caminho de toda tarefa. O Claude faz as etapas em sequência; a pessoa responsável entra no ajuste fino e na aprovação.',items:[
+ ['1','Lê a tarefa','Só a tarefa atual do Asana',['Quantas artes, quais tamanhos, qual texto e quais calçados (SKUs)','Pede, uma vez, permissão para exportar, subir no Air e comentar','Se algo que muda o resultado não estiver claro, pergunta antes']],
+ ['2','Escolhe a base','Do que o time já aprovou',['Primeiro os APPROVED LAYOUTS da categoria certa','Depois os modelos V, Q e H da página "Claude Padrões ADS"','Nunca copia a última arte: assim um erro não passa de uma tarefa para outra']],
+ ['3','Acha o lugar no Figma','Onde a arte nova fica no arquivo',['ADS: à direita das últimas artes, em colunas de 2 tarefas','Stories e Feed: embaixo da última tarefa da seção','Lugar indicado na tarefa sempre vale']],
+ ['4','Escolhe as fotos','No Air, pela beleza',['Busca pelo SKU ou nome do modelo','Folha de contato para comparar','Confere o log para não repetir foto recente']],
+ ['5','Monta as artes','Tudo de uma vez, em um script',['Cria os 3 tamanhos, põe fotos, recorta, aplica texto e logo','Antes de mudar qualquer coisa, confere se tudo existe','Se faltar algo, avisa e não altera nada']],
+ ['6','Cor do texto e logo','Regra de contraste',['Preto só sobre branco ou cor clara','Foto escura ou contrastada: branco','Acento do logo sempre rosa, logo do mesmo tamanho por formato']],
+ ['7','Revisa uma vez','Uma rodada de QA',['Script confere margens, recorte, resolução, fontes e nomes','Checklist das 17 regras','Folha com todas as artes; corrige só o que falhar']],
+ ['8','Ajuste fino','A pessoa responsável',['Ajusta posição, recorte e detalhes','O Claude não mexe enquanto isso','Depois lê o que mudou e aprende']],
+ ['9','Entrega','Air + Asana, depois da aprovação',['Cria as pastas, exporta e sobe','Confere se subiu tudo','Comenta marcando quem recebe']]
+]},
+{id:'ferr',t:'Ferramentas',c:'Asana, Figma, Air e scripts',col:'azul',lead:'Onde cada parte do trabalho acontece. O Claude se conecta a essas ferramentas pelos conectores instalados.',items:[
+ ['As','Asana','De onde vem o pedido',['A tarefa traz tipo, formatos, copy, SKUs e o nome final das artes','A entrega é comentada na subtarefa "… - Graphic Design"'],'<b>Exemplo:</b> [ADS US] New Drop - 07/10 - Graphic Design'],
+ ['Fg','Figma','Onde as artes são montadas',['Arquivo "FIGMA ZAINERS NOVO"','Páginas: ADS US, ADS BR, Stories, Feed','"Claude Padrões ADS": APPROVED LAYOUTS e modelos V/Q/H','"Claude Teste Zainers": regras do time']],
+ ['Ai','Air','Banco de fotos e entrega',['Fotos de produto em DROPS, CONTENT, COLLABS e pastas por ano','As artes prontas vão para ADS › US/BR › ano › mês › dia']],
+ ['Py','Scripts','Atalhos testados',['Baixar foto do Air ou do site, recortar calçado, folha de contato','No Figma: achar espaço livre, criar artes, aplicar crop, trocar texto, QA, ler ajustes'],'Ficam na pasta <code>scripts/</code> da skill.'],
+ ['＋','Conectores','O que precisa estar ligado',['Figma, Air e Asana conectados no Claude','Python com Pillow e numpy para os scripts de foto','Fontes Platform, Plain e Items instaladas']]
+]},
+{id:'fotos',t:'Fotos',c:'Busca, escolha e log',col:'lilas',lead:'Foto real sempre lidera. A escolha é pela beleza: a primeira arte, ou capa, é a mais chamativa.',items:[
+ ['1','Onde buscar','Pastas principais do Air',['DROPS: uma pasta por modelo (HYDRA, ANNE, LOULOU…)','CONTENT: social, creators e UGC','SPRING / HIGH SUMMER / FALL BY YEAR e COLLABS']],
+ ['2','Como buscar rápido','Sem abrir pasta por pasta',['Pelo SKU ou nome do modelo, limitando à pasta certa','"GROUP_": fotos com várias cores do mesmo calçado','"_UGC_": artes de UGC já publicadas, para não repetir'],'<b>Exemplo de SKU:</b> L545-HYDR-BURN-3255'],
+ ['3','Folha de contato','Para comparar e escolher',['Uma imagem com todas as fotos candidatas lado a lado','Cada foto numerada, para escolher rápido']],
+ ['4','Log de fotos','Evita repetição',['Toda foto aprovada entra no log com data e tarefa','Foto usada nos últimos 10 dias só volta se faltar material ou se pedirem, e com aviso']],
+ ['5','Produtos','Cuidados com o catálogo',['Só os calçados da tarefa','Produto cancelado nunca entra','Produto fora do site entra, mas com aviso']],
+ ['6','Material faltando','Não improvisar',['Se não houver foto, o Claude avisa','Nada de imagem gerada por IA no lugar de foto real']]
+]},
+{id:'layout',t:'Layout',c:'Bases aprovadas e composição',col:'vermelho',lead:'Toda arte parte de uma base que o time já aprovou. A posição do texto se adapta à foto.',items:[
+ ['A','APPROVED LAYOUTS','Aprovados pelo time e pela Marina',['US: Sale, Pre-Order, Copy (também New Arrivals), Just Logo','BR: Sale e promoções, Copy, Just Logo, Pré-venda, UGC','É o primeiro lugar a olhar']],
+ ['V','Modelos V · Q · H','Bases por tamanho',['V = vertical (stories), Q = quadrado, H = horizontal','Ex.: V04 foto única só com logo; H10 mesma foto em duas escalas','Ficam na página "Claude Padrões ADS"']],
+ ['P','Padrões fechados','Sempre iguais',['Carrossel de ADS: título só no 1º card','GIF: troca de fotos sem transição','This or That e Dressing Guide: modelos da casa']],
+ ['M','Montagem com várias fotos','Regra da Marina',['No máximo 3 fotos, da mesma sessão ou história','Sem faixa branca entre as fotos']],
+ ['C','Calçado e recorte','Produto em primeiro plano',['Calçado sempre inteiro: bico e salto','Mostrar o par, com perna e gesto quando ajudam','Zoom leve; nada de espaço vazio']],
+ ['T','Onde vai o texto','Adapta à foto',['Sobre a área mais calma, perto do calçado ou do look','No horizontal, pode virar díptico: foto inteira + detalhe']]
+]},
+{id:'cor',t:'Cor, texto e logo',c:'Contraste e marca',col:'ink',lead:'Regras de marca que valem para todas as artes. A cor pode mudar de um formato para outro.',items:[
+ ['K','Texto preto','Só no branco',['Preto só sobre branco ou cor clara, sem dividir espaço com o calçado']],
+ ['W','Texto branco','Fundo escuro ou contrastado',['Foto escura, colorida forte ou com muita textura: texto e logo brancos']],
+ ['é','Logo Larroudé','Acento sempre rosa',['As letras mudam entre preto e branco','O acento é sempre rosa']],
+ ['=','Tamanho do logo','Igual por formato',['Stories 250 px · Quadrado 220 px · Horizontal 160 px','Mesmo tamanho em todas as artes do formato']],
+ ['B','Logo de collab','Não se altera',['Ex.: "Larroudé by Nicolò B.": só muda de tamanho']],
+ ['F','Fontes e texto','Platform, Plain, Items',['Títulos em Platform; apoio em Plain','Texto sempre editável, nunca transformado em desenho','No stories, logo dentro da área segura do Instagram']]
+]},
+{id:'nomes',t:'Formatos e nomes',c:'Tamanhos, arquivos e lugar',col:'laranja',lead:'Cada arte sai em 3 tamanhos, com o nome da tarefa. O lugar no Figma segue a organização das colunas.',items:[
+ ['A','Tamanhos','A, B e C',['A = stories 1080×1920','B = quadrado 1200×1200','C = horizontal 1200×628']],
+ ['S','Nome do estático','Nome da tarefa + letra',['Nome que vem na tarefa + _A, _B ou _C'],'<code>232503476390_STATIC_MOST-AWARE_ON-FOOT_02_A</code>'],
+ ['C','Nome do carrossel','Letra + número do card',['Letra do tamanho + número do card'],'<code>…_PRODUCT-MIX_02_A1</code>, <code>_A2</code>… <code>_C4</code>'],
+ ['L','Lugar no Figma','Colunas',['ADS: à direita das últimas artes, 2 tarefas por coluna','Stories e Feed: embaixo da última tarefa da seção','Mesmo tamanho lado a lado; tamanhos diferentes embaixo']]
+]},
+{id:'qa',t:'Revisão e aprendizado',c:'1 rodada + ajuste fino',col:'verde',lead:'O Claude revisa uma vez e entrega para a pessoa responsável. Cada ajuste dela vira aprendizado.',items:[
+ ['1','QA automático','Um script confere',['Texto e logo dentro das margens','Recorte sem esticar a foto','Resolução suficiente, fontes e nomes certos']],
+ ['2','Checklist','As 17 regras',['Passa pela lista antes de montar e no fim']],
+ ['3','Folha de revisão','Todas as artes juntas',['Uma imagem com as artes lado a lado','Corrige só o que falhar']],
+ ['4','Ajuste fino','A pessoa responsável',['Ajusta o que quiser','O Claude não mexe enquanto isso']],
+ ['5','Aprendizado','Lê o que mudou',['Compara antes e depois, sem editar','Guarda em poucas linhas o motivo de cada mudança']]
+]},
+{id:'entrega',t:'Entrega',c:'Air + Asana',col:'azul',lead:'Só depois da aprovação. Pastas organizadas por tipo e por arte, e um aviso no Asana para quem recebe.',items:[
+ ['1','Pasta no Air','Confirmada com você',['ADS: ADS › US/BR › 2026 › OCT 26 › 10.01 › nome da tarefa','Orgânico: Graphic Design › Social / Organic › 2026 › mês › STORIES/FEED › data + nome']],
+ ['2','Subpastas','Uma por arte',['STATIC/01, STATIC/02…: cada arte com seus 3 tamanhos','GIF/01, GIF/02…: os vídeos .mp4 de cada animação'],'<b>Exemplo:</b> STATIC/01 = estático, STATIC/02 = carrossel'],
+ ['3','Exportar e subir','JPG ou MP4',['Exporta do Figma e sobe direto na subpasta certa','Nome do arquivo = nome da arte']],
+ ['4','Conferir','Antes de avisar',['Número de arquivos no Air = número de artes']],
+ ['5','Avisar no Asana','Com menção',['ADS: "@Monique Tauane da Silva disponível aqui!" + link','Social: "@Bruna Klaus disponível aqui!" + link']]
+]},
+{id:'time',t:'Time e permissões',c:'Papéis, instalação e pedidos',col:'rosa',lead:'Quem faz o quê e o que cada pessoa precisa para usar a skill.',items:[
+ ['P','Papéis','Quem é quem',['Quem solicita: abre a tarefa no Asana','Pessoa responsável: designer que revisa, ajusta e aprova','Liderança (Marina, Ricardo): define as regras de marca']],
+ ['I','Instalar','Uma vez',['claude.ai → Settings → Capabilities → Skills → Upload','Conectar Figma, Air e Asana']],
+ ['!','Permissões','Liberar quando pedir',['Exportar do Figma','Subir no Air','Comentar no Asana','Sem isso a entrega para no meio']],
+ ['?','Decidir ou perguntar','Como o Claude age',['Decide o que não muda o resultado (recorte, cor, posição)','Pergunta uma vez, no início, o que muda','Avisa na entrega: produto fora do site, foto repetida']],
+ ['→','Como pedir','Uma frase basta',['"Faz a tarefa [nome ou link do Asana]"','Opcional: lugar diferente no Figma, fotos específicas']]
+]}
+];
+
+const $=s=>document.querySelector(s);
+const map=$("#map"),svg=$("#lines"),stack=$("#stack");let cur=0;
+// ring positions (percent of map box)
+const POS=B.map((_,i)=>{const a=-Math.PI/2+i*2*Math.PI/B.length;return [50+39*Math.cos(a),50+38*Math.sin(a)]});
+B.forEach((b,i)=>{
+  const mk=()=>{const n=document.createElement('button');n.className='node c-'+b.col;n.setAttribute('aria-pressed',i===cur);
+    n.innerHTML=`<span class="n">${String(i+1).padStart(2,'0')}</span><span class="t">${b.t}</span><span class="c">${b.c}</span>`;n.onclick=()=>select(i,true);return n};
+  const a=mk();a.style.left=POS[i][0]+'%';a.style.top=POS[i][1]+'%';a.dataset.i=i;map.appendChild(a);
+  const s=mk();s.dataset.i=i;stack.appendChild(s);
+});
+function draw(){const r=map.getBoundingClientRect();if(!r.width)return;svg.setAttribute('viewBox',`0 0 ${r.width} ${r.height}`);
+  const cx=r.width/2,cy=r.height/2;svg.innerHTML=B.map((b,i)=>{const x=POS[i][0]/100*r.width,y=POS[i][1]/100*r.height;const mx=(cx+x)/2,my=(cy+y)/2;const qx=mx+(y-cy)*.12,qy=my-(x-cx)*.12;
+  return `<path class="${i===cur?'on':''}" stroke="${COL[b.col]}" d="M${cx},${cy} Q${qx},${qy} ${x},${y}"/>`}).join('')}
+function select(i,scroll){cur=i;document.querySelectorAll('.node').forEach(n=>n.setAttribute('aria-pressed',+n.dataset.i===i));draw();
+  const b=B[i];const d=$("#detail");d.style.background=COL[b.col];
+  d.innerHTML=`<div class="head"><div><div class="tag" style="color:#ffffffcc">${String(i+1).padStart(2,'0')} / ${String(B.length).padStart(2,'0')}</div><h2>${b.t}</h2><p class="lead">${b.lead}</p></div>
+  <div class="nav"><button id="pv" aria-label="Tema anterior">←</button><button id="nx" aria-label="Próximo tema">→</button><button id="ex">Abrir todos</button></div></div>
+  <div class="cards">${b.items.map(([k,h,s,li,ex])=>`<details class="card"><summary><span class="k" style="background:${COL[b.col]}">${k}</span><span><span class="h">${h}</span><span class="s">${s}</span></span><span class="plus">+</span></summary><div class="body"><ul>${li.map(x=>`<li>${x}</li>`).join('')}</ul>${ex?`<div class="ex">${ex}</div>`:''}</div></details>`).join('')}</div>`;
+  $("#pv").onclick=()=>select((i-1+B.length)%B.length,false);$("#nx").onclick=()=>select((i+1)%B.length,false);
+  $("#ex").onclick=()=>{const all=[...d.querySelectorAll('details')];const open=all.some(x=>!x.open);all.forEach(x=>x.open=open);$("#ex").textContent=open?'Fechar todos':'Abrir todos'};
+  if(scroll)d.scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth',block:'start'})}
+new ResizeObserver(draw).observe(map);select(0,false);
+
+/* outline */
+$("#allView").innerHTML=B.map((b,i)=>`<div class="ob"><div class="oh"><span class="dot" style="background:${COL[b.col]}"></span><h3>${i+1}. ${b.t}</h3></div><p style="color:var(--muted)">${b.lead}</p><ol>${b.items.map(([k,h,s,li])=>`<li><b>${h}</b> <span>· ${s}</span><br>${li.join(' · ')}</li>`).join('')}</ol></div>`).join('');
+function mode(m){$("#mMap").setAttribute('aria-pressed',m==='map');$("#mAll").setAttribute('aria-pressed',m==='all');$("#mapView").hidden=m!=='map';$("#allView").hidden=m!=='all';if(m==='map')requestAnimationFrame(draw)}
+$("#mMap").onclick=()=>mode('map');$("#mAll").onclick=()=>mode('all');
+document.addEventListener('keydown',e=>{if($("#mapView").hidden)return;if(e.target.closest('summary'))return;if(e.key==='ArrowRight')select((cur+1)%B.length,false);if(e.key==='ArrowLeft')select((cur-1+B.length)%B.length,false)});
+</script>
+
+</body></html>
