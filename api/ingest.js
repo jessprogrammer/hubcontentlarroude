@@ -21,8 +21,8 @@ export default async function handler(req, res) {
   const email = auth ? await whoIs(auth) : null;
   if (!email || !config.ingestEmails.map(e => e.toLowerCase()).includes(email)) return res.status(401).json({ error: 'não autorizado' });
   const saved = [];
-  for (const key of ['criativos', 'criativosBR', 'lancamentos', 'socialCal']) {
-    if (Array.isArray(body[key])) { await put('sheet:' + key, { updated: new Date().toISOString(), by: email, rows: body[key] }); saved.push(key + ':' + body[key].length) }
+  for (const key of ['criativos', 'criativosBR', 'lancamentos', 'socialCal', 'socialInsights']) {
+    if (Array.isArray(body[key])) { await put('sheet:' + key, { updated: new Date().toISOString(), by: email, rows: body[key], ...(key === 'socialInsights' && body.socialInsightsFile ? { file: String(body.socialInsightsFile).slice(0, 200) } : {}) }); saved.push(key + ':' + body[key].length) }
   }
   res.status(200).json({ ok: true, saved });
 }

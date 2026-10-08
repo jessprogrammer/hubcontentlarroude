@@ -5,7 +5,7 @@
 // Para editar precisa da senha (env CAL_PASSWORD; se não existir, usa TEAM_PASSWORD).
 import { get, put } from '../lib/store.js';
 import oct2026 from '../data/cal-2026-10.js';
-import socialCal from '../lib/social-cal.js';
+import socialCal, { insights } from '../lib/social-cal.js';
 
 const SEEDS = { '2026-10': oct2026 };
 const MN = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
@@ -44,6 +44,7 @@ function clean(doc, m) {
 export default async function handler(req, res) {
   // calendário de Social (planilha), no mesmo endpoint
   if (req.query && req.query.src === 'social') return socialCal(req, res);
+  if (req.query && req.query.src === 'insights') return insights(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     if (req.method === 'GET') {
