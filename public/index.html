@@ -1015,6 +1015,11 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 
         <div class="dt-kpis" id="so-kpis"></div>
 
+        <section class="dt-card" id="so-ide">
+          <div class="dt-head"><h2>Ideias para os próximos conteúdos</h2><p class="dt-note" id="so-ide-note">Posts que mais performaram × estoque e remessas</p></div>
+          <div class="ide-grid" id="so-ide-grid"><div class="ld"><i></i>Buscando as ideias…</div></div>
+        </section>
+
         <section class="dt-card" id="so-fol">
           <div class="dt-head"><h2>Seguidores</h2><p class="dt-note" id="so-fol-note"></p></div>
           <div class="so-folk" id="so-folk"></div>
@@ -1704,6 +1709,58 @@ window.__S=function(IG,FOL){(function(){
   document.getElementById('so-more').onclick=()=>{st.show+=24;render()};
   render();
 })();};
+</script>
+<style>
+/* ===== Social: Ideias para os próximos conteúdos ===== */
+.ide-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ide{border:1px solid var(--line);border-radius:10px;background:var(--surface);display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.ide-pics{display:grid;grid-template-columns:1fr 1fr;gap:2px;background:var(--soft);aspect-ratio:2/1}
+.ide-pics a{position:relative;display:block;overflow:hidden;min-width:0}
+.ide-pics img{width:100%;height:100%;object-fit:cover;display:block}
+.ide-pics .ph{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--muted);font-family:var(--mono);text-align:center;padding:8px}
+.ide-pics .tag{position:absolute;left:6px;top:6px;background:rgba(14,12,15,.78);color:#fff;font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:999px}
+.ide-b{padding:12px 14px 14px;display:grid;gap:8px}
+.ide-b h3{margin:0;font-family:var(--display);font-weight:600;font-size:19px;line-height:1.15}
+.ide-b p{margin:0;font-size:13px;line-height:1.45}
+.ide-why{font-size:12px;color:var(--muted)}
+.ide-chips{display:flex;flex-wrap:wrap;gap:6px}
+.ide-chips span{font-size:11px;font-family:var(--mono);border:1px solid var(--line);border-radius:999px;padding:2px 8px;color:var(--muted)}
+.ide-chips .s-ok{border-color:var(--ok);color:var(--ok)}
+.ide-chips .s-warn{border-color:var(--warn);color:var(--warn)}
+.ide-chips .s-off{border-color:var(--line);color:var(--muted);text-decoration:line-through}
+.ide-foot{display:flex;gap:14px;font-size:12px;margin-top:2px}
+.ide-empty{color:var(--muted);font-size:13.5px;line-height:1.5;margin:0}
+</style>
+<script>
+// Ideias para os próximos conteúdos: lê /api/calendar?src=insights (planilha diária gerada pelo Claude). Só leitura; não mexe nos outros blocos.
+(function(){
+  const EN=window.LANG==='en';
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const code=u=>(String(u||'').match(/instagram\.com\/(?:p|reel|reels|tv)\/([A-Za-z0-9_-]+)/)||[])[1]||'';
+  let IGP=null,DATA=null;
+  const prev=window.__S;
+  if(typeof prev==='function')window.__S=function(ig){IGP=ig;try{return prev.apply(this,arguments)}finally{if(DATA)draw()}};
+  const k=n=>{n=+String(n||'').replace(/[^\d.]/g,'')||0;return n>=1e4?(n/1e3).toLocaleString(window.LOC||'pt-BR',{maximumFractionDigits:1})+(EN?'k':' mil'):n.toLocaleString(window.LOC||'pt-BR')};
+  const cls=s=>/esgot|sold/i.test(s)?'s-off':/pr[ée]-?venda|pre-?order|remessa|caminho|incoming|produ/i.test(s)?'s-warn':/estoque|in-?stock|ready/i.test(s)?'s-ok':'';
+  const dm=s=>{const m=String(s||'').match(/(\d{4})-(\d{2})-(\d{2})/);return m?m[3]+'/'+m[2]:esc(s)};
+  function draw(){
+    const box=document.getElementById('so-ide-grid');if(!box)return;
+    const L=(DATA&&DATA.items)||[];
+    const note=document.getElementById('so-ide-note');
+    if(DATA&&DATA.updated)note.textContent=(EN?'Top posts × stock and incoming shipments · updated ':'Posts que mais performaram × estoque e remessas · atualizado em ')+new Date(DATA.updated).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'});
+    if(!L.length){box.innerHTML='<p class="ide-empty">'+(EN?'Ideas show up here every morning: Claude crosses the best-performing posts with products that have stock or a shipment on the way.':'As ideias aparecem aqui toda manhã: o Claude cruza os posts que mais performaram com os produtos que têm estoque ou remessa a caminho.')+'</p>';return}
+    const byCode={};(IGP||[]).forEach(p=>{const c=code(p.link);if(c)byCode[c]=p});
+    box.innerHTML=L.map(o=>{
+      const p=byCode[code(o.post_link)];
+      const post=p&&p.img?`<a href="${esc(o.post_link)}" target="_blank" rel="noopener"><img src="${esc(p.img)}" alt="" loading="lazy"><span class="tag">${EN?'Post':'Post'}</span></a>`:`<a href="${esc(o.post_link)}" target="_blank" rel="noopener"><span class="ph">${EN?'Post':'Post'} ${o.post_data?dm(o.post_data):''}</span></a>`;
+      const prod=o.produto_img?`<a href="${esc(o.produto_link||o.produto_img)}" target="_blank" rel="noopener"><img src="${esc(o.produto_img)}" alt="" loading="lazy"><span class="tag">${EN?'Product':'Produto'}</span></a>`:`<a href="${esc(o.produto_link)}" target="_blank" rel="noopener"><span class="ph">${esc(o.produto)}</span></a>`;
+      const chips=[o.situacao&&`<span class="${cls(o.situacao)}">${esc(o.situacao)}</span>`,o.estoque_us&&`<span>${EN?'US stock':'Estoque US'} ${esc(o.estoque_us)}</span>`,o.data_prometida&&`<span>${EN?'Ships':'Entrega'} ${dm(o.data_prometida)}</span>`,o.remessa&&`<span>${EN?'Shipment':'Remessa'} ${esc(o.remessa)}</span>`,o.formato_sugerido&&`<span>${esc(o.formato_sugerido)}</span>`].filter(Boolean).join('');
+      const why=[o.formato,o.alcance&&(EN?'reach ':'alcance ')+k(o.alcance),o.salvos&&k(o.salvos)+(EN?' saves':' salvos'),o.compart&&k(o.compart)+(EN?' shares':' compart.')].filter(Boolean).join(' · ');
+      return `<article class="ide"><div class="ide-pics">${post}${prod}</div><div class="ide-b"><h3>${esc(o.ideia_titulo)}</h3><p>${esc(o.ideia)}</p>${o.produto?`<div class="ide-why"><b>${esc(o.produto)}</b>${why?' — '+(EN?'because the post had ':'porque o post teve ')+esc(why):''}</div>`:''}<div class="ide-chips">${chips}</div><div class="ide-foot">${o.post_link?`<a href="${esc(o.post_link)}" target="_blank" rel="noopener">${EN?'See post':'Ver post'} ↗</a>`:''}${o.produto_link?`<a href="${esc(o.produto_link)}" target="_blank" rel="noopener">${EN?'See product':'Ver produto'} ↗</a>`:''}</div></div></article>`}).join('');
+  }
+  if(EN){const h=document.querySelector('#so-ide h2');if(h)h.textContent='Ideas for upcoming content'}
+  fetch('/api/calendar?src=insights').then(r=>r.json()).then(j=>{DATA=j.error?{items:[]}:j;draw()}).catch(()=>{DATA={items:[]};draw()});
+})();
 </script>
 <script>
 (function(){
