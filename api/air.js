@@ -4,6 +4,7 @@ import config from '../config.js';
 import overrides from '../overrides.js';
 import { pool, getJSON, cached, WD, iso, mondayOf } from '../lib/util.js';
 import { get, put } from '../lib/store.js';
+import library from '../lib/library.js';
 
 const API = 'https://api.air.inc/shorturl/';
 export const normName = n => String(n || '').toLowerCase().replace(/\.(mp4|mov|jpe?g|png|gif|webp)$/i, '').replace(/\s*\(\d+\)$/, '').trim();
@@ -150,6 +151,7 @@ async function build() {
 }
 
 export default async function handler(req, res) {
+  if (req.query && req.query.src === 'library') return library(req, res);
   try {
     const data = await cached('air5', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=120');
