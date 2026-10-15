@@ -161,6 +161,8 @@
     ['Período','Period'],
     ['Categoria','Category'],
     ['Painéis','Panels'],
+    ['Entregas do time','Team delivery'],
+    ['Criativos','Creatives'],
     ['Filtros','Filters'],
     ['Semanas','Weeks'],
     ['Meses','Months'],
@@ -345,6 +347,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .brand span{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
 .navsec{display:grid;gap:2px}
 .navsec>.lbl{padding:0 10px 6px;font-size:10.5px}
+.navsec+.navsec{margin-top:16px}
+@media (max-width:860px){.navsec+.navsec{margin-top:0}}
 .nav{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;color:var(--ink);font-size:14px}
 .nav svg{width:16px;height:16px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;opacity:.75}
 .nav:hover{background:var(--surface)}
@@ -690,13 +694,19 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <nav class="navsec" aria-label="Painéis">
       <span class="lbl">Painéis</span>
       <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta</a>
-      <a class="nav" href="#entrega-semanal" data-v="entrega-semanal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="7" rx="1.5"/></svg>Entrega semanal</a>
-      <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
-      <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
       <a class="nav" href="#skills" data-v="skills"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Skills</a>
+    </nav>
+    <nav class="navsec" aria-label="Entregas do time">
+      <span class="lbl">Entregas do time</span>
+      <a class="nav" href="#daily-tasks" data-v="daily-tasks"><svg viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M8 12.5l2.8 2.8L16.5 9"/></svg>Daily tasks</a>
       <a class="nav" href="#banners" data-v="banners"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="10" rx="2"/><path d="M3 18h18M3 21h11"/></svg>Banners Home</a>
+      <a class="nav" href="#entrega-semanal" data-v="entrega-semanal"><svg viewBox="0 0 24 24"><rect x="3.5" y="4" width="4.5" height="16" rx="1.5"/><rect x="9.75" y="4" width="4.5" height="11" rx="1.5"/><rect x="16" y="4" width="4.5" height="7" rx="1.5"/></svg>Entrega semanal</a>
+    </nav>
+    <nav class="navsec" aria-label="Criativos">
+      <span class="lbl">Criativos</span>
+      <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -985,16 +995,18 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 </style>
 <div class="wrap">
   <header>
-    <div class="lbl">Larroudé · Air · Banners Home</div>
+    <div class="lbl" id="bh-kick">Larroudé · Air · Banners Home</div>
     <h1>Banners Home</h1>
-    <p class="sub">Campanhas de banners da home aguardando aprovação. Aprove ou reprove a campanha inteira; ao reprovar, deixe um comentário dizendo o que precisa mudar.</p>
+    <p class="sub" id="bh-sub">Campanhas de banners da home aguardando aprovação. Aprove ou reprove a campanha inteira; ao reprovar, deixe um comentário dizendo o que precisa mudar.</p>
   </header>
-  <div class="bh-top"><label for="bh-by">Quem está avaliando</label><input id="bh-by" type="text" maxlength="60" placeholder="Seu nome" autocomplete="name"><button class="bh-b" id="bh-ref" type="button">Atualizar</button><span class="bh-meta" id="bh-upd"></span></div>
+  <div class="bh-top"><label for="bh-by" id="bh-byl">Quem está avaliando</label><input id="bh-by" type="text" maxlength="60" placeholder="Seu nome" autocomplete="name"><button class="bh-b" id="bh-ref" type="button">Atualizar</button><span class="bh-meta" id="bh-upd"></span></div>
   <div class="bh-list" id="bh-list"><div class="ld"><i></i>Lendo as pastas do Air…</div></div>
 </div>
 <script>
 (function(){
   const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
+  if(EN){$('bh-sub').textContent='Home banner campaigns waiting for approval. Approve or reject the whole campaign; when rejecting, leave a comment saying what needs to change.';$('bh-byl').textContent='Who is reviewing';$('bh-by').placeholder='Your name';$('bh-ref').textContent='Refresh';}
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const when=s=>s?new Date(s).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'}):'';
   const by=$('bh-by');
@@ -1003,35 +1015,35 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   let loaded=false;
   function thumb(f){const big=f.img?f.img+'?w=2400&auto=format':'';
     const media=f.video?`<video src="${esc(f.video)}" muted loop playsinline preload="metadata" poster="${esc(f.img?f.img+'?w=700&auto=format':'')}"></video>`:`<img src="${esc(f.img+'?w=700&auto=format&q=80')}" alt="${esc(f.name)}" loading="lazy">`;
-    return `<figure style="margin:0"><a href="${esc(big||f.video)}" target="_blank" rel="noopener" title="Abrir em tamanho grande">${media}</a><figcaption title="${esc(f.name)}">${esc(f.name)}</figcaption></figure>`}
+    return `<figure style="margin:0"><a href="${esc(big||f.video)}" target="_blank" rel="noopener" title="${T('Abrir em tamanho grande','Open full size')}">${media}</a><figcaption title="${esc(f.name)}">${esc(f.name)}</figcaption></figure>`}
   function card(it){
-    const prev=it.prev?`<div class="bh-prev"><b>${it.prev.st==='no'?'Reprovada':'Aprovada'} antes</b>${it.prev.by?' por '+esc(it.prev.by):''} em ${esc(when(it.prev.at))}${it.prev.msg?': “'+esc(it.prev.msg)+'”':''}. O time subiu arquivos novos depois disso.</div>`:'';
+    const prev=it.prev?`<div class="bh-prev"><b>${it.prev.st==='no'?T('Reprovada antes','Rejected before'):T('Aprovada antes','Approved before')}</b>${it.prev.by?T(' por ',' by ')+esc(it.prev.by):''} ${T('em','on')} ${esc(when(it.prev.at))}${it.prev.msg?': “'+esc(it.prev.msg)+'”':''}. ${T('O time subiu arquivos novos depois disso.','The team uploaded new files since then.')}</div>`:'';
     const blocks=it.blocks.map(b=>`<div class="bh-blk">${b.title?`<h3>${esc(b.title)}</h3>`:''}<div class="bh-row">${b.files.map(thumb).join('')}</div></div>`).join('');
-    return `<article class="bh-card" id="bh-${esc(it.id)}"><div class="bh-head"><h2>${esc(it.title)}</h2><span class="bh-meta">${it.n} arquivos · atualizado ${esc(when(it.upd))} · <a href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Air ↗</a></span></div>${prev}${blocks}
-      <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">Aprovar</button><button class="bh-b no" type="button" data-a="no">Reprovar</button><span class="bh-msg" role="status"></span>
-      <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">Motivo da reprovação (obrigatório): o que precisa mudar?</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" minlength="3" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">Enviar reprovação</button><button class="bh-b" type="button" data-a="cancel">Cancelar</button></div></form></div></article>`}
+    return `<article class="bh-card" id="bh-${esc(it.id)}"><div class="bh-head"><h2>${esc(it.title)}</h2><span class="bh-meta">${it.n} ${T('arquivos','files')} · ${T('atualizado','updated')} ${esc(when(it.upd))} · <a href="${esc(it.link)}" target="_blank" rel="noopener">${T('Abrir no Air','Open in Air')} ↗</a></span></div>${prev}${blocks}
+      <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">${T('Aprovar','Approve')}</button><button class="bh-b no" type="button" data-a="no">${T('Reprovar','Reject')}</button><span class="bh-msg" role="status"></span>
+      <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">${T('Motivo da reprovação (obrigatório): o que precisa mudar?','Reason for rejection (required): what needs to change?')}</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" minlength="3" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">${T('Enviar reprovação','Send rejection')}</button><button class="bh-b" type="button" data-a="cancel">${T('Cancelar','Cancel')}</button></div></form></div></article>`}
   async function decide(el,id,st,msg){
-    const info=el.querySelector('.bh-acts>.bh-msg');el.querySelectorAll('button').forEach(b=>b.disabled=true);info.className='bh-msg';info.textContent='Salvando…';
+    const info=el.querySelector('.bh-acts>.bh-msg');el.querySelectorAll('button').forEach(b=>b.disabled=true);info.className='bh-msg';info.textContent=T('Salvando…','Saving…');
     try{const r=await fetch('/api/approve?src=banners',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'decide',id,st,msg,by:by.value.trim()})});const j=await r.json();
       if(!r.ok)throw new Error(j.error||r.status);
-      info.textContent=(st==='ok'?'Aprovada ✓ ':'Reprovada. ')+(j.slack==='ok'?'A Jess e a Monique foram avisadas no Slack.':(st==='ok'?'':'Comentário registrado.'));
+      info.textContent=(st==='ok'?T('Aprovada ✓ ','Approved ✓ '):T('Reprovada. ','Rejected. '))+(j.slack==='ok'?T('A Jess e a Monique foram avisadas no Slack.','Jess and Monique were notified on Slack.'):(st==='ok'?'':T('Comentário registrado.','Comment saved.')));
       el.classList.add('done');el.querySelector('.bh-form').hidden=true;
       setTimeout(()=>{el.remove();if(!document.querySelector('#bh-list .bh-card'))empty()},2500);
-    }catch(e){info.className='bh-msg err';info.textContent='Não consegui salvar ('+String(e.message||e).replace(/[<>&]/g,'')+'). Tente de novo.';el.querySelectorAll('button').forEach(b=>b.disabled=false)}}
-  function empty(){$('bh-list').innerHTML='<div class="bh-empty">Nenhum banner aguardando aprovação.</div>'}
+    }catch(e){info.className='bh-msg err';info.textContent=T('Não consegui salvar (','Could not save (')+String(e.message||e).replace(/[<>&]/g,'')+T('). Tente de novo.','). Try again.');el.querySelectorAll('button').forEach(b=>b.disabled=false)}}
+  function empty(){$('bh-list').innerHTML='<div class="bh-empty">'+T('Nenhum banner aguardando aprovação.','No banners waiting for approval.')+'</div>'}
   function render(j){
-    $('bh-upd').textContent=j.updated?'Air lido em '+when(j.updated):'';
+    $('bh-upd').textContent=j.updated?T('Air lido em ','Air read on ')+when(j.updated):'';
     if(!j.items.length)return empty();
     $('bh-list').innerHTML=j.items.map(card).join('');
     j.items.forEach(it=>{const el=$('bh-'+it.id);const f=el.querySelector('.bh-form');
       el.querySelector('[data-a=ok]').onclick=()=>decide(el,it.id,'ok','');
       el.querySelector('[data-a=no]').onclick=()=>{f.hidden=false;f.querySelector('textarea').focus()};
       el.querySelector('[data-a=cancel]').onclick=()=>{f.hidden=true};
-      f.onsubmit=e=>{e.preventDefault();const t=f.querySelector('textarea'),m=t.value.trim();if(m.length<3){t.focus();t.setCustomValidity('Escreva o motivo da reprovação');t.reportValidity();setTimeout(()=>t.setCustomValidity(''),2000);return}decide(el,it.id,'no',m)};
+      f.onsubmit=e=>{e.preventDefault();const t=f.querySelector('textarea'),m=t.value.trim();if(m.length<3){t.focus();t.setCustomValidity(T('Escreva o motivo da reprovação','Write the reason for rejection'));t.reportValidity();setTimeout(()=>t.setCustomValidity(''),2000);return}decide(el,it.id,'no',m)};
       el.querySelectorAll('video').forEach(v=>{v.onmouseenter=()=>v.play().catch(()=>{});v.onmouseleave=()=>v.pause()});});}
-  function load(refresh){loaded=true;$('bh-list').innerHTML='<div class="ld"><i></i>Lendo as pastas do Air…</div>';
+  function load(refresh){loaded=true;$('bh-list').innerHTML='<div class="ld"><i></i>'+T('Lendo as pastas do Air…','Reading the Air folders…')+'</div>';
     fetch('/api/approve?src=banners'+(refresh?'&refresh=1':'')).then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);render(j)})
-      .catch(e=>{$('bh-list').innerHTML='<p class="empty">Não consegui ler o Air agora. Clique em Atualizar em instantes.</p>'})}
+      .catch(e=>{$('bh-list').innerHTML='<p class="empty">'+T('Não consegui ler o Air agora. Clique em Atualizar em instantes.','Could not read Air right now. Click Refresh in a moment.')+'</p>'})}
   $('bh-ref').onclick=()=>load(true);
   function check(){if(location.hash==='#banners'&&!loaded)load(false)}
   window.addEventListener('hashchange',check);check();
