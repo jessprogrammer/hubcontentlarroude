@@ -7,6 +7,7 @@
 //   POST { action:'ack', done:[{k, ok, msg}] } (token do Google do script)
 import config from '../config.js';
 import { get, put } from '../lib/store.js';
+import banners from '../lib/banners.js';
 
 const KEY = 'appr:v1';
 const NEEDS = /needs approval|needs to approve/i;
@@ -53,6 +54,8 @@ function prune(D) {
 }
 
 export default async function handler(req, res) {
+  // Banners Home (aprovação livre da Marina), no mesmo endpoint por causa do limite de 12 funções
+  if (req.query && req.query.src === 'banners') return banners(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     const q = req.query || {};
