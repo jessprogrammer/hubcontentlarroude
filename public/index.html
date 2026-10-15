@@ -163,6 +163,8 @@
     ['Painéis','Panels'],
     ['Entregas do time','Team delivery'],
     ['Criativos','Creatives'],
+    ['Fotos e vídeos','Photos & videos'],
+    ['Air · Fotos e vídeos','Air · Photos & videos'],
     ['Filtros','Filters'],
     ['Semanas','Weeks'],
     ['Meses','Months'],
@@ -707,6 +709,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <nav class="navsec" aria-label="Criativos">
       <span class="lbl">Criativos</span>
       <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
+      <a class="nav" href="#fotos" data-v="fotos"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2.5"/><circle cx="9" cy="10" r="1.6"/><path d="M20.5 15.5l-5-4.5-8 8"/></svg>Fotos e vídeos</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -1051,6 +1054,204 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 </script>
     </section>
 
+    <section class="view notr" id="v-fotos" aria-label="Fotos e vídeos" hidden>
+<style>
+.fv-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:4px 0 14px}
+.fv-bar input,.fv-bar select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.fv-bar input[type=search]{flex:1 1 320px;min-width:220px}
+.fv-bar label{font-size:12.5px;color:var(--muted);display:flex;gap:6px;align-items:center}
+.fv-cats{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 18px}
+.fv-cat{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 13px;border-radius:999px;cursor:pointer}
+.fv-cat:hover{border-color:var(--ink)}
+.fv-cat[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.fv-cat.lock{border-style:dashed}
+.fv-info{font-family:var(--mono);font-size:12px;color:var(--muted);margin:0 0 12px;min-height:16px}
+.fv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+.fv-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.fv-media{position:relative;aspect-ratio:4/5;background:var(--soft);display:block}
+.fv-media img,.fv-media video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.fv-media video{opacity:0;transition:opacity .2s}
+.fv-media.play video{opacity:1}
+.fv-badge{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.6);color:#fff;font-family:var(--mono);font-size:10.5px;padding:2px 7px;border-radius:999px}
+.fv-body{padding:10px 12px 12px;display:grid;gap:8px}
+.fv-name{font-family:var(--mono);font-size:11px;color:var(--ink);word-break:break-all;line-height:1.35;max-height:3.9em;overflow:hidden}
+.fv-meta{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.fv-tags{display:flex;gap:4px;flex-wrap:wrap}
+.fv-tag{font-size:11px;background:var(--accent-soft);color:var(--accent);padding:2px 8px;border-radius:999px}
+.fv-tag.fn{background:var(--soft);color:var(--muted)}
+.fv-acts{display:flex;gap:6px;flex-wrap:wrap}
+.fv-b{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:5px 10px;border-radius:999px;cursor:pointer;text-decoration:none}
+.fv-b:hover{border-color:var(--ink)}
+.fv-b.pri{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.fv-b[disabled]{opacity:.5;cursor:default}
+.fv-ed{border-top:1px solid var(--line);padding-top:10px;display:grid;gap:8px}
+.fv-ed[hidden]{display:none}
+.fv-ed h4{font-size:10.5px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0}
+.fv-chk{display:grid;grid-template-columns:1fr 1fr;gap:3px 8px}
+.fv-chk label{font-size:12px;display:flex;gap:5px;align-items:center}
+.fv-other{display:flex;gap:4px;flex-wrap:wrap}
+.fv-other button{font:inherit;font-size:11px;border:1px solid var(--line);background:var(--soft);color:var(--ink);padding:2px 8px;border-radius:999px;cursor:pointer}
+.fv-other button.rm{text-decoration:line-through;color:var(--late);border-color:var(--late)}
+.fv-msg{font-size:12px;color:var(--muted)}
+.fv-msg.err{color:var(--late)}
+.fv-more{display:flex;justify-content:center;margin:22px 0}
+.fv-lock{background:var(--soft);border-radius:14px;padding:22px;display:grid;gap:10px;max-width:440px}
+.fv-lock div{display:flex;gap:8px}
+.fv-lock input{font:inherit;font-size:14px;flex:1;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.fv-empty{background:var(--soft);border-radius:14px;padding:28px;text-align:center;color:var(--muted);font-size:14.5px}
+@media (max-width:640px){.fv-grid{grid-template-columns:repeat(2,1fr);gap:10px}.fv-chk{grid-template-columns:1fr}}
+</style>
+<div class="wrap">
+  <header>
+    <div class="lbl" id="fv-kick">Larroudé · Air · Fotos e vídeos</div>
+    <h1 id="fv-h1">Fotos e vídeos</h1>
+    <p class="sub" id="fv-sub">Banco de criativos do Air por categoria. Um arquivo entra na categoria se tiver a tag no Air ou o termo no nome do arquivo. Busque por SKU, nome do produto, cor ou nome do arquivo.</p>
+  </header>
+  <div class="fv-bar">
+    <input type="search" id="fv-q" maxlength="80" autocomplete="off">
+    <select id="fv-scope"></select>
+    <select id="fv-type"></select>
+    <select id="fv-fmt"></select>
+    <label id="fv-froml"><span></span><input type="date" id="fv-from"></label>
+  </div>
+  <div class="fv-cats" id="fv-cats"></div>
+  <p class="fv-info" id="fv-info" role="status"></p>
+  <div id="fv-lockbox"></div>
+  <div class="fv-grid" id="fv-grid"></div>
+  <div class="fv-more"><button class="fv-b" id="fv-more" type="button" hidden></button></div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
+  const API='/api/air?src=library';
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const norm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]/g,'');
+  const CATS=[['product-focused','Product-focused',['productfocused']],['product-details','Product details',['productdetails','productdetail']],['product-mix','Product Mix',['productmix']],['on-foot','On-foot',['onfoot']],['hand-held','Hand-held',['handheld']],['colorway','Colorway',['colorway','colorways']],['editorial','Editorial',['editorial']],['ugc','UGC',['ugc']],['voice-over','Voice Over',['voiceover']],['lifestyle','Lifestyle',['lifestyle']],['unboxing','Unboxing',['unboxing']],['pdp','PDP',['pdp','pdpmodel']],['abc','ABC',['abc','abcs']],['copy-only','Copy Only',['copyonly']],['3d','3D',['3d']],['factory','Factory',['factory','factory3']]];
+  const NAME=Object.fromEntries(CATS.map(c=>[c[0],c[1]]));
+  const ALIAS=new Map();CATS.forEach(c=>c[2].forEach(a=>ALIAS.set(a,c[0])));
+  const tagCat=l=>ALIAS.get(norm(String(l||'').split(':').pop()));
+  // textos
+  $('fv-q').placeholder=T('Buscar por SKU, produto, cor ou nome do arquivo','Search by SKU, product, color or file name');
+  $('fv-scope').innerHTML=`<option value="cat">${T('Nesta categoria','In this category')}</option><option value="all">${T('Em todas','In all')}</option>`;
+  $('fv-type').innerHTML=`<option value="">${T('Fotos e vídeos','Photos & videos')}</option><option value="photo">${T('Só fotos','Photos only')}</option><option value="video">${T('Só vídeos','Videos only')}</option>`;
+  $('fv-fmt').innerHTML=`<option value="">${T('Todos os formatos','All formats')}</option><option value="1:1">1:1</option><option value="4:5">4:5</option><option value="9:16">9:16</option><option value="h">${T('Horizontal','Landscape')}</option>`;
+  $('fv-froml').firstChild.textContent=T('Desde','Since');
+  if(EN){$('fv-kick').textContent='Larroudé · Air · Photos & videos';$('fv-h1').textContent='Photos & videos';$('fv-sub').textContent='Air creative library by category. A file belongs to a category if it has the tag in Air or the term in its file name. Search by SKU, product name, color or file name.'}
+  // senha do time de conteúdo (a mesma do Banco de copy): libera "Sem categoria" e a troca de tags
+  let pass='';try{pass=sessionStorage.getItem('lib-pass')||''}catch(e){}
+  let cat='product-focused';try{cat=localStorage.getItem('lib-cat')||cat}catch(e){}
+  if(cat!=='none'&&!NAME[cat])cat='product-focused';
+  if(cat==='none'&&!pass)cat='product-focused';
+  let next=null,items=[],busy=false,loaded=false,ctl=null;
+  function drawCats(){
+    $('fv-cats').innerHTML=CATS.map(c=>`<button class="fv-cat" type="button" data-k="${c[0]}" aria-pressed="${cat===c[0]}">${esc(c[1])}</button>`).join('')+
+      `<button class="fv-cat lock" type="button" data-k="none" aria-pressed="${cat==='none'}">${T('Sem categoria · time de conteúdo','Uncategorized · content team')}</button>`;
+  }
+  $('fv-cats').onclick=e=>{const b=e.target.closest('.fv-cat');if(!b)return;cat=b.dataset.k;try{localStorage.setItem('lib-cat',cat)}catch(e){}
+    if($('fv-scope').value==='all'&&$('fv-q').value.trim())$('fv-scope').value='cat';drawCats();load()};
+  function fmtOf(w,h){if(!w||!h)return'';const r=w/h;if(Math.abs(r-1)<.06)return'1:1';if(Math.abs(r-.8)<.05)return'4:5';if(Math.abs(r-.5625)<.05)return'9:16';if(r>1.06)return'h';return'other'}
+  const fmtLbl=f=>f==='h'?T('Horizontal','Landscape'):f==='other'?'':f;
+  const day=s=>s?new Date(s).toLocaleDateString(window.LOC||'pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
+  function openUrl(it){return location.origin+API+'&open='+encodeURIComponent(it.id)+'&v='+encodeURIComponent(it.v)}
+  function tagsHtml(it){
+    const byTag=new Set(it.tags.map(t=>tagCat(t.l)).filter(Boolean));
+    return it.cats.map(k=>`<span class="fv-tag${byTag.has(k)?'':' fn'}" title="${byTag.has(k)?T('Tag no Air','Tag in Air'):T('Pelo nome do arquivo','From the file name')}">${esc(NAME[k]||k)}</span>`).join('');
+  }
+  function card(it){
+    const f=fmtOf(it.w,it.h);
+    const meta=[it.t==='video'?T('Vídeo','Video')+(it.dur?' '+Math.floor(it.dur/60)+':'+String(it.dur%60).padStart(2,'0'):''):T('Foto','Photo'),fmtLbl(f),it.w&&it.h?it.w+'×'+it.h:'',day(it.d)].filter(Boolean).join(' · ');
+    return `<article class="fv-card" data-id="${esc(it.id)}">
+      <a class="fv-media" href="${esc(openUrl(it))}" target="_blank" rel="noopener">${it.th?`<img loading="lazy" src="${esc(it.th)}" alt="">`:''}${it.t==='video'?`<span class="fv-badge">${T('vídeo','video')}</span>`:''}</a>
+      <div class="fv-body"><div class="fv-name">${esc(it.n)}${it.ext&&!new RegExp('\\.'+it.ext+'$','i').test(it.n)?'.'+esc(it.ext):''}</div><div class="fv-meta">${esc(meta)}</div>
+      <div class="fv-tags">${tagsHtml(it)}</div>
+      <div class="fv-acts"><a class="fv-b" href="${esc(openUrl(it))}" target="_blank" rel="noopener">${T('Abrir no Air','Open in Air')} ↗</a><button class="fv-b" type="button" data-a="copy">${T('Copiar link','Copy link')}</button><button class="fv-b" type="button" data-a="edit">${T('Trocar tag','Change tag')}</button></div>
+      <div class="fv-ed" hidden></div></div></article>`;
+  }
+  function visible(){const f=$('fv-fmt').value;return items.filter(it=>!f||fmtOf(it.w,it.h)===f)}
+  function draw(){
+    const v=visible();
+    $('fv-grid').innerHTML=v.map(card).join('');
+    const q=$('fv-q').value.trim();
+    const where=q&&$('fv-scope').value==='all'?T('todas as categorias','all categories'):cat==='none'?T('Sem categoria','Uncategorized'):NAME[cat];
+    $('fv-info').textContent=busy?'':(v.length+(next?'+':'')+' '+T('arquivos','files')+' · '+where+(q?' · “'+q+'”':''));
+    if(!v.length&&!busy)$('fv-grid').innerHTML=`<div class="fv-empty" style="grid-column:1/-1">${next?T('Nada com esses filtros nesta página. Clique em Carregar mais.','Nothing with these filters on this page. Click Load more.'):T('Nenhum arquivo encontrado.','No files found.')}</div>`;
+    $('fv-more').hidden=!next;$('fv-more').textContent=T('Carregar mais','Load more');$('fv-more').disabled=busy;
+  }
+  function lockBox(onok){
+    $('fv-lockbox').innerHTML=`<form class="fv-lock" id="fv-lockf"><b>${T('Área do time de conteúdo','Content team area')}</b><span class="fv-msg">${T('Digite a senha do Banco de copy para ver os arquivos sem categoria e trocar tags.','Enter the Copy bank password to see uncategorized files and change tags.')}</span><div><input type="password" id="fv-pass" autocomplete="off" aria-label="${T('Senha','Password')}"><button class="fv-b pri" type="submit">${T('Entrar','Enter')}</button></div><span class="fv-msg" id="fv-lockm"></span></form>`;
+    $('fv-lockf').onsubmit=async e=>{e.preventDefault();const p=$('fv-pass').value;
+      const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'check',password:p})}).catch(()=>null);
+      if(r&&r.ok){pass=p;try{sessionStorage.setItem('lib-pass',p)}catch(e){}$('fv-lockbox').innerHTML='';onok()}else{$('fv-lockm').className='fv-msg err';$('fv-lockm').textContent=T('Senha incorreta.','Wrong password.')}};
+    $('fv-pass').focus();
+  }
+  async function load(more){
+    if(cat==='none'&&!pass&&!($('fv-q').value.trim()&&$('fv-scope').value==='all')){items=[];next=null;$('fv-grid').innerHTML='';$('fv-info').textContent='';$('fv-more').hidden=true;lockBox(()=>load());return}
+    $('fv-lockbox').innerHTML='';
+    loaded=true;if(ctl)ctl.abort();ctl=new AbortController();
+    if(!more){items=[];next=null;$('fv-grid').innerHTML='<div class="ld" style="grid-column:1/-1"><i></i>'+T('Buscando no Air…','Searching Air…')+'</div>'}
+    busy=true;$('fv-more').disabled=true;$('fv-info').textContent='';
+    const q=$('fv-q').value.trim();
+    const sp=new URLSearchParams({cat:q&&$('fv-scope').value==='all'?'all':cat});
+    if(q)sp.set('q',q);if($('fv-type').value)sp.set('type',$('fv-type').value);if($('fv-from').value)sp.set('from',$('fv-from').value);
+    if(more&&next)sp.set('cur',next);
+    try{const r=await fetch(API+'&'+sp.toString(),{signal:ctl.signal});const j=await r.json();if(j.error)throw new Error(j.error);
+      const have=new Set(items.map(i=>i.id));items=items.concat(j.items.filter(i=>!have.has(i.id)));next=j.next;busy=false;draw();
+    }catch(e){if(e.name==='AbortError')return;busy=false;$('fv-grid').innerHTML='<p class="empty" style="grid-column:1/-1">'+T('Não consegui ler o Air agora (','Could not read Air right now (')+esc(String(e.message||e))+T('). Tente de novo em instantes.','). Try again in a moment.')+'</p>';$('fv-more').hidden=true}
+  }
+  $('fv-more').onclick=()=>load(true);
+  let qt=null;$('fv-q').addEventListener('input',()=>{clearTimeout(qt);qt=setTimeout(()=>load(),450)});
+  $('fv-scope').onchange=()=>{if($('fv-q').value.trim())load()};
+  $('fv-type').onchange=()=>load();$('fv-from').onchange=()=>load();$('fv-fmt').onchange=()=>draw();
+  // vídeo toca ao passar o mouse (HLS do Air)
+  let hlsP=null;
+  function hlsLib(){return hlsP||(hlsP=new Promise((ok,no)=>{const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.13/hls.min.js';s.onload=()=>ok(window.Hls);s.onerror=no;document.head.appendChild(s)}))}
+  $('fv-grid').addEventListener('mouseover',async e=>{const m=e.target.closest('.fv-media');if(!m||m.dataset.on)return;const it=items.find(i=>i.id===m.closest('.fv-card').dataset.id);if(!it||it.t!=='video'||!it.pv)return;
+    m.dataset.on='1';let v=m.querySelector('video');
+    if(!v){v=document.createElement('video');v.muted=true;v.loop=true;v.playsInline=true;m.appendChild(v);
+      if(v.canPlayType('application/vnd.apple.mpegurl'))v.src=it.pv;else{try{const H=await hlsLib();if(H&&H.isSupported()){const h=new H({maxBufferLength:8});h.loadSource(it.pv);h.attachMedia(v);v._h=h}}catch(err){}}}
+    if(!m.dataset.on)return;v.play().then(()=>m.classList.add('play')).catch(()=>{})});
+  $('fv-grid').addEventListener('mouseout',e=>{const m=e.target.closest('.fv-media');if(!m||m.contains(e.relatedTarget))return;delete m.dataset.on;m.classList.remove('play');const v=m.querySelector('video');if(v)v.pause()});
+  // copiar link / trocar tag
+  $('fv-grid').addEventListener('click',async e=>{const b=e.target.closest('button');if(!b)return;const c=b.closest('.fv-card');const it=items.find(i=>i.id===c.dataset.id);if(!it)return;
+    if(b.dataset.a==='copy'){try{await navigator.clipboard.writeText(openUrl(it));b.textContent=T('Link copiado','Link copied')}catch(err){prompt(T('Copie o link:','Copy the link:'),openUrl(it))}setTimeout(()=>b.textContent=T('Copiar link','Copy link'),1800);return}
+    if(b.dataset.a==='edit'){const ed=c.querySelector('.fv-ed');if(!ed.hidden){ed.hidden=true;return}
+      if(!pass){lockBox(()=>{window.scrollTo(0,c.offsetTop-80);b.click()});window.scrollTo(0,0);return}
+      editor(c,it);return}
+    if(b.dataset.a==='rmtag'){b.classList.toggle('rm');return}
+    if(b.dataset.a==='cancel'){c.querySelector('.fv-ed').hidden=true;return}
+    if(b.dataset.a==='save')save(c,it,b);
+  });
+  function editor(c,it){
+    const ed=c.querySelector('.fv-ed');ed.hidden=false;
+    const has=new Set(it.tags.map(t=>tagCat(t.l)).filter(Boolean));
+    const other=it.tags.filter(t=>!tagCat(t.l));
+    ed.innerHTML=`<h4>${T('Categorias (tags oficiais)','Categories (official tags)')}</h4><div class="fv-chk">${CATS.map(k=>`<label><input type="checkbox" value="${k[0]}"${has.has(k[0])?' checked':''}>${esc(k[1])}</label>`).join('')}</div>
+      ${other.length?`<h4>${T('Outras tags no Air (clique para remover)','Other tags in Air (click to remove)')}</h4><div class="fv-other">${other.map(t=>`<button type="button" data-a="rmtag" data-id="${esc(t.id)}">${esc(t.l)} ×</button>`).join('')}</div>`:''}
+      <div class="fv-acts"><button class="fv-b pri" type="button" data-a="save">${T('Salvar no Air','Save to Air')}</button><button class="fv-b" type="button" data-a="cancel">${T('Cancelar','Cancel')}</button></div><span class="fv-msg" role="status"></span>`;
+  }
+  async function save(c,it,b){
+    const ed=c.querySelector('.fv-ed'),msg=ed.querySelector('.fv-msg');
+    const want=new Set([...ed.querySelectorAll('.fv-chk input:checked')].map(i=>i.value));
+    const has=new Set(it.tags.map(t=>tagCat(t.l)).filter(Boolean));
+    const add=[...want].filter(k=>!has.has(k));
+    const remove=it.tags.filter(t=>{const k=tagCat(t.l);return k&&!want.has(k)}).map(t=>t.id).concat([...ed.querySelectorAll('.fv-other .rm')].map(x=>x.dataset.id));
+    if(!add.length&&!remove.length){msg.className='fv-msg';msg.textContent=T('Nada mudou.','Nothing changed.');return}
+    ed.querySelectorAll('button,input').forEach(x=>x.disabled=true);msg.className='fv-msg';msg.textContent=T('Salvando no Air…','Saving to Air…');
+    try{const r=await fetch(API,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'tags',password:pass,id:it.id,v:it.v,add,remove})});const j=await r.json();
+      if(r.status===401){pass='';try{sessionStorage.removeItem('lib-pass')}catch(e){}throw new Error(T('senha','password'))}
+      if(!j.ok)throw new Error(j.error||'erro');
+      if(j.item){Object.assign(it,j.item)}
+      c.querySelector('.fv-tags').innerHTML=tagsHtml(it);ed.hidden=true;
+      const m2=document.createElement('span');m2.className='fv-msg';m2.textContent=T('Tags salvas no Air ✓','Tags saved to Air ✓');c.querySelector('.fv-acts').appendChild(m2);setTimeout(()=>m2.remove(),3000);
+    }catch(e){msg.className='fv-msg err';msg.textContent=T('Não consegui salvar (','Could not save (')+String(e.message||e).replace(/[<>&]/g,'')+')';ed.querySelectorAll('button,input').forEach(x=>x.disabled=false)}
+  }
+  drawCats();
+  function check(){if(location.hash==='#fotos'&&!loaded)load()}
+  window.addEventListener('hashchange',check);check();
+})();
+</script>
+    </section>
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
       <div class="wrap dt-lockwrap" id="dt-lock">
         <form class="dt-lock" id="dt-form" autocomplete="off">
@@ -1864,12 +2065,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':'Air + planilhas de pedidos – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
