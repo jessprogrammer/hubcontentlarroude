@@ -696,6 +696,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
       <a class="nav" href="#copy" data-v="copy"><svg viewBox="0 0 24 24"><path d="M7 7h10M7 11h10M7 15h6"/><rect x="3.5" y="3.5" width="17" height="17" rx="3"/></svg>Copy</a>
       <a class="nav" href="#skills" data-v="skills"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Skills</a>
+      <a class="nav" href="#banners" data-v="banners"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="10" rx="2"/><path d="M3 18h18M3 21h11"/></svg>Banners Home</a>
     </nav>
     <div class="foot">Dados ao vivo · Air, planilhas e Instagram</div>
   </aside>
@@ -947,6 +948,93 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   function maybe(){if(location.hash==='#skills'&&!loaded&&pw)open(pw)}
   window.addEventListener('hashchange',maybe);maybe();
   if(EN){document.querySelector('label[for="sk-pass"]').textContent='Copy password';document.querySelector('#sk-lock button').textContent='Enter'}
+})();
+</script>
+    </section>
+    <section class="view notr" id="v-banners" aria-label="Banners Home" hidden>
+<style>
+.bh-top{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:4px 0 20px}
+.bh-top label{font-size:13.5px;color:var(--muted)}
+.bh-top input{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;min-width:200px}
+.bh-list{display:grid;gap:20px}
+.bh-card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px 22px;display:grid;gap:16px;transition:opacity .4s}
+.bh-card.done{opacity:.45}
+.bh-head{display:flex;gap:12px;align-items:baseline;flex-wrap:wrap;justify-content:space-between}
+.bh-head h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0}
+.bh-meta{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bh-prev{background:var(--warn-soft);color:var(--ink);border-radius:10px;padding:10px 14px;font-size:13.5px;line-height:1.45}
+.bh-blk h3{font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.bh-row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.bh-row a{display:block;background:var(--soft);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.bh-row img,.bh-row video{display:block;height:200px;width:auto;max-width:100%;object-fit:contain}
+.bh-row figcaption{font-family:var(--mono);font-size:10.5px;color:var(--muted);padding:4px 6px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bh-acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center;border-top:1px solid var(--line);padding-top:14px}
+.bh-b{font:inherit;font-size:14px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:9px 20px;border-radius:999px;cursor:pointer}
+.bh-b:hover{border-color:var(--ink)}
+.bh-b.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.bh-b.no{color:var(--late);border-color:var(--late)}
+.bh-b.send{background:var(--late);border-color:var(--late);color:#fff}
+.bh-b[disabled]{opacity:.5;cursor:default}
+.bh-form{display:grid;gap:10px;width:100%}
+.bh-form[hidden]{display:none}
+.bh-form textarea{font:inherit;font-size:14.5px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:90px;resize:vertical}
+.bh-msg{font-size:13.5px;color:var(--muted)}
+.bh-msg.err{color:var(--late)}
+.bh-empty{background:var(--soft);border-radius:14px;padding:28px;text-align:center;color:var(--muted);font-size:15px}
+@media (max-width:640px){.bh-row img,.bh-row video{height:150px}}
+</style>
+<div class="wrap">
+  <header>
+    <div class="lbl">Larroudé · Air · Banners Home</div>
+    <h1>Banners Home</h1>
+    <p class="sub">Campanhas de banners da home aguardando aprovação. Aprove ou reprove a campanha inteira; ao reprovar, deixe um comentário dizendo o que precisa mudar.</p>
+  </header>
+  <div class="bh-top"><label for="bh-by">Quem está avaliando</label><input id="bh-by" type="text" maxlength="60" placeholder="Seu nome" autocomplete="name"><button class="bh-b" id="bh-ref" type="button">Atualizar</button><span class="bh-meta" id="bh-upd"></span></div>
+  <div class="bh-list" id="bh-list"><div class="ld"><i></i>Lendo as pastas do Air…</div></div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const when=s=>s?new Date(s).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'}):'';
+  const by=$('bh-by');
+  try{by.value=localStorage.getItem('bh-by')||''}catch(e){}
+  by.addEventListener('change',()=>{try{localStorage.setItem('bh-by',by.value.trim())}catch(e){}});
+  let loaded=false;
+  function thumb(f){const big=f.img?f.img+'?w=2400&auto=format':'';
+    const media=f.video?`<video src="${esc(f.video)}" muted loop playsinline preload="metadata" poster="${esc(f.img?f.img+'?w=700&auto=format':'')}"></video>`:`<img src="${esc(f.img+'?w=700&auto=format&q=80')}" alt="${esc(f.name)}" loading="lazy">`;
+    return `<figure style="margin:0"><a href="${esc(big||f.video)}" target="_blank" rel="noopener" title="Abrir em tamanho grande">${media}</a><figcaption title="${esc(f.name)}">${esc(f.name)}</figcaption></figure>`}
+  function card(it){
+    const prev=it.prev?`<div class="bh-prev"><b>${it.prev.st==='no'?'Reprovada':'Aprovada'} antes</b>${it.prev.by?' por '+esc(it.prev.by):''} em ${esc(when(it.prev.at))}${it.prev.msg?': “'+esc(it.prev.msg)+'”':''}. O time subiu arquivos novos depois disso.</div>`:'';
+    const blocks=it.blocks.map(b=>`<div class="bh-blk">${b.title?`<h3>${esc(b.title)}</h3>`:''}<div class="bh-row">${b.files.map(thumb).join('')}</div></div>`).join('');
+    return `<article class="bh-card" id="bh-${esc(it.id)}"><div class="bh-head"><h2>${esc(it.title)}</h2><span class="bh-meta">${it.n} arquivos · atualizado ${esc(when(it.upd))} · <a href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Air ↗</a></span></div>${prev}${blocks}
+      <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">Aprovar</button><button class="bh-b no" type="button" data-a="no">Reprovar</button><span class="bh-msg" role="status"></span>
+      <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">O que precisa mudar?</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">Enviar reprovação</button><button class="bh-b" type="button" data-a="cancel">Cancelar</button></div></form></div></article>`}
+  async function decide(el,id,st,msg){
+    const info=el.querySelector('.bh-acts>.bh-msg');el.querySelectorAll('button').forEach(b=>b.disabled=true);info.className='bh-msg';info.textContent='Salvando…';
+    try{const r=await fetch('/api/approve?src=banners',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'decide',id,st,msg,by:by.value.trim()})});const j=await r.json();
+      if(!r.ok)throw new Error(j.error||r.status);
+      info.textContent=st==='ok'?'Aprovada ✓':'Reprovada. '+(j.slack==='ok'?'A Jess e a Monique foram avisadas no Slack.':'Comentário registrado.');
+      el.classList.add('done');el.querySelector('.bh-form').hidden=true;
+      setTimeout(()=>{el.remove();if(!document.querySelector('#bh-list .bh-card'))empty()},2500);
+    }catch(e){info.className='bh-msg err';info.textContent='Não consegui salvar ('+String(e.message||e).replace(/[<>&]/g,'')+'). Tente de novo.';el.querySelectorAll('button').forEach(b=>b.disabled=false)}}
+  function empty(){$('bh-list').innerHTML='<div class="bh-empty">Nenhum banner aguardando aprovação.</div>'}
+  function render(j){
+    $('bh-upd').textContent=j.updated?'Air lido em '+when(j.updated):'';
+    if(!j.items.length)return empty();
+    $('bh-list').innerHTML=j.items.map(card).join('');
+    j.items.forEach(it=>{const el=$('bh-'+it.id);const f=el.querySelector('.bh-form');
+      el.querySelector('[data-a=ok]').onclick=()=>decide(el,it.id,'ok','');
+      el.querySelector('[data-a=no]').onclick=()=>{f.hidden=false;f.querySelector('textarea').focus()};
+      el.querySelector('[data-a=cancel]').onclick=()=>{f.hidden=true};
+      f.onsubmit=e=>{e.preventDefault();const m=f.querySelector('textarea').value.trim();if(!m)return;decide(el,it.id,'no',m)};
+      el.querySelectorAll('video').forEach(v=>{v.onmouseenter=()=>v.play().catch(()=>{});v.onmouseleave=()=>v.pause()});});}
+  function load(refresh){loaded=true;$('bh-list').innerHTML='<div class="ld"><i></i>Lendo as pastas do Air…</div>';
+    fetch('/api/approve?src=banners'+(refresh?'&refresh=1':'')).then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);render(j)})
+      .catch(e=>{$('bh-list').innerHTML='<p class="empty">Não consegui ler o Air agora. Clique em Atualizar em instantes.</p>'})}
+  $('bh-ref').onclick=()=>load(true);
+  function check(){if(location.hash==='#banners'&&!loaded)load(false)}
+  window.addEventListener('hashchange',check);check();
 })();
 </script>
     </section>
@@ -1764,12 +1852,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':'Air + planilhas de pedidos – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
