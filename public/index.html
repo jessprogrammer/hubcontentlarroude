@@ -1009,12 +1009,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     const blocks=it.blocks.map(b=>`<div class="bh-blk">${b.title?`<h3>${esc(b.title)}</h3>`:''}<div class="bh-row">${b.files.map(thumb).join('')}</div></div>`).join('');
     return `<article class="bh-card" id="bh-${esc(it.id)}"><div class="bh-head"><h2>${esc(it.title)}</h2><span class="bh-meta">${it.n} arquivos · atualizado ${esc(when(it.upd))} · <a href="${esc(it.link)}" target="_blank" rel="noopener">Abrir no Air ↗</a></span></div>${prev}${blocks}
       <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">Aprovar</button><button class="bh-b no" type="button" data-a="no">Reprovar</button><span class="bh-msg" role="status"></span>
-      <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">O que precisa mudar?</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">Enviar reprovação</button><button class="bh-b" type="button" data-a="cancel">Cancelar</button></div></form></div></article>`}
+      <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">Motivo da reprovação (obrigatório): o que precisa mudar?</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" minlength="3" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">Enviar reprovação</button><button class="bh-b" type="button" data-a="cancel">Cancelar</button></div></form></div></article>`}
   async function decide(el,id,st,msg){
     const info=el.querySelector('.bh-acts>.bh-msg');el.querySelectorAll('button').forEach(b=>b.disabled=true);info.className='bh-msg';info.textContent='Salvando…';
     try{const r=await fetch('/api/approve?src=banners',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'decide',id,st,msg,by:by.value.trim()})});const j=await r.json();
       if(!r.ok)throw new Error(j.error||r.status);
-      info.textContent=st==='ok'?'Aprovada ✓':'Reprovada. '+(j.slack==='ok'?'A Jess e a Monique foram avisadas no Slack.':'Comentário registrado.');
+      info.textContent=(st==='ok'?'Aprovada ✓ ':'Reprovada. ')+(j.slack==='ok'?'A Jess e a Monique foram avisadas no Slack.':(st==='ok'?'':'Comentário registrado.'));
       el.classList.add('done');el.querySelector('.bh-form').hidden=true;
       setTimeout(()=>{el.remove();if(!document.querySelector('#bh-list .bh-card'))empty()},2500);
     }catch(e){info.className='bh-msg err';info.textContent='Não consegui salvar ('+String(e.message||e).replace(/[<>&]/g,'')+'). Tente de novo.';el.querySelectorAll('button').forEach(b=>b.disabled=false)}}
@@ -1027,7 +1027,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       el.querySelector('[data-a=ok]').onclick=()=>decide(el,it.id,'ok','');
       el.querySelector('[data-a=no]').onclick=()=>{f.hidden=false;f.querySelector('textarea').focus()};
       el.querySelector('[data-a=cancel]').onclick=()=>{f.hidden=true};
-      f.onsubmit=e=>{e.preventDefault();const m=f.querySelector('textarea').value.trim();if(!m)return;decide(el,it.id,'no',m)};
+      f.onsubmit=e=>{e.preventDefault();const t=f.querySelector('textarea'),m=t.value.trim();if(m.length<3){t.focus();t.setCustomValidity('Escreva o motivo da reprovação');t.reportValidity();setTimeout(()=>t.setCustomValidity(''),2000);return}decide(el,it.id,'no',m)};
       el.querySelectorAll('video').forEach(v=>{v.onmouseenter=()=>v.play().catch(()=>{});v.onmouseleave=()=>v.pause()});});}
   function load(refresh){loaded=true;$('bh-list').innerHTML='<div class="ld"><i></i>Lendo as pastas do Air…</div>';
     fetch('/api/approve?src=banners'+(refresh?'&refresh=1':'')).then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);render(j)})
