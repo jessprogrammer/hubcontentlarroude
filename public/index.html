@@ -1280,6 +1280,20 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cr-n{font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;margin-bottom:2px}
 .cr-acao{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:4px 7px;line-height:1.3;display:grid;gap:1px}
 .cr-acao b{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
+.cr-acao{margin:0 -8px;border-radius:0}
+.cr-acao.l{margin-left:0;border-top-left-radius:6px;border-bottom-left-radius:6px}
+.cr-acao.r{margin-right:0;border-top-right-radius:6px;border-bottom-right-radius:6px}
+.cr-acao.cont span{opacity:.75;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cr-lnk{font:inherit;font-size:12.5px;border:0;background:none;color:var(--accent);cursor:pointer;padding:2px 0;text-decoration:underline}
+.cr-af,.cr-adsf{display:grid;gap:8px;background:var(--soft);border-radius:10px;padding:10px;margin:4px 0}
+.cr-af label{display:grid;gap:3px;font-size:12px;color:var(--muted)}
+.cr-af input,.cr-adsf textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:7px 9px}
+.cr-adsf textarea{min-height:60px;resize:vertical}
+.cr-dates{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cr-row{display:flex;gap:8px;flex-wrap:wrap}
+.cr-b.pri{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.cr-b.del{color:var(--late);border-color:var(--late)}
+@media (max-width:860px){.cr-acao,.cr-acao.l,.cr-acao.r{margin:0;border-radius:6px}}
 .cr-chip{font-size:11.5px;line-height:1.3;display:grid;gap:1px;color:var(--ink);background:color-mix(in srgb,var(--c) 11%,var(--surface));border-left:3px solid var(--c);border-radius:4px;padding:3px 6px 4px}
 .cr-chip b{font-family:var(--mono);font-size:9.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--c)}
 .cr-chip span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
@@ -1347,9 +1361,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   $('cr-legend').onclick=e=>{const b=e.target.closest('.cr-lg');if(!b)return;const k=b.dataset.k;hidden.has(k)?hidden.delete(k):hidden.add(k);try{localStorage.setItem('crm-hide',JSON.stringify([...hidden]))}catch(e){}legend();draw()};
   // no quadradinho do dia, tira o prefixo "EMAIL_US 10/05 - " (a cor já diz o canal); no painel do dia fica o texto inteiro
   const short=t=>String(t).replace(/^\[?(EMAIL|SMS|WPP|WHATSAPP|POP ?UP|FOOTER)[_ ]?(US|BR)?\]?\s*[\d\/-]*(\s*(a|e)\s*[\d\/-]+)?\s*-\s*/i,'').trim()||t;
+  const acts=d=>(CRM&&CRM.actions||[]).filter(a=>a.mk===mk&&a.from<=d&&d<=a.to).sort((a,b)=>a.from.localeCompare(b.from)||a.id.localeCompare(b.id));
+  const dm=s=>new Date(s+'T12:00:00').toLocaleDateString(LOC,{day:'2-digit',month:'2-digit'});
+  const range=a=>a.from===a.to?dm(a.from):dm(a.from)+' – '+dm(a.to);
   function dayItems(d,merge){
     const out=[];const h=CRM&&CRM.hub[mk+'|'+d];
-    if(h&&h.acao)out.push({ch:'acao',t:h.acao});
+    for(const a of acts(d))out.push({ch:'acao',t:a.t,a});
     if(CRM)for(const it of CRM.items)if(it.mk===mk&&it.d===d)out.push(it);
     const so=SOC.filter(s=>s.date===d);
     if(merge&&so.length){
@@ -1360,6 +1377,11 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     } else for(const s of so)out.push({ch:'social',t:(s.fmt?s.fmt+' · ':'')+(s.piece||s.req||''),url:s.pieceUrl||s.reqUrl||''});
     if(h&&h.ads)out.push({ch:'ads',t:h.ads});
     const o=CH.map(c=>c[0]);return out.filter(x=>x.t&&!hidden.has(x.ch)).sort((a,b)=>o.indexOf(a.ch)-o.indexOf(b.ch));
+  }
+  // Ação geral = faixa contínua de/até: nome e período no 1º dia e no começo de cada semana; nos outros dias a faixa continua
+  function band(a,d,col){
+    const st=d===a.from,en=d===a.to,head=st||col===0;
+    return `<span class="cr-acao${st?' l':''}${en?' r':''}${head?'':' cont'}" title="${esc(NAME.acao+': '+a.t+' ('+range(a)+')')}">${head?`<b>${esc(NAME.acao)} · ${esc(range(a))}</b>${esc(a.t)}`:`<span>${esc(a.t)}</span>`}</span>`;
   }
   function draw(){
     const [y,m]=ym;const first=new Date(y,m,1);
@@ -1375,11 +1397,18 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       const d=iso(dt),its=dayItems(d,true);
       const ac=its.filter(x=>x.ch==='acao'),rest=its.filter(x=>x.ch!=='acao');
       const show=rest.slice(0,6);
-      html+=`<button type="button" class="cr-day${dt.getMonth()!==m?' out':''}${d===today?' today':''}" data-d="${d}"><span class="cr-n" data-wd="${esc(dt.toLocaleDateString(LOC,{weekday:'long'}))}">${dt.getDate()}</span>${ac.map(a=>`<span class="cr-acao"><b>${esc(NAME.acao)}</b>${esc(a.t)}</span>`).join('')}${show.map(x=>`<span class="cr-chip" style="--c:${COL[x.ch]}" title="${esc(NAME[x.ch]+': '+x.t)}"><b>${esc(NAME[x.ch])}${x.h?' · '+esc(x.h):''}</b><span>${esc(x.ch==='social'?x.t:short(x.t))}</span></span>`).join('')}${rest.length>show.length?`<span class="cr-more">+${rest.length-show.length} ${T('no dia','more')}</span>`:''}</button>`;
+      html+=`<button type="button" class="cr-day${dt.getMonth()!==m?' out':''}${d===today?' today':''}" data-d="${d}"><span class="cr-n" data-wd="${esc(dt.toLocaleDateString(LOC,{weekday:'long'}))}">${dt.getDate()}</span>${ac.map(x=>band(x.a,d,i%7)).join('')}${show.map(x=>`<span class="cr-chip" style="--c:${COL[x.ch]}" title="${esc(NAME[x.ch]+': '+x.t)}"><b>${esc(NAME[x.ch])}${x.h?' · '+esc(x.h):''}</b><span>${esc(x.ch==='social'?x.t:short(x.t))}</span></span>`).join('')}${rest.length>show.length?`<span class="cr-more">+${rest.length-show.length} ${T('no dia','more')}</span>`:''}</button>`;
     }
     $('cr-grid').innerHTML=html;
     $('cr-upd').textContent=CRM&&CRM.updated?T('Planilha de CRM lida em ','CRM sheet read on ')+new Date(CRM.updated).toLocaleString(LOC,{dateStyle:'short',timeStyle:'short'}):CRM?T('A planilha de CRM ainda não foi enviada pelo Apps Script.','The CRM sheet has not been sent by the Apps Script yet.'):'';
     if(open)side(open);
+  }
+  let editing=null; // id da ação em edição, ou 'new'
+  async function post(body){
+    const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pass,mk,...body})});const j=await r.json();
+    if(r.status===401){pass='';try{sessionStorage.removeItem('crm-pass')}catch(e){}throw new Error(T('senha','password'))}
+    if(!j.ok)throw new Error(j.error||'erro');
+    if(j.hub)CRM.hub=j.hub;if(j.actions)CRM.actions=j.actions;return j;
   }
   function side(d){
     open=d;const el=$('cr-side');el.hidden=false;
@@ -1387,26 +1416,32 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     const all=dayItems(d);const by={};all.forEach(x=>(by[x.ch]=by[x.ch]||[]).push(x));
     const h=(CRM&&CRM.hub[mk+'|'+d])||{};
     const secs=CH.filter(c=>c[0]!=='acao'&&c[0]!=='ads'&&by[c[0]]).map(c=>`<div class="cr-sec" style="--c:${c[2]}"><h3><i></i>${esc(c[1])}</h3>${by[c[0]].map(x=>`<p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.t)} ↗</a>`:esc(x.t)}${x.h?` <span class="h">· ${esc(x.h)}</span>`:''}</p>`).join('')}</div>`).join('');
-    const sv=(k,lbl)=>`<div class="cr-sec" style="--c:${COL[k]}"><h3><i></i>${esc(lbl)}</h3><p>${h[k]?esc(h[k]):`<span class="h">${T('Ainda não preenchido.','Not filled in yet.')}</span>`}</p></div>`;
+    const A=acts(d);
+    const form=a=>`<form class="cr-af" data-id="${esc(a?a.id:'new')}"><label>${T('Ação','Action')}<input name="t" maxlength="300" required value="${esc(a?a.t:'')}"></label><div class="cr-dates"><label>${T('De','From')}<input type="date" name="from" required value="${esc(a?a.from:d)}"></label><label>${T('Até','To')}<input type="date" name="to" required value="${esc(a?a.to:d)}"></label></div><div class="cr-row"><button class="cr-b pri" type="submit">${T('Salvar','Save')}</button>${a?`<button class="cr-b del" type="button" data-a="del">${T('Apagar','Delete')}</button>`:''}<button class="cr-b" type="button" data-a="cancel">${T('Cancelar','Cancel')}</button></div></form>`;
+    const acaoHtml=`<div class="cr-sec" style="--c:${COL.acao}"><h3><i></i>${esc(NAME.acao)}</h3>
+      ${A.map(a=>editing===a.id?form(a):`<p><b>${esc(a.t)}</b> <span class="h">· ${esc(range(a))}</span>${pass?` <button class="cr-lnk" type="button" data-a="edit" data-id="${esc(a.id)}">${T('editar','edit')}</button>`:''}</p>`).join('')}
+      ${!A.length&&editing!=='new'?`<p><span class="h">${T('Nenhuma ação neste dia.','No action on this day.')}</span></p>`:''}
+      ${pass?(editing==='new'?form(null):`<button class="cr-lnk" type="button" data-a="new">+ ${T('Nova ação geral (com período)','New main action (with period)')}</button>`):''}</div>`;
+    const adsHtml=`<div class="cr-sec" style="--c:${COL.ads}"><h3><i></i>Ads</h3>${pass?`<form class="cr-adsf"><textarea name="ads" maxlength="600" placeholder="${T('O que vai rodar em Ads neste dia','What runs in Ads on this day')}">${esc(h.ads||'')}</textarea><div class="cr-row"><button class="cr-b pri" type="submit">${T('Salvar Ads','Save Ads')}</button></div></form>`:`<p>${h.ads?esc(h.ads):`<span class="h">${T('Ainda não preenchido.','Not filled in yet.')}</span>`}</p>`}</div>`;
+    const lock=pass?'':`<form class="cr-ed" id="cr-lockf"><label for="cr-pass">${T('Para preencher Ação geral e Ads, digite a senha do Banco de copy','To fill in Main action and Ads, enter the Copy bank password')}</label><div style="display:flex;gap:8px"><input type="password" id="cr-pass" autocomplete="off" style="flex:1"><button class="cr-b" type="submit">${T('Entrar','Enter')}</button></div></form>`;
     el.innerHTML=`<button class="cr-x" type="button" data-a="close" aria-label="${T('Fechar','Close')}">×</button>
       <div><div class="lbl">${mk==='US'?'US':T('Brasil','Brazil')}</div><h2>${esc(dt.toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'}))}</h2></div>
-      ${sv('acao',NAME.acao)}${secs||`<p class="cr-msg">${T('Nada na planilha para este dia.','Nothing in the sheet for this day.')}</p>`}${sv('ads','Ads')}
-      <form class="cr-ed" id="cr-ed">${pass?`<label for="cr-acao">${esc(NAME.acao)}</label><textarea id="cr-acao" maxlength="600">${esc(h.acao||'')}</textarea><label for="cr-ads">Ads</label><textarea id="cr-ads" maxlength="600">${esc(h.ads||'')}</textarea><div style="display:flex;gap:8px"><button class="cr-b" type="submit" style="background:var(--ink);color:var(--surface);border-color:var(--ink)">${T('Salvar','Save')}</button></div>`
-        :`<label for="cr-pass">${T('Para preencher Ação geral e Ads, digite a senha do Banco de copy','To fill in Main action and Ads, enter the Copy bank password')}</label><div style="display:flex;gap:8px"><input type="password" id="cr-pass" autocomplete="off" style="flex:1"><button class="cr-b" type="submit">${T('Entrar','Enter')}</button></div>`}<span class="cr-msg" id="cr-msg" role="status"></span></form>`;
-    $('cr-ed').onsubmit=async e=>{e.preventDefault();const msg=$('cr-msg');
-      try{
-        if(!pass){const p=$('cr-pass').value;const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'check',password:p})});if(!r.ok)throw new Error(T('senha incorreta','wrong password'));pass=p;try{sessionStorage.setItem('crm-pass',p)}catch(e){}side(d);return}
-        msg.className='cr-msg';msg.textContent=T('Salvando…','Saving…');
-        const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'save',password:pass,mk,d,acao:$('cr-acao').value,ads:$('cr-ads').value})});const j=await r.json();
-        if(r.status===401){pass='';try{sessionStorage.removeItem('crm-pass')}catch(e){}throw new Error(T('senha','password'))}
-        if(!j.ok)throw new Error(j.error||'erro');
-        if(j.day)CRM.hub[mk+'|'+d]=j.day;else delete CRM.hub[mk+'|'+d];
-        draw();const m2=$('cr-msg');if(m2){m2.className='cr-msg';m2.textContent=T('Salvo ✓','Saved ✓')}
-      }catch(err){msg.className='cr-msg err';msg.textContent=T('Não consegui (','Could not (')+String(err.message||err).replace(/[<>&]/g,'')+')'}};
+      ${acaoHtml}${secs||`<p class="cr-msg">${T('Nada na planilha para este dia.','Nothing in the sheet for this day.')}</p>`}${adsHtml}${lock}<span class="cr-msg" id="cr-msg" role="status"></span>`;
+    const msg=(t,err)=>{const m=$('cr-msg');if(m){m.className='cr-msg'+(err?' err':'');m.textContent=t}};
+    const fail=err=>msg(T('Não consegui (','Could not (')+String(err.message||err).replace(/[<>&]/g,'')+')',true);
+    const lf=$('cr-lockf');if(lf)lf.onsubmit=async e=>{e.preventDefault();try{const p=$('cr-pass').value;const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'check',password:p})});if(!r.ok)throw new Error(T('senha incorreta','wrong password'));pass=p;try{sessionStorage.setItem('crm-pass',p)}catch(e){}side(d)}catch(err){fail(err)}};
+    el.querySelectorAll('.cr-af').forEach(f=>f.onsubmit=async e=>{e.preventDefault();const id=f.dataset.id;msg(T('Salvando…','Saving…'));
+      try{await post({action:'saveAction',id:id==='new'?'':id,t:f.t.value,from:f.from.value,to:f.to.value});editing=null;draw();msg(T('Ação salva ✓','Action saved ✓'))}catch(err){fail(err)}});
+    const af=el.querySelector('.cr-adsf');if(af)af.onsubmit=async e=>{e.preventDefault();msg(T('Salvando…','Saving…'));try{await post({action:'save',d,ads:af.ads.value});draw();msg(T('Ads salvo ✓','Ads saved ✓'))}catch(err){fail(err)}};
+    el.querySelectorAll('[data-a=del]').forEach(b=>b.onclick=async()=>{const f=b.closest('.cr-af');msg(T('Apagando…','Deleting…'));try{await post({action:'deleteAction',id:f.dataset.id});editing=null;draw();msg(T('Ação apagada','Action deleted'))}catch(err){fail(err)}});
   }
-  $('cr-side').addEventListener('click',e=>{if(e.target.closest('[data-a=close]')){$('cr-side').hidden=true;open=''}});
-  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cr-side').hidden){$('cr-side').hidden=true;open=''}});
-  $('cr-grid').onclick=e=>{const b=e.target.closest('.cr-day');if(b)side(b.dataset.d)};
+  $('cr-side').addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+    if(a==='close'){$('cr-side').hidden=true;open='';editing=null}
+    else if(a==='edit'){editing=b.dataset.id;side(open)}
+    else if(a==='new'){editing='new';side(open)}
+    else if(a==='cancel'){editing=null;side(open)}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cr-side').hidden){$('cr-side').hidden=true;open='';editing=null}});
+  $('cr-grid').onclick=e=>{const b=e.target.closest('.cr-day');if(b){editing=null;side(b.dataset.d)}};
   const mv=n=>{ym=[new Date(ym[0],ym[1]+n,1).getFullYear(),new Date(ym[0],ym[1]+n,1).getMonth()];draw()};
   $('cr-prev').onclick=()=>mv(-1);$('cr-next').onclick=()=>mv(1);$('cr-today').onclick=()=>{ym=[now.getFullYear(),now.getMonth()];draw()};
   const setMk=k=>{mk=k;try{localStorage.setItem('crm-mk',k)}catch(e){}legend();draw()};
