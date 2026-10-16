@@ -1278,12 +1278,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .cr-day.out{background:var(--bg);color:var(--muted)}
 .cr-day.today .cr-n{background:var(--accent);color:#fff}
 .cr-n{font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;margin-bottom:2px}
-.cr-acao{font-size:12px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:4px 7px;line-height:1.3;display:grid;gap:1px}
-.cr-acao b{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600}
-.cr-acao{margin:0 -8px;border-radius:0}
+.cr-acao{font-size:12px;font-weight:600;color:#fff;background:var(--accent);padding:4px 7px;line-height:1.3;display:grid;gap:1px;margin:0 -8px;border-radius:0;box-shadow:0 1px 0 rgba(0,0,0,.08)}
+.cr-acao b{font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;opacity:.85}
 .cr-acao.l{margin-left:0;border-top-left-radius:6px;border-bottom-left-radius:6px}
 .cr-acao.r{margin-right:0;border-top-right-radius:6px;border-bottom-right-radius:6px}
-.cr-acao.cont span{opacity:.75;font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cr-acao.cont span{font-weight:500;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;opacity:.9}
+.cr-acao em{font-style:normal;font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.85}
 .cr-lnk{font:inherit;font-size:12.5px;border:0;background:none;color:var(--accent);cursor:pointer;padding:2px 0;text-decoration:underline}
 .cr-af,.cr-adsf{display:grid;gap:8px;background:var(--soft);border-radius:10px;padding:10px;margin:4px 0}
 .cr-af label{display:grid;gap:3px;font-size:12px;color:var(--muted)}
@@ -1381,7 +1381,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   // Ação geral = faixa contínua de/até: nome e período no 1º dia e no começo de cada semana; nos outros dias a faixa continua
   function band(a,d,col){
     const st=d===a.from,en=d===a.to,head=st||col===0;
-    return `<span class="cr-acao${st?' l':''}${en?' r':''}${head?'':' cont'}" title="${esc(NAME.acao+': '+a.t+' ('+range(a)+')')}">${head?`<b>${esc(NAME.acao)} · ${esc(range(a))}</b>${esc(a.t)}`:`<span>${esc(a.t)}</span>`}</span>`;
+    return `<span class="cr-acao${st?' l':''}${en?' r':''}${head?'':' cont'}" title="${esc(NAME.acao+': '+a.t+' ('+range(a)+')')}">${head?`<b>${esc(NAME.acao)} · ${esc(range(a))}</b>${esc(a.t)}`:`<span>${esc(a.t)}</span>`}${en&&a.from!==a.to?`<em>■ ${T('termina aqui','ends here')}</em>`:''}</span>`;
   }
   function draw(){
     const [y,m]=ym;const first=new Date(y,m,1);
