@@ -1342,7 +1342,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   let pass='';try{pass=sessionStorage.getItem('crm-pass')||''}catch(e){}
   const now=new Date();let ym=[now.getFullYear(),now.getMonth()];
   let CRM=null,SOC=[],loaded=false,open='';
-  function legend(){$('cr-legend').innerHTML=CH.filter(c=>!(mk==='US'&&c[0]==='wpp')&&!(mk==='BR'&&c[0]==='sms')).map(c=>`<button class="cr-lg" type="button" data-k="${c[0]}" aria-pressed="${!hidden.has(c[0])}" style="--c:${c[2]}"><i></i>${esc(c[1])}</button>`).join('')}
+  function legend(){const has=new Set(['acao','social','ads'].concat(CRM?CRM.items.filter(i=>i.mk===mk).map(i=>i.ch):[]));$('cr-legend').innerHTML=CH.filter(c=>has.has(c[0])).map(c=>`<button class="cr-lg" type="button" data-k="${c[0]}" aria-pressed="${!hidden.has(c[0])}" style="--c:${c[2]}"><i></i>${esc(c[1])}</button>`).join('')}
   $('cr-legend').onclick=e=>{const b=e.target.closest('.cr-lg');if(!b)return;const k=b.dataset.k;hidden.has(k)?hidden.delete(k):hidden.add(k);try{localStorage.setItem('crm-hide',JSON.stringify([...hidden]))}catch(e){}legend();draw()};
   // no quadradinho do dia, tira o prefixo "EMAIL_US 10/05 - " (a cor já diz o canal); no painel do dia fica o texto inteiro
   const short=t=>String(t).replace(/^\[?(EMAIL|SMS|WPP|WHATSAPP|POP ?UP|FOOTER)[_ ]?(US|BR)?\]?\s*[\d\/-]*(\s*(a|e)\s*[\d\/-]+)?\s*-\s*/i,'').trim()||t;
@@ -1406,7 +1406,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   $('cr-us').onclick=()=>setMk('US');$('cr-br').onclick=()=>setMk('BR');
   function load(){loaded=true;legend();
     Promise.all([fetch('/api/calendar?src=crm').then(r=>r.json()),fetch('/api/calendar?src=social').then(r=>r.json()).catch(()=>({items:[]}))])
-      .then(([c,s])=>{if(c.error)throw new Error(c.error);CRM=c;SOC=(s&&s.items)||[];draw()})
+      .then(([c,s])=>{if(c.error)throw new Error(c.error);CRM=c;SOC=(s&&s.items)||[];legend();draw()})
       .catch(e=>{$('cr-grid').innerHTML='<p class="empty" style="grid-column:1/-1;padding:24px">'+T('Não consegui ler o calendário agora. Recarregue em instantes.','Could not read the calendar right now. Reload in a moment.')+'</p>'})}
   function check(){if(location.hash==='#crm'&&!loaded)load()}
   window.addEventListener('hashchange',check);check();
