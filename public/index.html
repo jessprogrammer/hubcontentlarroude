@@ -1321,7 +1321,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <header>
     <div class="lbl" id="cr-kick">Larroudé · CRM · E-mail, SMS, WhatsApp e Social</div>
     <h1 id="cr-h1">Calendário de CRM</h1>
-    <p class="sub" id="cr-sub">Tudo o que sai em cada dia, por canal. E-mail, SMS, WhatsApp, pop-up e footer vêm da planilha de CRM; Social vem do calendário de Social. Ação geral e Ads são preenchidos aqui no hub: clique no dia.</p>
+    <p class="sub" id="cr-sub">Tudo o que sai em cada dia, por canal. E-mail, SMS, WhatsApp, pop-up e footer vêm da planilha de CRM; Social vem do calendário de Social. Ação geral e Ads são preenchidos aqui no hub por qualquer pessoa: clique no dia.</p>
   </header>
   <div class="cr-bar">
     <div class="cr-nav"><button class="cr-b" id="cr-prev" type="button" aria-label="‹">‹</button><b class="cr-title" id="cr-title">…</b><button class="cr-b" id="cr-next" type="button" aria-label="›">›</button><button class="cr-b" id="cr-today" type="button"></button></div>
@@ -1349,12 +1349,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     ['popup','Pop-up','#8A6FB0'],
     ['footer','Footer','#8C8790']];
   const NAME=Object.fromEntries(CH.map(c=>[c[0],c[1]])),COL=Object.fromEntries(CH.map(c=>[c[0],c[2]]));
-  if(EN){$('cr-kick').textContent='Larroudé · CRM · E-mail, SMS, WhatsApp & Social';$('cr-h1').textContent='CRM calendar';$('cr-sub').textContent='Everything going out each day, by channel. E-mail, SMS, WhatsApp, pop-up and footer come from the CRM sheet; Social comes from the Social calendar. Main action and Ads are filled in here in the hub: click the day.'}
+  if(EN){$('cr-kick').textContent='Larroudé · CRM · E-mail, SMS, WhatsApp & Social';$('cr-h1').textContent='CRM calendar';$('cr-sub').textContent='Everything going out each day, by channel. E-mail, SMS, WhatsApp, pop-up and footer come from the CRM sheet; Social comes from the Social calendar. Main action and Ads can be filled in here in the hub by anyone: click the day.'}
   $('cr-br').textContent=T('Brasil','Brazil');if(EN)$('cr-t2').textContent='CRM & channels';$('cr-today').textContent=T('Hoje','Today');
   const pad=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
   let mk='US',hidden=new Set();
   try{mk=localStorage.getItem('crm-mk')==='BR'?'BR':'US';hidden=new Set(JSON.parse(localStorage.getItem('crm-hide')||'[]'))}catch(e){}
-  let pass='';try{pass=sessionStorage.getItem('crm-pass')||''}catch(e){}
+  const pass='livre'; // edição sem senha (qualquer pessoa ajusta Ação geral e Ads)
   const now=new Date();let ym=[now.getFullYear(),now.getMonth()];
   let CRM=null,SOC=[],loaded=false,open='';
   function legend(){const has=new Set(['acao','social','ads'].concat(CRM?CRM.items.filter(i=>i.mk===mk).map(i=>i.ch):[]));$('cr-legend').innerHTML=CH.filter(c=>has.has(c[0])).map(c=>`<button class="cr-lg" type="button" data-k="${c[0]}" aria-pressed="${!hidden.has(c[0])}" style="--c:${c[2]}"><i></i>${esc(c[1])}</button>`).join('')}
@@ -1406,7 +1406,6 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   let editing=null; // id da ação em edição, ou 'new'
   async function post(body){
     const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pass,mk,...body})});const j=await r.json();
-    if(r.status===401){pass='';try{sessionStorage.removeItem('crm-pass')}catch(e){}throw new Error(T('senha','password'))}
     if(!j.ok)throw new Error(j.error||'erro');
     if(j.hub)CRM.hub=j.hub;if(j.actions)CRM.actions=j.actions;return j;
   }
@@ -1423,13 +1422,12 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       ${!A.length&&editing!=='new'?`<p><span class="h">${T('Nenhuma ação neste dia.','No action on this day.')}</span></p>`:''}
       ${pass?(editing==='new'?form(null):`<button class="cr-lnk" type="button" data-a="new">+ ${T('Nova ação geral (com período)','New main action (with period)')}</button>`):''}</div>`;
     const adsHtml=`<div class="cr-sec" style="--c:${COL.ads}"><h3><i></i>Ads</h3>${pass?`<form class="cr-adsf"><textarea name="ads" maxlength="600" placeholder="${T('O que vai rodar em Ads neste dia','What runs in Ads on this day')}">${esc(h.ads||'')}</textarea><div class="cr-row"><button class="cr-b pri" type="submit">${T('Salvar Ads','Save Ads')}</button></div></form>`:`<p>${h.ads?esc(h.ads):`<span class="h">${T('Ainda não preenchido.','Not filled in yet.')}</span>`}</p>`}</div>`;
-    const lock=pass?'':`<form class="cr-ed" id="cr-lockf"><label for="cr-pass">${T('Para preencher Ação geral e Ads, digite a senha do Banco de copy','To fill in Main action and Ads, enter the Copy bank password')}</label><div style="display:flex;gap:8px"><input type="password" id="cr-pass" autocomplete="off" style="flex:1"><button class="cr-b" type="submit">${T('Entrar','Enter')}</button></div></form>`;
+    const lock='';
     el.innerHTML=`<button class="cr-x" type="button" data-a="close" aria-label="${T('Fechar','Close')}">×</button>
       <div><div class="lbl">${mk==='US'?'US':T('Brasil','Brazil')}</div><h2>${esc(dt.toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'}))}</h2></div>
       ${acaoHtml}${secs||`<p class="cr-msg">${T('Nada na planilha para este dia.','Nothing in the sheet for this day.')}</p>`}${adsHtml}${lock}<span class="cr-msg" id="cr-msg" role="status"></span>`;
     const msg=(t,err)=>{const m=$('cr-msg');if(m){m.className='cr-msg'+(err?' err':'');m.textContent=t}};
     const fail=err=>msg(T('Não consegui (','Could not (')+String(err.message||err).replace(/[<>&]/g,'')+')',true);
-    const lf=$('cr-lockf');if(lf)lf.onsubmit=async e=>{e.preventDefault();try{const p=$('cr-pass').value;const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'check',password:p})});if(!r.ok)throw new Error(T('senha incorreta','wrong password'));pass=p;try{sessionStorage.setItem('crm-pass',p)}catch(e){}side(d)}catch(err){fail(err)}};
     el.querySelectorAll('.cr-af').forEach(f=>f.onsubmit=async e=>{e.preventDefault();const id=f.dataset.id;msg(T('Salvando…','Saving…'));
       try{await post({action:'saveAction',id:id==='new'?'':id,t:f.t.value,from:f.from.value,to:f.to.value});editing=null;draw();msg(T('Ação salva ✓','Action saved ✓'))}catch(err){fail(err)}});
     const af=el.querySelector('.cr-adsf');if(af)af.onsubmit=async e=>{e.preventDefault();msg(T('Salvando…','Saving…'));try{await post({action:'save',d,ads:af.ads.value});draw();msg(T('Ads salvo ✓','Ads saved ✓'))}catch(err){fail(err)}};
