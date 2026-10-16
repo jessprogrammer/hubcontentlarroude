@@ -164,6 +164,8 @@
     ['Entregas do time','Team delivery'],
     ['Criativos','Creatives'],
     ['Fotos e vídeos','Photos & videos'],
+    ['CRM e canais','CRM & channels'],
+    ['Planilha de CRM · Calendário','CRM sheet · Calendar'],
     ['Air · Fotos e vídeos','Air · Photos & videos'],
     ['Filtros','Filters'],
     ['Semanas','Weeks'],
@@ -1252,6 +1254,165 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 })();
 </script>
     </section>
+    <section class="view notr" id="v-crm" aria-label="Calendário de CRM" hidden>
+<style>
+.ctabs{display:flex;gap:4px;margin:0 0 18px;border-bottom:1px solid var(--line)}
+.ctabs a{font-size:14px;color:var(--muted);text-decoration:none;padding:8px 14px;border-bottom:2px solid transparent;margin-bottom:-1px}
+.ctabs a:hover{color:var(--ink)}
+.ctabs a[aria-current]{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+.cr-bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:4px 0 12px}
+.cr-nav{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.cr-b{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.cr-b:hover{border-color:var(--ink)}
+.cr-b[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.cr-b[disabled]{opacity:.5;cursor:default}
+.cr-title{font-family:var(--display);font-weight:400;font-size:26px;min-width:190px;text-align:center}
+.cr-legend{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px}
+.cr-lg{font:inherit;font-size:12px;display:flex;gap:6px;align-items:center;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:4px 10px;border-radius:999px;cursor:pointer}
+.cr-lg i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.cr-lg[aria-pressed=false]{opacity:.4}
+.cr-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--surface)}
+.cr-wd{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 10px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--soft)}
+.cr-day{min-height:132px;padding:8px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:4px;cursor:pointer;text-align:left;font:inherit;background:var(--surface);color:var(--ink)}
+.cr-day:hover{background:var(--soft)}
+.cr-day.out{background:var(--bg);color:var(--muted)}
+.cr-day.today .cr-n{background:var(--accent);color:#fff}
+.cr-n{font-family:var(--mono);font-size:12px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;margin-bottom:2px}
+.cr-acao{font-size:11.5px;font-weight:600;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:3px 6px;line-height:1.3}
+.cr-chip{font-size:11px;line-height:1.3;display:flex;gap:5px;align-items:flex-start;color:var(--ink)}
+.cr-chip i{flex:none;width:7px;height:7px;border-radius:50%;background:var(--c);margin-top:4px}
+.cr-chip span{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.cr-more{font-family:var(--mono);font-size:10.5px;color:var(--muted)}
+.cr-side{position:fixed;top:0;right:0;bottom:0;width:min(440px,100%);background:var(--surface);border-left:1px solid var(--line);box-shadow:-12px 0 40px rgba(0,0,0,.12);padding:22px 22px 40px;overflow:auto;z-index:60;display:grid;gap:14px;align-content:start}
+.cr-side[hidden]{display:none}
+.cr-side h2{font-family:var(--display);font-weight:400;font-size:28px;margin:0}
+.cr-sec h3{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 6px;display:flex;gap:6px;align-items:center}
+.cr-sec h3 i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.cr-sec p{margin:0 0 4px;font-size:14px;line-height:1.45}
+.cr-sec .h{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.cr-sec a{color:var(--accent)}
+.cr-ed{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}
+.cr-ed label{font-size:12px;color:var(--muted)}
+.cr-ed textarea,.cr-ed input{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
+.cr-ed textarea{min-height:64px;resize:vertical}
+.cr-msg{font-size:12.5px;color:var(--muted)}
+.cr-msg.err{color:var(--late)}
+.cr-x{justify-self:end;font-size:20px;line-height:1;border:0;background:none;color:var(--muted);cursor:pointer}
+.cr-upd{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+@media (max-width:860px){.cr-grid{grid-template-columns:1fr}.cr-wd{display:none}.cr-day{min-height:0}.cr-day.out{display:none}.cr-day .cr-n::after{content:attr(data-wd);margin-left:30px;white-space:nowrap}}
+</style>
+<div class="wrap">
+  <nav class="ctabs" aria-label="Calendários"><a href="#calendario" id="cr-t1">Storytelling</a><a href="#crm" aria-current="page" id="cr-t2">CRM e canais</a></nav>
+  <header>
+    <div class="lbl" id="cr-kick">Larroudé · CRM · E-mail, SMS, WhatsApp e Social</div>
+    <h1 id="cr-h1">Calendário de CRM</h1>
+    <p class="sub" id="cr-sub">Tudo o que sai em cada dia, por canal. E-mail, SMS, WhatsApp, pop-up e footer vêm da planilha de CRM; Social vem do calendário de Social. Ação geral e Ads são preenchidos aqui no hub: clique no dia.</p>
+  </header>
+  <div class="cr-bar">
+    <div class="cr-nav"><button class="cr-b" id="cr-prev" type="button" aria-label="‹">‹</button><b class="cr-title" id="cr-title">…</b><button class="cr-b" id="cr-next" type="button" aria-label="›">›</button><button class="cr-b" id="cr-today" type="button"></button></div>
+    <div class="cr-nav" role="group"><button class="cr-b" id="cr-us" type="button">US</button><button class="cr-b" id="cr-br" type="button"></button></div>
+  </div>
+  <div class="cr-legend" id="cr-legend"></div>
+  <div class="cr-grid" id="cr-grid"><div class="ld" style="grid-column:1/-1;padding:40px 16px"><i></i>…</div></div>
+  <p class="cr-upd" id="cr-upd"></p>
+</div>
+<aside class="cr-side" id="cr-side" hidden aria-live="polite"></aside>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
+  const LOC=EN?'en-US':'pt-BR';
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const CH=[
+    ['acao',T('Ação geral','Main action'),'var(--accent)'],
+    ['email','E-mail','var(--info)'],
+    ['email2',T('E-mail 2º','2nd e-mail'),'#7C93B8'],
+    ['sms','SMS','var(--ok)'],
+    ['wpp','WhatsApp','#3FA66B'],
+    ['social','Social','#C2347E'],
+    ['ads','Ads','var(--warn)'],
+    ['popup','Pop-up','#8A6FB0'],
+    ['footer','Footer','#8C8790']];
+  const NAME=Object.fromEntries(CH.map(c=>[c[0],c[1]])),COL=Object.fromEntries(CH.map(c=>[c[0],c[2]]));
+  if(EN){$('cr-kick').textContent='Larroudé · CRM · E-mail, SMS, WhatsApp & Social';$('cr-h1').textContent='CRM calendar';$('cr-sub').textContent='Everything going out each day, by channel. E-mail, SMS, WhatsApp, pop-up and footer come from the CRM sheet; Social comes from the Social calendar. Main action and Ads are filled in here in the hub: click the day.'}
+  $('cr-br').textContent=T('Brasil','Brazil');if(EN)$('cr-t2').textContent='CRM & channels';$('cr-today').textContent=T('Hoje','Today');
+  const pad=n=>String(n).padStart(2,'0'),iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+  let mk='US',hidden=new Set();
+  try{mk=localStorage.getItem('crm-mk')==='BR'?'BR':'US';hidden=new Set(JSON.parse(localStorage.getItem('crm-hide')||'[]'))}catch(e){}
+  let pass='';try{pass=sessionStorage.getItem('crm-pass')||''}catch(e){}
+  const now=new Date();let ym=[now.getFullYear(),now.getMonth()];
+  let CRM=null,SOC=[],loaded=false,open='';
+  function legend(){$('cr-legend').innerHTML=CH.filter(c=>!(mk==='US'&&c[0]==='wpp')&&!(mk==='BR'&&c[0]==='sms')).map(c=>`<button class="cr-lg" type="button" data-k="${c[0]}" aria-pressed="${!hidden.has(c[0])}" style="--c:${c[2]}"><i></i>${esc(c[1])}</button>`).join('')}
+  $('cr-legend').onclick=e=>{const b=e.target.closest('.cr-lg');if(!b)return;const k=b.dataset.k;hidden.has(k)?hidden.delete(k):hidden.add(k);try{localStorage.setItem('crm-hide',JSON.stringify([...hidden]))}catch(e){}legend();draw()};
+  // no quadradinho do dia, tira o prefixo "EMAIL_US 10/05 - " (a cor já diz o canal); no painel do dia fica o texto inteiro
+  const short=t=>String(t).replace(/^\[?(EMAIL|SMS|WPP|WHATSAPP|POP ?UP|FOOTER)[_ ]?(US|BR)?\]?\s*[\d\/-]*(\s*(a|e)\s*[\d\/-]+)?\s*-\s*/i,'').trim()||t;
+  function dayItems(d){
+    const out=[];const h=CRM&&CRM.hub[mk+'|'+d];
+    if(h&&h.acao)out.push({ch:'acao',t:h.acao});
+    if(CRM)for(const it of CRM.items)if(it.mk===mk&&it.d===d)out.push(it);
+    for(const s of SOC)if(s.date===d)out.push({ch:'social',t:(s.fmt?s.fmt+' · ':'')+(s.piece||s.req||''),url:s.pieceUrl||s.reqUrl||''});
+    if(h&&h.ads)out.push({ch:'ads',t:h.ads});
+    const o=CH.map(c=>c[0]);return out.filter(x=>x.t&&!hidden.has(x.ch)).sort((a,b)=>o.indexOf(a.ch)-o.indexOf(b.ch));
+  }
+  function draw(){
+    const [y,m]=ym;const first=new Date(y,m,1);
+    $('cr-title').textContent=first.toLocaleDateString(LOC,{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+    $('cr-us').setAttribute('aria-pressed',mk==='US');$('cr-br').setAttribute('aria-pressed',mk==='BR');
+    const start=new Date(y,m,1-((first.getDay()+6)%7));
+    const wds=[...Array(7)].map((_,i)=>new Date(2026,9,5+i).toLocaleDateString(LOC,{weekday:'short'}).replace('.',''));
+    let html=wds.map(w=>`<div class="cr-wd">${esc(w)}</div>`).join('');
+    const today=iso(new Date());
+    for(let i=0;i<42;i++){
+      const dt=new Date(start.getFullYear(),start.getMonth(),start.getDate()+i);
+      if(i>=35&&dt.getMonth()!==m)break;
+      const d=iso(dt),its=dayItems(d);
+      const ac=its.filter(x=>x.ch==='acao'),rest=its.filter(x=>x.ch!=='acao');
+      const show=rest.slice(0,5);
+      html+=`<button type="button" class="cr-day${dt.getMonth()!==m?' out':''}${d===today?' today':''}" data-d="${d}"><span class="cr-n" data-wd="${esc(dt.toLocaleDateString(LOC,{weekday:'long'}))}">${dt.getDate()}</span>${ac.map(a=>`<span class="cr-acao">${esc(a.t)}</span>`).join('')}${show.map(x=>`<span class="cr-chip" style="--c:${COL[x.ch]}" title="${esc(NAME[x.ch]+': '+x.t)}"><i></i><span>${esc(short(x.t))}</span></span>`).join('')}${rest.length>show.length?`<span class="cr-more">+${rest.length-show.length}</span>`:''}</button>`;
+    }
+    $('cr-grid').innerHTML=html;
+    $('cr-upd').textContent=CRM&&CRM.updated?T('Planilha de CRM lida em ','CRM sheet read on ')+new Date(CRM.updated).toLocaleString(LOC,{dateStyle:'short',timeStyle:'short'}):CRM?T('A planilha de CRM ainda não foi enviada pelo Apps Script.','The CRM sheet has not been sent by the Apps Script yet.'):'';
+    if(open)side(open);
+  }
+  function side(d){
+    open=d;const el=$('cr-side');el.hidden=false;
+    const dt=new Date(d+'T12:00:00');
+    const all=dayItems(d);const by={};all.forEach(x=>(by[x.ch]=by[x.ch]||[]).push(x));
+    const h=(CRM&&CRM.hub[mk+'|'+d])||{};
+    const secs=CH.filter(c=>c[0]!=='acao'&&c[0]!=='ads'&&by[c[0]]).map(c=>`<div class="cr-sec" style="--c:${c[2]}"><h3><i></i>${esc(c[1])}</h3>${by[c[0]].map(x=>`<p>${x.url?`<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.t)} ↗</a>`:esc(x.t)}${x.h?` <span class="h">· ${esc(x.h)}</span>`:''}</p>`).join('')}</div>`).join('');
+    const sv=(k,lbl)=>`<div class="cr-sec" style="--c:${COL[k]}"><h3><i></i>${esc(lbl)}</h3><p>${h[k]?esc(h[k]):`<span class="h">${T('Ainda não preenchido.','Not filled in yet.')}</span>`}</p></div>`;
+    el.innerHTML=`<button class="cr-x" type="button" data-a="close" aria-label="${T('Fechar','Close')}">×</button>
+      <div><div class="lbl">${mk==='US'?'US':T('Brasil','Brazil')}</div><h2>${esc(dt.toLocaleDateString(LOC,{weekday:'long',day:'numeric',month:'long'}))}</h2></div>
+      ${sv('acao',NAME.acao)}${secs||`<p class="cr-msg">${T('Nada na planilha para este dia.','Nothing in the sheet for this day.')}</p>`}${sv('ads','Ads')}
+      <form class="cr-ed" id="cr-ed">${pass?`<label for="cr-acao">${esc(NAME.acao)}</label><textarea id="cr-acao" maxlength="600">${esc(h.acao||'')}</textarea><label for="cr-ads">Ads</label><textarea id="cr-ads" maxlength="600">${esc(h.ads||'')}</textarea><div style="display:flex;gap:8px"><button class="cr-b" type="submit" style="background:var(--ink);color:var(--surface);border-color:var(--ink)">${T('Salvar','Save')}</button></div>`
+        :`<label for="cr-pass">${T('Para preencher Ação geral e Ads, digite a senha do Banco de copy','To fill in Main action and Ads, enter the Copy bank password')}</label><div style="display:flex;gap:8px"><input type="password" id="cr-pass" autocomplete="off" style="flex:1"><button class="cr-b" type="submit">${T('Entrar','Enter')}</button></div>`}<span class="cr-msg" id="cr-msg" role="status"></span></form>`;
+    $('cr-ed').onsubmit=async e=>{e.preventDefault();const msg=$('cr-msg');
+      try{
+        if(!pass){const p=$('cr-pass').value;const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'check',password:p})});if(!r.ok)throw new Error(T('senha incorreta','wrong password'));pass=p;try{sessionStorage.setItem('crm-pass',p)}catch(e){}side(d);return}
+        msg.className='cr-msg';msg.textContent=T('Salvando…','Saving…');
+        const r=await fetch('/api/calendar?src=crm',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'save',password:pass,mk,d,acao:$('cr-acao').value,ads:$('cr-ads').value})});const j=await r.json();
+        if(r.status===401){pass='';try{sessionStorage.removeItem('crm-pass')}catch(e){}throw new Error(T('senha','password'))}
+        if(!j.ok)throw new Error(j.error||'erro');
+        if(j.day)CRM.hub[mk+'|'+d]=j.day;else delete CRM.hub[mk+'|'+d];
+        draw();const m2=$('cr-msg');if(m2){m2.className='cr-msg';m2.textContent=T('Salvo ✓','Saved ✓')}
+      }catch(err){msg.className='cr-msg err';msg.textContent=T('Não consegui (','Could not (')+String(err.message||err).replace(/[<>&]/g,'')+')'}};
+  }
+  $('cr-side').addEventListener('click',e=>{if(e.target.closest('[data-a=close]')){$('cr-side').hidden=true;open=''}});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cr-side').hidden){$('cr-side').hidden=true;open=''}});
+  $('cr-grid').onclick=e=>{const b=e.target.closest('.cr-day');if(b)side(b.dataset.d)};
+  const mv=n=>{ym=[new Date(ym[0],ym[1]+n,1).getFullYear(),new Date(ym[0],ym[1]+n,1).getMonth()];draw()};
+  $('cr-prev').onclick=()=>mv(-1);$('cr-next').onclick=()=>mv(1);$('cr-today').onclick=()=>{ym=[now.getFullYear(),now.getMonth()];draw()};
+  const setMk=k=>{mk=k;try{localStorage.setItem('crm-mk',k)}catch(e){}legend();draw()};
+  $('cr-us').onclick=()=>setMk('US');$('cr-br').onclick=()=>setMk('BR');
+  function load(){loaded=true;legend();
+    Promise.all([fetch('/api/calendar?src=crm').then(r=>r.json()),fetch('/api/calendar?src=social').then(r=>r.json()).catch(()=>({items:[]}))])
+      .then(([c,s])=>{if(c.error)throw new Error(c.error);CRM=c;SOC=(s&&s.items)||[];draw()})
+      .catch(e=>{$('cr-grid').innerHTML='<p class="empty" style="grid-column:1/-1;padding:24px">'+T('Não consegui ler o calendário agora. Recarregue em instantes.','Could not read the calendar right now. Reload in a moment.')+'</p>'})}
+  function check(){if(location.hash==='#crm'&&!loaded)load()}
+  window.addEventListener('hashchange',check);check();
+})();
+</script>
+    </section>
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
       <div class="wrap dt-lockwrap" id="dt-lock">
         <form class="dt-lock" id="dt-form" autocomplete="off">
@@ -1577,6 +1738,7 @@ button.sc-it:hover{background:color-mix(in srgb,var(--c) 9%,var(--surface))}
     </section>
     <section class="view" id="v-calendario" aria-label="Calendário" hidden>
       <div class="wrap">
+        <nav class="ctabs" aria-label="Calendários"><a href="#calendario" aria-current="page">Storytelling</a><a href="#crm">CRM e canais</a></nav>
         <header>
           <div class="lbl">Larroudé · Storytelling · E-mail e SMS</div>
           <h1>Calendário <em id="cal-h">do mês</em></h1>
@@ -2065,12 +2227,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos','crm':'Calendário'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
-    document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':'Air + planilhas de pedidos – Meta';}
+    document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v||(v==='crm'&&a.dataset.v==='calendario'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':v==='crm'?'Planilha de CRM · Calendário':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
