@@ -3,6 +3,7 @@
 // Resultado guardado no banco por 1 h para o site abrir rápido.
 import { get, put } from '../lib/store.js';
 import { pool } from '../lib/util.js';
+import live from '../lib/meta-live.js';
 
 const GRAPH = 'https://graph.facebook.com/v23.0';
 const ACCOUNTS = [{ id: '2047856822417350', name: 'Larroudé US' }, { id: '929449929417505', name: 'PRE-ORDER US' }];
@@ -115,6 +116,7 @@ async function build() {
 }
 
 export default async function handler(req, res) {
+  if (req.query && req.query.src === 'live') return live(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     let D = await get(KEY);
