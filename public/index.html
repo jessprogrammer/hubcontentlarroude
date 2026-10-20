@@ -165,6 +165,7 @@
     ['Criativos','Creatives'],
     ['Fotos e vídeos','Photos & videos'],
     ['CRM e canais','CRM & channels'],
+    ['Meta Ads · ao vivo','Meta Ads · live'],
     ['Planilha de CRM · Calendário','CRM sheet · Calendar'],
     ['Air · Fotos e vídeos','Air · Photos & videos'],
     ['Filtros','Filters'],
@@ -719,6 +720,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <div class="topbar"><span class="crumb">Content Hub / <b id="crumb">Entregas Meta</b></span><span class="tb-r"><span class="sync" id="sync">Air + planilhas de pedidos – Meta</span><span class="lang" role="group" aria-label="Idioma / Language"><button type="button" id="lang-pt" onclick="setLang('pt')">PT</button><button type="button" id="lang-en" onclick="setLang('en')">EN</button></span></span></div>
     <section class="view" id="v-entregas" aria-label="Entregas Meta">
 <div class="wrap">
+  <nav class="ctabs" aria-label="Meta"><a href="#entregas" aria-current="page">Entregas</a><a href="#live">Live on Meta</a></nav>
   <header>
     <div class="lbl notr" id="e-kicker">Larroudé · Meta Ads US</div>
     <div class="mk notr" id="mk" role="tablist" aria-label="Mercado"></div>
@@ -1449,6 +1451,122 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
       .then(([c,s])=>{if(c.error)throw new Error(c.error);CRM=c;SOC=(s&&s.items)||[];legend();draw()})
       .catch(e=>{$('cr-grid').innerHTML='<p class="empty" style="grid-column:1/-1;padding:24px">'+T('Não consegui ler o calendário agora. Recarregue em instantes.','Could not read the calendar right now. Reload in a moment.')+'</p>'})}
   function check(){if(location.hash==='#crm'&&!loaded)load()}
+  window.addEventListener('hashchange',check);check();
+})();
+</script>
+    </section>
+    <section class="view notr" id="v-live" aria-label="Live on Meta" hidden>
+<style>
+.lv-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:0 0 18px}
+.lv-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
+.lv-tile .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.lv-tile .v{font-family:var(--display);font-size:30px;line-height:1.15;margin-top:4px}
+.lv-tile .s{font-size:12px;color:var(--muted)}
+.lv-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:0 0 18px}
+.lv-bar input,.lv-bar select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.lv-bar input[type=search]{flex:1 1 240px;min-width:200px}
+.lv-b{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 13px;border-radius:999px;cursor:pointer;text-decoration:none;white-space:nowrap}
+.lv-b:hover{border-color:var(--ink)}
+.lv-b[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.lv-upd{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.lv-camp{margin:0 0 26px}
+.lv-ch{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;justify-content:space-between;border-bottom:1px solid var(--line);padding:0 0 8px;margin:0 0 12px}
+.lv-ch h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0}
+.lv-ch .m{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.lv-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+.lv-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.lv-media{position:relative;aspect-ratio:4/5;background:var(--soft);display:block}
+.lv-media img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+.lv-badge{position:absolute;left:8px;top:8px;background:rgba(0,0,0,.62);color:#fff;font-family:var(--mono);font-size:10.5px;padding:2px 8px;border-radius:999px}
+.lv-live{position:absolute;right:8px;top:8px;background:var(--ok);color:#fff;font-family:var(--mono);font-size:10px;letter-spacing:.08em;padding:2px 8px;border-radius:999px}
+.lv-body{padding:10px 12px 12px;display:grid;gap:7px}
+.lv-name{font-family:var(--mono);font-size:11px;word-break:break-all;line-height:1.35;max-height:4em;overflow:hidden}
+.lv-set{font-size:12px;color:var(--muted)}
+.lv-met{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;background:var(--soft);border-radius:8px;padding:8px 10px}
+.lv-met div{font-size:11px;color:var(--muted)}
+.lv-met b{display:block;font-size:14px;color:var(--ink);font-weight:600}
+.lv-acts{display:flex;gap:6px;flex-wrap:wrap}
+.lv-acts a{font-size:12px;border:1px solid var(--line);color:var(--ink);padding:4px 10px;border-radius:999px;text-decoration:none}
+.lv-acts a:hover{border-color:var(--ink)}
+.lv-empty{background:var(--soft);border-radius:14px;padding:28px;text-align:center;color:var(--muted)}
+@media (max-width:640px){.lv-grid{grid-template-columns:repeat(2,1fr);gap:10px}}
+</style>
+<div class="wrap">
+  <nav class="ctabs" aria-label="Meta"><a href="#entregas" id="lv-t1">Entregas</a><a href="#live" aria-current="page">Live on Meta</a></nav>
+  <header>
+    <div class="lbl" id="lv-kick">Larroudé · Meta Ads · no ar agora</div>
+    <h1>Live on <em>Meta</em></h1>
+    <p class="sub" id="lv-sub">Todos os anúncios ativos agora nas contas da Larroudé na Meta, agrupados por campanha, com os números dos últimos 7 dias. Só leitura: nada é alterado na Meta.</p>
+  </header>
+  <div class="lv-sum" id="lv-sum"></div>
+  <div class="lv-bar">
+    <span id="lv-accs" style="display:flex;gap:6px;flex-wrap:wrap"></span>
+    <input type="search" id="lv-q" maxlength="80" autocomplete="off">
+    <select id="lv-sort"></select>
+    <button class="lv-b" type="button" id="lv-grp" aria-pressed="true"></button>
+    <button class="lv-b" type="button" id="lv-ref"></button>
+    <span class="lv-upd" id="lv-upd"></span>
+  </div>
+  <div id="lv-list"><div class="ld"><i></i>…</div></div>
+</div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt,LOC=EN?'en-US':'pt-BR';
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  if(EN){$('lv-t1').textContent='Deliveries';$('lv-kick').textContent='Larroudé · Meta Ads · live now';$('lv-sub').textContent='Every ad active right now in Larroudé\'s Meta ad accounts, grouped by campaign, with the last 7 days of numbers. Read-only: nothing is changed in Meta.'}
+  $('lv-q').placeholder=T('Buscar por nome do anúncio, campanha ou conjunto','Search by ad, campaign or ad set name');
+  $('lv-sort').innerHTML=`<option value="sp">${T('Maior investimento (7 dias)','Highest spend (7 days)')}</option><option value="roas">${T('Maior ROAS (7 dias)','Highest ROAS (7 days)')}</option><option value="new">${T('Mais recentes','Newest')}</option>`;
+  $('lv-ref').textContent=T('Atualizar','Refresh');
+  let D=null,acc='',grp=true,loaded=false;
+  const money=(v,cur)=>new Intl.NumberFormat(LOC,{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(v||0);
+  const n0=v=>new Intl.NumberFormat(LOC).format(Math.round(v||0));
+  const day=s=>s?new Date(s).toLocaleDateString(LOC,{day:'2-digit',month:'2-digit',year:'2-digit'}):'';
+  const roas=w=>w&&w.sp?w.rv/w.sp:0;
+  const OBJ={OUTCOME_SALES:T('Vendas','Sales'),OUTCOME_TRAFFIC:T('Tráfego','Traffic'),OUTCOME_AWARENESS:T('Reconhecimento','Awareness'),OUTCOME_ENGAGEMENT:T('Engajamento','Engagement'),OUTCOME_LEADS:'Leads',OUTCOME_APP_PROMOTION:'App'};
+  const TYPE={video:T('vídeo','video'),image:T('imagem','image'),post:T('post','post')};
+  function list(){
+    const q=$('lv-q').value.trim().toLowerCase();
+    let a=(D.ads||[]).filter(x=>(!acc||x.acc===acc)&&(!q||(x.n+' '+x.camp+' '+x.set).toLowerCase().includes(q)));
+    const s=$('lv-sort').value;
+    a.sort((x,y)=>s==='new'?(y.since>x.since?1:-1):s==='roas'?roas(y.w)-roas(x.w):((y.w&&y.w.sp)||0)-((x.w&&x.w.sp)||0));
+    return a;
+  }
+  function card(x){
+    const w=x.w||{sp:0,im:0,cl:0,pu:0,rv:0};
+    const mgr='https://adsmanager.facebook.com/adsmanager/manage/ads?act='+encodeURIComponent(x.acc)+'&selected_ad_ids='+encodeURIComponent(x.id);
+    return `<article class="lv-card"><a class="lv-media" href="${esc(x.prev||mgr)}" target="_blank" rel="noopener">${x.th?`<img loading="lazy" src="${esc(x.th)}" alt="" referrerpolicy="no-referrer">`:''}<span class="lv-badge">${esc(TYPE[x.type]||x.type)}</span><span class="lv-live">● ${T('ATIVO','LIVE')}</span></a>
+      <div class="lv-body"><div class="lv-name">${esc(x.n)}</div><div class="lv-set">${esc(x.set)}${x.since?' · '+T('no ar desde ','live since ')+esc(day(x.since)):''}</div>
+      <div class="lv-met"><div>${T('Investido 7d','Spend 7d')}<b>${money(w.sp,x.cur)}</b></div><div>${T('Compras 7d','Purchases 7d')}<b>${n0(w.pu)}</b></div><div>ROAS 7d<b>${w.sp?roas(w).toFixed(2):'–'}</b></div><div>CTR 7d<b>${w.im?(w.cl/w.im*100).toFixed(2)+'%':'–'}</b></div></div>
+      <div class="lv-acts"><a href="${esc(mgr)}" target="_blank" rel="noopener">Ads Manager ↗</a>${x.prev?`<a href="${esc(x.prev)}" target="_blank" rel="noopener">${T('Prévia','Preview')} ↗</a>`:''}${x.ig?`<a href="${esc(x.ig)}" target="_blank" rel="noopener">Instagram ↗</a>`:''}</div></div></article>`;
+  }
+  function draw(){
+    const a=list();
+    // resumo
+    const curs={};a.forEach(x=>{const c=x.cur||'USD';const w=x.w||{};curs[c]=curs[c]||{sp:0,pu:0,rv:0};curs[c].sp+=w.sp||0;curs[c].pu+=w.pu||0;curs[c].rv+=w.rv||0});
+    const camps=new Set(a.map(x=>x.campId||x.camp));
+    $('lv-sum').innerHTML=`<div class="lv-tile"><div class="k">${T('Anúncios ativos','Active ads')}</div><div class="v">${a.length}</div><div class="s">${camps.size} ${T('campanhas','campaigns')}</div></div>`+
+      Object.entries(curs).map(([c,v])=>`<div class="lv-tile"><div class="k">${T('Investido 7 dias','Spend 7 days')} · ${esc(c)}</div><div class="v">${money(v.sp,c)}</div><div class="s">${n0(v.pu)} ${T('compras','purchases')} · ROAS ${v.sp?(v.rv/v.sp).toFixed(2):'–'}</div></div>`).join('');
+    if(!a.length){$('lv-list').innerHTML=`<div class="lv-empty">${D.ads&&D.ads.length?T('Nenhum anúncio com esse filtro.','No ads match this filter.'):T('Nenhum anúncio ativo agora.','No active ads right now.')}</div>`;return}
+    if(!grp){$('lv-list').innerHTML=`<div class="lv-grid">${a.map(card).join('')}</div>`;return}
+    const G=new Map();a.forEach(x=>{const k=x.campId||x.camp;if(!G.has(k))G.set(k,[]);G.get(k).push(x)});
+    $('lv-list').innerHTML=[...G.values()].map(g=>{const f=g[0];const sp=g.reduce((s,x)=>s+((x.w&&x.w.sp)||0),0);
+      return `<section class="lv-camp"><div class="lv-ch"><h2>${esc(f.camp||T('Sem campanha','No campaign'))}</h2><span class="m">${esc(f.accN)}${f.obj?' · '+esc(OBJ[f.obj]||f.obj):''} · ${g.length} ${g.length===1?T('anúncio','ad'):T('anúncios','ads')} · ${money(sp,f.cur)} ${T('em 7 dias','in 7 days')}</span></div><div class="lv-grid">${g.map(card).join('')}</div></section>`}).join('');
+  }
+  function accs(){
+    $('lv-accs').innerHTML=`<button class="lv-b" type="button" data-a="" aria-pressed="${acc===''}">${T('Todas as contas','All accounts')}</button>`+(D.accounts||[]).map(x=>`<button class="lv-b" type="button" data-a="${esc(x.id)}" aria-pressed="${acc===x.id}">${esc(x.name)} · ${x.n}</button>`).join('');
+  }
+  $('lv-accs').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;acc=b.dataset.a;accs();draw()};
+  $('lv-q').addEventListener('input',()=>D&&draw());$('lv-sort').onchange=()=>D&&draw();
+  const grpTxt=()=>{$('lv-grp').textContent=T('Por campanha','By campaign');$('lv-grp').setAttribute('aria-pressed',grp)};grpTxt();
+  $('lv-grp').onclick=()=>{grp=!grp;grpTxt();D&&draw()};
+  function load(refresh){loaded=true;$('lv-list').innerHTML='<div class="ld"><i></i>'+T('Lendo os anúncios ativos na Meta…','Reading active ads from Meta…')+'</div>';
+    fetch('/api/ads?src=live'+(refresh?'&refresh=1':'')).then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);D=j;
+      $('lv-upd').textContent=T('Meta lida em ','Meta read on ')+new Date(j.updated).toLocaleString(LOC,{dateStyle:'short',timeStyle:'short'})+(j.errors&&j.errors.length?' · '+T('erro em ','error in ')+j.errors.length+T(' conta(s)',' account(s)'):'');
+      accs();draw()})
+      .catch(e=>{$('lv-list').innerHTML='<p class="empty">'+T('Não consegui ler a Meta agora (','Could not read Meta right now (')+esc(String(e.message||e))+T('). Clique em Atualizar em instantes.','). Click Refresh in a moment.')+'</p>'})}
+  $('lv-ref').onclick=()=>load(true);
+  function check(){if(location.hash==='#live'&&!loaded)load(false)}
   window.addEventListener('hashchange',check);check();
 })();
 </script>
@@ -2267,12 +2385,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos','crm':'Calendário'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos','crm':'Calendário','live':'Entregas Meta'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
-    document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v||(v==='crm'&&a.dataset.v==='calendario'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':v==='crm'?'Planilha de CRM · Calendário':'Air + planilhas de pedidos – Meta';}
+    document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v||(v==='crm'&&a.dataset.v==='calendario')||(v==='live'&&a.dataset.v==='entregas'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':v==='crm'?'Planilha de CRM · Calendário':v==='live'?'Meta Ads · ao vivo':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
