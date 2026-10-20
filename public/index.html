@@ -166,6 +166,7 @@
     ['Fotos e vídeos','Photos & videos'],
     ['CRM e canais','CRM & channels'],
     ['Meta Ads · ao vivo','Meta Ads · live'],
+    ['Shopify · relatório de hora em hora','Shopify · hourly report'],
     ['Planilha de CRM · Calendário','CRM sheet · Calendar'],
     ['Air · Fotos e vídeos','Air · Photos & videos'],
     ['Filtros','Filters'],
@@ -699,6 +700,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <nav class="navsec" aria-label="Painéis">
       <span class="lbl">Painéis</span>
       <a class="nav" href="#entregas" data-v="entregas"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Entregas Meta</a>
+      <a class="nav" href="#site" data-v="site"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5"/><path d="M3 9h18M7 13.5l3 2.5 3-4 4 3"/></svg>Website</a>
       <a class="nav" href="#social" data-v="social"><svg viewBox="0 0 24 24"><path d="M20 15a2 2 0 0 1-2 2H8l-4 3.5V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2z"/><path d="M8.5 9.5h7M8.5 12.5h4"/></svg>Social</a>
       <a class="nav" href="#calendario" data-v="calendario"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg>Calendário</a>
       <a class="nav" href="#skills" data-v="skills"><svg viewBox="0 0 24 24"><path d="M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.4 6.8 19.1l1-5.8L3.5 9.2l5.9-.9z"/></svg>Skills</a>
@@ -1588,6 +1590,176 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 })();
 </script>
     </section>
+    <section class="view notr" id="v-site" aria-label="Website" hidden>
+<style>
+.st-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin:4px 0 18px}
+.st-b{font:inherit;font-size:13.5px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:7px 14px;border-radius:999px;cursor:pointer}
+.st-b:hover{border-color:var(--ink)}
+.st-b[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.st-upd{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.st-h2{font-family:var(--display);font-weight:400;font-size:24px;margin:30px 0 4px}
+.st-note{font-size:12.5px;color:var(--muted);margin:0 0 12px}
+.st-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.st-tile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:grid;gap:4px}
+.st-tile .k{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.st-tile .v{font-family:var(--display);font-size:32px;line-height:1.1}
+.st-tile .s{font-size:12.5px;color:var(--muted)}
+.st-cmp{display:flex;gap:6px;flex-wrap:wrap;margin-top:2px}
+.st-cmp span{font-size:11.5px;border-radius:999px;padding:2px 8px;background:var(--soft);color:var(--muted)}
+.st-cmp .up{background:var(--ok-soft);color:var(--ok)}
+.st-cmp .dn{background:var(--accent-soft);color:var(--late,var(--accent))}
+.st-alert{background:var(--warn-soft);border-radius:12px;padding:12px 16px;margin:14px 0 0;font-size:14px;line-height:1.5}
+.st-alert.ok{background:var(--ok-soft)}
+.st-alert b{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.st-card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+.st-tog{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
+.st-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);margin:6px 0 0}
+.st-leg i{display:inline-block;width:18px;height:3px;border-radius:2px;vertical-align:middle;margin-right:6px;background:var(--c)}
+.st-leg i.d{background:repeating-linear-gradient(90deg,var(--c) 0 5px,transparent 5px 8px)}
+.st-svg{width:100%;height:auto;display:block;overflow:visible}
+.st-svg text{font-family:var(--mono);font-size:10px;fill:var(--muted)}
+.st-tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--surface);font-size:12px;padding:6px 9px;border-radius:8px;z-index:70;white-space:nowrap}
+.st-tip[hidden]{display:none}
+.st-prods{display:grid;gap:8px}
+.st-prod{display:grid;grid-template-columns:26px 52px 1fr auto;gap:12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
+.st-prod .r{font-family:var(--mono);font-size:12px;color:var(--muted);text-align:center}
+.st-prod img,.st-prod .ph{width:52px;height:52px;border-radius:8px;object-fit:cover;background:var(--soft)}
+.st-prod a{color:var(--ink);text-decoration:none;font-size:14px}
+.st-prod a:hover{text-decoration:underline}
+.st-prod .q{font-size:12px;color:var(--muted)}
+.st-prod .m{text-align:right;font-weight:600;font-size:14px}
+.st-prod .m small{display:block;font-weight:400;font-size:11.5px;color:var(--muted)}
+.st-bar2{height:4px;border-radius:2px;background:var(--accent);opacity:.7;margin-top:4px}
+@media (max-width:640px){.st-prod{grid-template-columns:22px 44px 1fr}.st-prod .m{grid-column:3;text-align:left}}
+</style>
+<div class="wrap">
+  <header>
+    <div class="lbl" id="st-kick">Larroudé · Shopify US e BR · atualizado de hora em hora</div>
+    <h1 id="st-h1">Website</h1>
+    <p class="sub" id="st-sub">Performance do site: pedidos e vendas de hoje comparados com ontem e com o mesmo dia da semana passada (sempre até a mesma hora), o dia hora a hora, a tendência dos últimos 30 dias e os produtos mais vendidos.</p>
+  </header>
+  <div class="st-bar">
+    <div role="group" style="display:flex;gap:6px"><button class="st-b" type="button" id="st-us">🇺🇸 US</button><button class="st-b" type="button" id="st-br"></button></div>
+    <span class="st-upd" id="st-upd"></span>
+  </div>
+  <div id="st-body"><div class="ld"><i></i>…</div></div>
+</div>
+<div class="st-tip" id="st-tip" hidden></div>
+<script>
+(function(){
+  const $=id=>document.getElementById(id);
+  const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt,LOC=EN?'en-US':'pt-BR';
+  const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  if(EN){$('st-kick').textContent='Larroudé · Shopify US & BR · updated hourly';$('st-sub').textContent='Website performance: today\'s orders and sales compared with yesterday and the same weekday last week (always up to the same hour), the day hour by hour, the last 30 days trend and the best sellers.'}
+  $('st-br').textContent='🇧🇷 '+T('Brasil','Brazil');
+  let mk='us',D=null,loaded=false,hMetric='s',hCum=true,dMetric='vendas',pTab='hoje';
+  try{mk=localStorage.getItem('st-mk')==='br'?'br':'us'}catch(e){}
+  const CUR={us:'USD',br:'BRL'},TZ={us:'America/New_York',br:'America/Sao_Paulo'};
+  const money=(v,k,dec)=>new Intl.NumberFormat(LOC,{style:'currency',currency:CUR[k||mk],maximumFractionDigits:dec||0,minimumFractionDigits:dec||0}).format(v||0);
+  const n0=v=>new Intl.NumberFormat(LOC).format(Math.round(v||0));
+  const pct=(a,b)=>b?((a-b)/Math.abs(b)*100):null;
+  const chip=(lbl,v)=>v==null?`<span>${esc(lbl)} –</span>`:`<span class="${v>=0?'up':'dn'}">${esc(lbl)} ${v>=0?'▲':'▼'} ${Math.abs(v).toFixed(0)}%</span>`;
+  const sum=(arr,n,i)=>(arr||[]).slice(0,n).reduce((s,x)=>s+(+x[i]||0),0);
+  const COL={hoje:'var(--accent)',ontem:'var(--info)',sem:'#8C8790'};
+  const tip=$('st-tip');
+  function showTip(e,html){tip.innerHTML=html;tip.hidden=false;tip.style.left=Math.min(e.clientX+12,innerWidth-220)+'px';tip.style.top=(e.clientY+12)+'px'}
+  document.addEventListener('scroll',()=>tip.hidden=true,{passive:true});
+  // ---------- gráfico por hora (linhas hoje / ontem / semana passada) ----------
+  function hourChart(S){
+    const W=760,H=240,L=56,R=12,Tp=12,B=26,iw=W-L-R,ih=H-Tp-B;
+    const idx=hMetric==='s'?1:0;
+    const ser=k=>{const a=(S[k]||[]).map(x=>+x[idx]||0);if(!hCum)return a;let c=0;return a.map(v=>c+=v)};
+    const hoje=ser('hoje').slice(0,Math.max(1,(S.fechadas||0)+1)),ont=ser('ontem'),sem=ser('sem');
+    const all=hoje.concat(ont,sem);const mx=Math.max(1,...all),mn=Math.min(0,...all);
+    const x=i=>L+iw*i/23,y=v=>Tp+ih*(1-(v-mn)/(mx-mn));
+    const path=a=>a.map((v,i)=>(i?'L':'M')+x(i).toFixed(1)+' '+y(v).toFixed(1)).join('');
+    const fmt=v=>hMetric==='s'?money(v):n0(v);
+    let g='';for(let t=0;t<=4;t++){const v=mn+(mx-mn)*t/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${L-6}" y="${y(v)+3}" text-anchor="end">${esc(fmt(v))}</text>`}
+    for(let h=0;h<24;h+=3)g+=`<text x="${x(h)}" y="${H-8}" text-anchor="middle">${h}h</text>`;
+    const cut=S.fechadas||0;
+    g+=`<line x1="${x(cut)}" x2="${x(cut)}" y1="${Tp}" y2="${Tp+ih}" stroke="var(--line)" stroke-dasharray="3 3"/>`;
+    g+=`<path d="${path(sem)}" fill="none" stroke="${COL.sem}" stroke-width="2" stroke-dasharray="5 3"/><path d="${path(ont)}" fill="none" stroke="${COL.ontem}" stroke-width="2"/><path d="${path(hoje)}" fill="none" stroke="${COL.hoje}" stroke-width="3"/>`;
+    g+=`<rect x="${L}" y="${Tp}" width="${iw}" height="${ih}" fill="transparent" data-hz="1"/>`;
+    return {svg:`<svg class="st-svg" viewBox="0 0 ${W} ${H}" id="st-hsvg">${g}</svg>`,meta:{L,iw,W,hoje,ont,sem,fmt}};
+  }
+  // ---------- gráfico dos 30 dias (barras + média de 7 dias) ----------
+  const DM={vendas:[3,T('Vendido','Sales'),'m'],pedidos:[1,T('Pedidos','Orders'),'n'],ticket:[4,T('Ticket médio','AOV'),'m2'],sess:[5,T('Sessões','Sessions'),'n'],chk:[0,T('Finalizou o checkout','Checkout completion'),'p']};
+  function dayVal(r){if(dMetric==='chk')return r[6]?r[7]/r[6]*100:0;return +r[DM[dMetric][0]]||0}
+  function dayChart(rows){
+    const W=760,H=240,L=56,R=12,Tp=12,B=26,iw=W-L-R,ih=H-Tp-B;
+    const v=rows.map(dayVal),mx=Math.max(1,...v)*1.08,n=rows.length,bw=iw/n;
+    const fmt=a=>DM[dMetric][2]==='m'?money(a):DM[dMetric][2]==='m2'?money(a):DM[dMetric][2]==='p'?a.toFixed(0)+'%':n0(a);
+    const y=a=>Tp+ih*(1-a/mx);
+    let g='';for(let t=0;t<=4;t++){const a=mx*t/4;g+=`<line x1="${L}" x2="${W-R}" y1="${y(a)}" y2="${y(a)}" stroke="var(--line)"/><text x="${L-6}" y="${y(a)+3}" text-anchor="end">${esc(fmt(a))}</text>`}
+    rows.forEach((r,i)=>{const today=i===n-1;const bh=Math.max(0,Tp+ih-y(v[i]));g+=`<rect x="${(L+i*bw+1.5).toFixed(1)}" y="${y(v[i]).toFixed(1)}" width="${Math.max(1,bw-3).toFixed(1)}" height="${bh.toFixed(1)}" rx="2" fill="var(--accent)" opacity="${today?0.35:0.85}" data-i="${i}"/>`;
+      if(i%5===0||today){const d=new Date(r[0]+'T12:00:00');g+=`<text x="${L+i*bw+bw/2}" y="${H-8}" text-anchor="middle">${d.getDate()}/${d.getMonth()+1}</text>`}});
+    const avg=v.map((_,i)=>{if(i<6)return null;const s=v.slice(i-6,i+1);return s.reduce((a,b)=>a+b,0)/7});
+    const pts=avg.map((a,i)=>a==null||i===n-1?null:[L+i*bw+bw/2,y(a)]).filter(Boolean);
+    if(pts.length)g+=`<path d="${pts.map((p,i)=>(i?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('')}" fill="none" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="4 3"/>`;
+    return {svg:`<svg class="st-svg" viewBox="0 0 ${W} ${H}" id="st-dsvg">${g}</svg>`,v,fmt};
+  }
+  function draw(){
+    $('st-us').setAttribute('aria-pressed',mk==='us');$('st-br').setAttribute('aria-pressed',mk==='br');
+    const A=D.agora||{},Dd=D.dia||{},S=A[mk],Y=Dd[mk];
+    $('st-upd').textContent=A.gerado_em?T('Shopify lida em ','Shopify read on ')+new Date(A.gerado_em).toLocaleString(LOC,{dateStyle:'short',timeStyle:'short'}):'';
+    if(!S){$('st-body').innerHTML=`<p class="empty">${T('O relatório de hora em hora ainda não mandou os dados desta loja.','The hourly report has not sent data for this store yet.')}</p>`;return}
+    const f=S.fechadas||0;
+    const cmp=(i)=>[pct(sum(S.hoje,f,i),sum(S.ontem,f,i)),pct(sum(S.hoje,f,i),sum(S.sem,f,i))];
+    const [po,ps]=cmp(0),[so,ss]=cmp(1);
+    const wd=new Date((S.data||'')+'T12:00:00').toLocaleDateString(LOC,{weekday:'short'}).replace('.','');
+    const fu=S.funil||{};const fin=fu.chk?fu.fin/fu.chk*100:null;
+    // média de finalização do checkout dos últimos 7 dias fechados
+    const last7=(Y&&Y.dias||[]).filter(r=>r[0]<S.data).slice(-7);const b7=last7.reduce((a,r)=>[a[0]+r[6],a[1]+r[7]],[0,0]);const fin7=b7[0]?b7[1]/b7[0]*100:null;
+    const t=S.tot||{};
+    const hh=h=>String(h).padStart(2,'0')+'h';
+    let html=`<div class="st-tiles">
+      <div class="st-tile"><div class="k">${T('Pedidos hoje','Orders today')}</div><div class="v">${n0(t.pedidos)}</div><div class="st-cmp">${chip(T('vs ontem','vs yesterday'),po)}${chip(T('vs '+wd+' passada','vs last '+wd),ps)}</div></div>
+      <div class="st-tile"><div class="k">${T('Vendido hoje','Sold today')}</div><div class="v">${money(t.vendas)}</div><div class="st-cmp">${chip(T('vs ontem','vs yesterday'),so)}${chip(T('vs '+wd+' passada','vs last '+wd),ss)}</div></div>
+      <div class="st-tile"><div class="k">${T('Ticket médio','Avg order value')}</div><div class="v">${money(t.ticket)}</div><div class="s">${T('bruto hoje ','gross today ')}${money(t.bruto)}</div></div>
+      <div class="st-tile"><div class="k">${T('Checkout hoje','Checkout today')}</div><div class="v">${fin==null?'–':fin.toFixed(0)+'%'}</div><div class="s">${n0(fu.chk)} ${T('chegaram','reached')} → ${n0(fu.fin)} ${T('finalizaram','completed')}${fin7!=null?' · '+T('média 7 dias ','7-day avg ')+fin7.toFixed(0)+'%':''}</div></div>
+    </div>
+    <p class="st-note">${T('Comparações até a última hora fechada','Comparisons up to the last closed hour')} (${hh(f)} ${mk==='us'?T('de Nova York','New York time'):T('de Brasília','Brasília time')}). ${T('Totais de hoje incluem a hora em andamento.','Today\'s totals include the current hour.')}</p>`;
+    const al=A.alertas||[];
+    html+=al.length?`<div class="st-alert"><b>⚠️ ${T('Atenção','Heads up')}</b>${al.map(a=>'• '+esc(a)).join('<br>')}</div>`:`<div class="st-alert ok"><b>✅ ${T('Tudo normal','All normal')}</b>${T('Nenhum alerta no último relatório.','No alerts in the last report.')}</div>`;
+    // hora a hora
+    const hc=hourChart(S);
+    html+=`<h2 class="st-h2">${T('Hoje, hora a hora','Today, hour by hour')}</h2><p class="st-note">${T('Hoje x ontem x mesmo dia da semana passada. A linha pontilhada vertical é a hora atual.','Today vs yesterday vs same weekday last week. The vertical dotted line is the current hour.')}</p>
+      <div class="st-card"><div class="st-tog"><button class="st-b" type="button" data-hm="s" aria-pressed="${hMetric==='s'}">${T('Vendas','Sales')}</button><button class="st-b" type="button" data-hm="o" aria-pressed="${hMetric==='o'}">${T('Pedidos','Orders')}</button><span style="width:10px"></span><button class="st-b" type="button" data-hc="1" aria-pressed="${hCum}">${T('Acumulado no dia','Cumulative')}</button><button class="st-b" type="button" data-hc="0" aria-pressed="${!hCum}">${T('Por hora','Per hour')}</button></div>${hc.svg}
+      <div class="st-leg"><span style="--c:${COL.hoje}"><i></i>${T('Hoje','Today')}</span><span style="--c:${COL.ontem}"><i></i>${T('Ontem','Yesterday')}</span><span style="--c:${COL.sem}"><i class="d"></i>${T(wd+' passada','Last '+wd)}</span></div></div>`;
+    // 30 dias
+    if(Y&&Y.dias&&Y.dias.length){
+      const rows=Y.dias;const dc=dayChart(rows);
+      const done=rows.filter(r=>r[0]<S.data);const w1=done.slice(-7),w0=done.slice(-14,-7);
+      const ag=(a,i)=>a.reduce((s,r)=>s+(+r[i]||0),0);
+      const c7=[[T('Vendido','Sales'),money(ag(w1,3)),pct(ag(w1,3),ag(w0,3))],[T('Pedidos','Orders'),n0(ag(w1,1)),pct(ag(w1,1),ag(w0,1))],[T('Ticket médio','AOV'),money(ag(w1,1)?ag(w1,3)/ag(w1,1):0),pct(ag(w1,1)?ag(w1,3)/ag(w1,1):0,ag(w0,1)?ag(w0,3)/ag(w0,1):0)],[T('Finalizou o checkout','Checkout completion'),(ag(w1,6)?ag(w1,7)/ag(w1,6)*100:0).toFixed(0)+'%',null]];
+      html+=`<h2 class="st-h2">${T('Últimos 30 dias','Last 30 days')}</h2><p class="st-note">${T('Últimos 7 dias fechados, comparados com os 7 anteriores. No gráfico, a barra clara é hoje (ainda em andamento) e a linha pontilhada é a média de 7 dias.','Last 7 closed days vs the 7 before. In the chart, the light bar is today (in progress) and the dotted line is the 7-day average.')}</p>
+        <div class="st-tiles" style="margin-bottom:12px">${c7.map(c=>`<div class="st-tile"><div class="k">${esc(c[0])} · 7 ${T('dias','days')}</div><div class="v" style="font-size:26px">${esc(c[1])}</div>${c[2]!=null?`<div class="st-cmp">${chip(T('vs 7 dias antes','vs prior 7 days'),c[2])}</div>`:''}</div>`).join('')}</div>
+        <div class="st-card"><div class="st-tog">${Object.entries(DM).map(([k,d])=>`<button class="st-b" type="button" data-dm="${k}" aria-pressed="${dMetric===k}">${esc(d[1])}</button>`).join('')}</div>${dc.svg}</div>`;
+      D._dc={rows,dc};
+    }
+    // produtos
+    const P=pTab==='hoje'?(S.top||[]):((Y&&Y.top7)||[]);const list=P.filter(p=>p&&p[1]);const top=Math.max(1,...list.map(p=>+p[3]||0));
+    html+=`<h2 class="st-h2">${T('Mais vendidos','Best sellers')}</h2><div class="st-tog"><button class="st-b" type="button" data-pt="hoje" aria-pressed="${pTab==='hoje'}">${T('Hoje','Today')}</button><button class="st-b" type="button" data-pt="7d" aria-pressed="${pTab==='7d'}">${T('Últimos 7 dias','Last 7 days')}</button></div>
+      <div class="st-prods">${list.length?list.map((p,i)=>{const im=D.img&&D.img[p[0]];return `<div class="st-prod"><span class="r">${i+1}</span>${im&&im.img?`<img src="${esc(im.img)}" alt="" loading="lazy">`:'<span class="ph"></span>'}<div>${im&&im.url?`<a href="${esc(im.url)}" target="_blank" rel="noopener">${esc(p[1])}</a>`:`<span>${esc(p[1])}</span>`}<div class="q">${n0(p[2])} ${T('pares','pairs')}</div><div class="st-bar2" style="width:${Math.max(4,(+p[3]||0)/top*100)}%"></div></div><div class="m">${money(p[3])}<small>${T('vendido','sold')}</small></div></div>`}).join(''):`<p class="empty">${T('Sem dados de produtos ainda.','No product data yet.')}</p>`}</div>`;
+    $('st-body').innerHTML=html;
+    // dicas ao passar o mouse
+    const hs=$('st-hsvg');if(hs){const m=hc.meta;hs.addEventListener('mousemove',e=>{const r=hs.getBoundingClientRect();const xx=(e.clientX-r.left)/r.width*m.W;const i=Math.round((xx-m.L)/m.iw*23);if(i<0||i>23){tip.hidden=true;return}
+      showTip(e,`<b>${i}h–${i+1}h</b><br>${T('Hoje','Today')}: ${m.hoje[i]!=null?esc(m.fmt(m.hoje[i])):'–'}<br>${T('Ontem','Yesterday')}: ${esc(m.fmt(m.ont[i]||0))}<br>${T('Sem. passada','Last week')}: ${esc(m.fmt(m.sem[i]||0))}`)});hs.addEventListener('mouseleave',()=>tip.hidden=true)}
+    const ds=$('st-dsvg');if(ds&&D._dc){ds.addEventListener('mousemove',e=>{const b=e.target.closest('rect[data-i]');if(!b){tip.hidden=true;return}const i=+b.dataset.i;const r=D._dc.rows[i];
+      showTip(e,`<b>${new Date(r[0]+'T12:00:00').toLocaleDateString(LOC,{weekday:'short',day:'2-digit',month:'2-digit'})}</b><br>${T('Vendido','Sales')}: ${esc(money(r[3]))}<br>${T('Pedidos','Orders')}: ${n0(r[1])}<br>${T('Ticket','AOV')}: ${esc(money(r[4]))}<br>${T('Sessões','Sessions')}: ${n0(r[5])}<br>Checkout: ${n0(r[6])} → ${n0(r[7])}`)});ds.addEventListener('mouseleave',()=>tip.hidden=true)}
+  }
+  $('st-body').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+    if(b.dataset.hm){hMetric=b.dataset.hm;draw()}else if(b.dataset.hc){hCum=b.dataset.hc==='1';draw()}else if(b.dataset.dm){dMetric=b.dataset.dm;draw()}else if(b.dataset.pt){pTab=b.dataset.pt;draw()}});
+  const setMk=k=>{mk=k;try{localStorage.setItem('st-mk',k)}catch(e){}if(D)draw()};
+  $('st-us').onclick=()=>setMk('us');$('st-br').onclick=()=>setMk('br');
+  function load(){loaded=true;fetch('/api/products?src=site').then(r=>r.json()).then(j=>{if(j.error)throw new Error(j.error);D=j;draw()})
+    .catch(e=>{$('st-body').innerHTML='<p class="empty">'+T('Não consegui ler o relatório agora. Recarregue em instantes.','Could not read the report right now. Reload in a moment.')+'</p>'})}
+  function check(){if(location.hash==='#site'&&!loaded)load()}
+  window.addEventListener('hashchange',check);check();
+  setInterval(()=>{if(location.hash==='#site'&&!document.hidden)load()},10*60e3);
+})();
+</script>
+    </section>
     <section class="view" id="v-daily-tasks" aria-label="Daily tasks" hidden>
       <div class="wrap dt-lockwrap" id="dt-lock">
         <form class="dt-lock" id="dt-form" autocomplete="off">
@@ -2402,12 +2574,12 @@ window.__S=function(IG,FOL){(function(){
 </script>
 <script>
 (function(){
-  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos','crm':'Calendário','live':'Entregas Meta'};
+  const views={'entregas':'Entregas Meta','entrega-semanal':'Entrega semanal','daily-tasks':'Daily tasks','social':'Social','calendario':'Calendário','copy':'Copy','skills':'Skills','banners':'Banners Home','fotos':'Fotos e vídeos','crm':'Calendário','live':'Entregas Meta','site':'Website'};
   function show(){let v=(location.hash||'').replace('#','');if(!views[v])v='entregas';
     document.querySelectorAll('.view').forEach(s=>s.hidden=s.id!=='v-'+v);
     document.querySelectorAll('.nav').forEach(a=>a.toggleAttribute('aria-current',a.dataset.v===v)||a.dataset.v===v&&a.setAttribute('aria-current','page'));
     document.querySelectorAll('.nav').forEach(a=>{if(a.dataset.v===v||(v==='crm'&&a.dataset.v==='calendario')||(v==='live'&&a.dataset.v==='entregas'))a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
-    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':v==='crm'?'Planilha de CRM · Calendário':v==='live'?'Meta Ads · ao vivo':'Air + planilhas de pedidos – Meta';}
+    document.getElementById('crumb').textContent=views[v];document.getElementById('sync').textContent=v==='daily-tasks'?'Planilha Controle de Entregas':v==='social'?'API do Instagram · Meta':v==='calendario'?'Calendário editável':v==='entrega-semanal'?'Asana · Content Team':v==='copy'?'Banco de copy · US':v==='skills'?'Skills do time · Claude':v==='banners'?'Air · Banners Home':v==='fotos'?'Air · Fotos e vídeos':v==='crm'?'Planilha de CRM · Calendário':v==='live'?'Meta Ads · ao vivo':v==='site'?'Shopify · relatório de hora em hora':'Air + planilhas de pedidos – Meta';}
   window.addEventListener('hashchange',()=>{show();window.scrollTo(0,0)});show();
 })();
 </script>
