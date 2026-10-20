@@ -1507,6 +1507,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     <label class="lv-dt"><span id="lv-froml"></span><input type="date" id="lv-from"></label>
     <label class="lv-dt"><span id="lv-tol"></span><input type="date" id="lv-to"></label>
     <button class="lv-b" type="button" id="lv-clr" hidden></button>
+    <select id="lv-roas"></select>
     <select id="lv-sort"></select>
     <button class="lv-b" type="button" id="lv-grp" aria-pressed="true"></button>
     <button class="lv-b" type="button" id="lv-ref"></button>
@@ -1521,7 +1522,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   if(EN){$('lv-t1').textContent='Deliveries';$('lv-kick').textContent='Larroudé · Meta Ads · live now';$('lv-sub').textContent='Every ad active right now in Larroudé\'s Meta ad accounts, grouped by campaign, with the last 7 days of numbers. Read-only: nothing is changed in Meta.'}
   $('lv-q').placeholder=T('Buscar por nome do anúncio, campanha ou conjunto','Search by ad, campaign or ad set name');
-  $('lv-sort').innerHTML=`<option value="sp">${T('Maior investimento (7 dias)','Highest spend (7 days)')}</option><option value="roas">${T('Maior ROAS (7 dias)','Highest ROAS (7 days)')}</option><option value="new">${T('Mais recentes','Newest')}</option>`;
+  $('lv-sort').innerHTML=`<option value="sp">${T('Maior investimento (7 dias)','Highest spend (7 days)')}</option><option value="roas">${T('Maior ROAS (7 dias)','Highest ROAS (7 days)')}</option><option value="roasLow">${T('Menor ROAS (7 dias)','Lowest ROAS (7 days)')}</option><option value="new">${T('Mais recentes','Newest')}</option>`;
+  $('lv-roas').innerHTML=`<option value="">${T('Qualquer ROAS','Any ROAS')}</option><option value="0-1">${T('ROAS abaixo de 1','ROAS below 1')}</option><option value="1-2">${T('ROAS de 1 a 2','ROAS 1 to 2')}</option><option value="2-3">${T('ROAS de 2 a 3','ROAS 2 to 3')}</option><option value="3-">${T('ROAS 3 ou mais','ROAS 3 or more')}</option><option value="none">${T('Sem investimento em 7 dias','No spend in 7 days')}</option>`;
   $('lv-ref').textContent=T('Atualizar','Refresh');
   $('lv-froml').textContent=T('Subido de','Uploaded from');$('lv-tol').textContent=T('até','to');$('lv-clr').textContent=T('Limpar datas','Clear dates');
   let D=null,acc='',grp=true,loaded=false;
@@ -1537,8 +1539,13 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     const f=$('lv-from').value,t=$('lv-to').value;
     const dOf=v=>{if(!v)return'';const d=new Date(v);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
     let a=(D.ads||[]).filter(x=>(!acc||x.acc===acc)&&(!q||(x.n+' '+x.camp+' '+x.set).toLowerCase().includes(q))&&(!f||dOf(x.since)>=f)&&(!t||dOf(x.since)<=t));
+    // faixa de ROAS (últimos 7 dias); "sem investimento" = não gastou nada na semana
+    const rf=$('lv-roas').value;
+    if(rf==='none')a=a.filter(x=>!(x.w&&x.w.sp));
+    else if(rf){const [lo,hi]=rf.split('-');a=a.filter(x=>x.w&&x.w.sp&&roas(x.w)>=+lo&&(hi===''||roas(x.w)<+hi))}
     const s=$('lv-sort').value;
-    a.sort((x,y)=>s==='new'?(y.since>x.since?1:-1):s==='roas'?roas(y.w)-roas(x.w):((y.w&&y.w.sp)||0)-((x.w&&x.w.sp)||0));
+    const sp=x=>(x.w&&x.w.sp)||0;
+    a.sort((x,y)=>s==='new'?(y.since>x.since?1:-1):s==='roas'?roas(y.w)-roas(x.w):s==='roasLow'?((sp(x)?0:1)-(sp(y)?0:1))||roas(x.w)-roas(y.w):sp(y)-sp(x));
     return a;
   }
   function card(x){
@@ -1567,7 +1574,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   }
   $('lv-accs').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;acc=b.dataset.a;accs();draw()};
   $('lv-q').addEventListener('input',()=>D&&draw());
-  const dtc=()=>{$('lv-clr').hidden=!($('lv-from').value||$('lv-to').value);D&&draw()};$('lv-from').onchange=dtc;$('lv-to').onchange=dtc;$('lv-clr').onclick=()=>{$('lv-from').value='';$('lv-to').value='';dtc()};$('lv-sort').onchange=()=>D&&draw();
+  const dtc=()=>{$('lv-clr').hidden=!($('lv-from').value||$('lv-to').value);D&&draw()};$('lv-from').onchange=dtc;$('lv-to').onchange=dtc;$('lv-clr').onclick=()=>{$('lv-from').value='';$('lv-to').value='';dtc()};$('lv-sort').onchange=()=>D&&draw();$('lv-roas').onchange=()=>D&&draw();
   const grpTxt=()=>{$('lv-grp').textContent=T('Por campanha','By campaign');$('lv-grp').setAttribute('aria-pressed',grp)};grpTxt();
   $('lv-grp').onclick=()=>{grp=!grp;grpTxt();D&&draw()};
   function load(refresh){loaded=true;$('lv-list').innerHTML='<div class="ld"><i></i>'+T('Lendo os anúncios ativos na Meta…','Reading active ads from Meta…')+'</div>';
