@@ -3,8 +3,9 @@
 // GET /api/products?q=cyprus   → até 24 produtos que batem com nome, handle, tipo ou SKU
 // Guardado no banco por 6 h.
 import { get, put } from '../lib/store.js';
+import site from '../lib/site-report.js';
 
-const STORES = { US: 'https://www.larroude.com' };
+const STORES = { US: 'https://www.larroude.com', BR: 'https://www.larroude.com.br' };
 const FRESH_MS = 6 * 3600e3;
 
 // "L481-CARI-5.0-BLAC-3185" → "L481-CARI-BLAC-3185" (tira o tamanho)
@@ -52,6 +53,7 @@ export async function catalog(mk) {
 }
 
 export default async function handler(req, res) {
+  if (req.query && req.query.src === 'site') return site(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     const mk = STORES[(req.query && req.query.mk) || 'US'] ? ((req.query && req.query.mk) || 'US') : 'US';
