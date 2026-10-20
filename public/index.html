@@ -1469,6 +1469,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .lv-b:hover{border-color:var(--ink)}
 .lv-b[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:var(--surface)}
 .lv-upd{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+.lv-dt{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted)}
+.lv-dt input{padding:7px 10px}
 .lv-camp{margin:0 0 26px}
 .lv-ch{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;justify-content:space-between;border-bottom:1px solid var(--line);padding:0 0 8px;margin:0 0 12px}
 .lv-ch h2{font-family:var(--display);font-weight:400;font-size:22px;margin:0}
@@ -1502,6 +1504,9 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <div class="lv-bar">
     <span id="lv-accs" style="display:flex;gap:6px;flex-wrap:wrap"></span>
     <input type="search" id="lv-q" maxlength="80" autocomplete="off">
+    <label class="lv-dt"><span id="lv-froml"></span><input type="date" id="lv-from"></label>
+    <label class="lv-dt"><span id="lv-tol"></span><input type="date" id="lv-to"></label>
+    <button class="lv-b" type="button" id="lv-clr" hidden></button>
     <select id="lv-sort"></select>
     <button class="lv-b" type="button" id="lv-grp" aria-pressed="true"></button>
     <button class="lv-b" type="button" id="lv-ref"></button>
@@ -1518,6 +1523,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   $('lv-q').placeholder=T('Buscar por nome do anúncio, campanha ou conjunto','Search by ad, campaign or ad set name');
   $('lv-sort').innerHTML=`<option value="sp">${T('Maior investimento (7 dias)','Highest spend (7 days)')}</option><option value="roas">${T('Maior ROAS (7 dias)','Highest ROAS (7 days)')}</option><option value="new">${T('Mais recentes','Newest')}</option>`;
   $('lv-ref').textContent=T('Atualizar','Refresh');
+  $('lv-froml').textContent=T('Subido de','Uploaded from');$('lv-tol').textContent=T('até','to');$('lv-clr').textContent=T('Limpar datas','Clear dates');
   let D=null,acc='',grp=true,loaded=false;
   const money=(v,cur)=>new Intl.NumberFormat(LOC,{style:'currency',currency:cur||'USD',maximumFractionDigits:0}).format(v||0);
   const n0=v=>new Intl.NumberFormat(LOC).format(Math.round(v||0));
@@ -1527,7 +1533,10 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   const TYPE={video:T('vídeo','video'),image:T('imagem','image'),post:T('post','post')};
   function list(){
     const q=$('lv-q').value.trim().toLowerCase();
-    let a=(D.ads||[]).filter(x=>(!acc||x.acc===acc)&&(!q||(x.n+' '+x.camp+' '+x.set).toLowerCase().includes(q)));
+    // data em que o anúncio foi subido na Meta (created_time), no fuso de quem está olhando
+    const f=$('lv-from').value,t=$('lv-to').value;
+    const dOf=v=>{if(!v)return'';const d=new Date(v);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+    let a=(D.ads||[]).filter(x=>(!acc||x.acc===acc)&&(!q||(x.n+' '+x.camp+' '+x.set).toLowerCase().includes(q))&&(!f||dOf(x.since)>=f)&&(!t||dOf(x.since)<=t));
     const s=$('lv-sort').value;
     a.sort((x,y)=>s==='new'?(y.since>x.since?1:-1):s==='roas'?roas(y.w)-roas(x.w):((y.w&&y.w.sp)||0)-((x.w&&x.w.sp)||0));
     return a;
@@ -1536,7 +1545,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     const w=x.w||{sp:0,im:0,cl:0,pu:0,rv:0};
     const mgr='https://adsmanager.facebook.com/adsmanager/manage/ads?act='+encodeURIComponent(x.acc)+'&selected_ad_ids='+encodeURIComponent(x.id);
     return `<article class="lv-card"><a class="lv-media" href="${esc(x.prev||mgr)}" target="_blank" rel="noopener">${x.th?`<img loading="lazy" src="${esc(x.th)}" alt="" referrerpolicy="no-referrer">`:''}<span class="lv-badge">${esc(TYPE[x.type]||x.type)}</span><span class="lv-live">● ${T('ATIVO','LIVE')}</span></a>
-      <div class="lv-body"><div class="lv-name">${esc(x.n)}</div><div class="lv-set">${esc(x.set)}${x.since?' · '+T('no ar desde ','live since ')+esc(day(x.since)):''}</div>
+      <div class="lv-body"><div class="lv-name">${esc(x.n)}</div><div class="lv-set">${esc(x.set)}${x.since?' · '+T('subido em ','uploaded on ')+esc(day(x.since)):''}</div>
       <div class="lv-met"><div>${T('Investido 7d','Spend 7d')}<b>${money(w.sp,x.cur)}</b></div><div>${T('Compras 7d','Purchases 7d')}<b>${n0(w.pu)}</b></div><div>ROAS 7d<b>${w.sp?roas(w).toFixed(2):'–'}</b></div><div>CTR 7d<b>${w.im?(w.cl/w.im*100).toFixed(2)+'%':'–'}</b></div></div>
       <div class="lv-acts"><a href="${esc(mgr)}" target="_blank" rel="noopener">Ads Manager ↗</a>${x.prev?`<a href="${esc(x.prev)}" target="_blank" rel="noopener">${T('Prévia','Preview')} ↗</a>`:''}${x.ig?`<a href="${esc(x.ig)}" target="_blank" rel="noopener">Instagram ↗</a>`:''}</div></div></article>`;
   }
@@ -1557,7 +1566,8 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     $('lv-accs').innerHTML=`<button class="lv-b" type="button" data-a="" aria-pressed="${acc===''}">${T('Todas as contas','All accounts')}</button>`+(D.accounts||[]).map(x=>`<button class="lv-b" type="button" data-a="${esc(x.id)}" aria-pressed="${acc===x.id}">${esc(x.name)} · ${x.n}</button>`).join('');
   }
   $('lv-accs').onclick=e=>{const b=e.target.closest('[data-a]');if(!b)return;acc=b.dataset.a;accs();draw()};
-  $('lv-q').addEventListener('input',()=>D&&draw());$('lv-sort').onchange=()=>D&&draw();
+  $('lv-q').addEventListener('input',()=>D&&draw());
+  const dtc=()=>{$('lv-clr').hidden=!($('lv-from').value||$('lv-to').value);D&&draw()};$('lv-from').onchange=dtc;$('lv-to').onchange=dtc;$('lv-clr').onclick=()=>{$('lv-from').value='';$('lv-to').value='';dtc()};$('lv-sort').onchange=()=>D&&draw();
   const grpTxt=()=>{$('lv-grp').textContent=T('Por campanha','By campaign');$('lv-grp').setAttribute('aria-pressed',grp)};grpTxt();
   $('lv-grp').onclick=()=>{grp=!grp;grpTxt();D&&draw()};
   function load(refresh){loaded=true;$('lv-list').innerHTML='<div class="ld"><i></i>'+T('Lendo os anúncios ativos na Meta…','Reading active ads from Meta…')+'</div>';
