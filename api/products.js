@@ -5,7 +5,7 @@
 import { get, put } from '../lib/store.js';
 import site from '../lib/site-report.js';
 
-const STORES = { US: 'https://www.larroude.com', BR: 'https://www.larroude.com.br' };
+const STORES = { US: 'https://www.larroude.com', BR: 'https://br.larroude.com' };
 const FRESH_MS = 6 * 3600e3;
 
 // "L481-CARI-5.0-BLAC-3185" → "L481-CARI-BLAC-3185" (tira o tamanho)
