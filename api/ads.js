@@ -126,8 +126,13 @@ export default async function handler(req, res) {
     const want = (req.query && req.query.refresh) ? (age > FRESH_MS / 4 || (D.errors && D.errors.length)) : age > 3 * FRESH_MS;
     if (!D || want) {
       const fresh = await build();
-      if (Object.keys(fresh.ads).length || !D) { D = fresh; await put(KEY, D) }
+      // se alguma conta deu erro (ex.: a Meta demorou), mantém os dados anteriores em vez de salvar uma lista pela metade
+      if (!D || (!fresh.errors.length && Object.keys(fresh.ads).length)) { D = fresh; await put(KEY, D) }
+      else if (fresh.errors.length) { D = { ...D, lastError: { at: fresh.updated, errors: fresh.errors } }; await put(KEY, D) }
     }
+    // o Apps Script só pede a atualização: responde curto (não precisa da lista inteira de volta)
+    if (req.query && req.query.refresh) return res.status(200).json({ ok: true, updated: D.updated, errors: (D.lastError && D.lastError.at > D.updated) ? D.lastError.errors : [] });
+    res.setHeader('Cache-Control', 's-maxage=120, stale-while-revalidate=600');
     res.status(200).json(D);
   } catch (e) { res.status(502).json({ error: redact(e.message || e) }) }
 }

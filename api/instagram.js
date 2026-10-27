@@ -160,7 +160,8 @@ async function refresh(prev) {
 }
 
 export default async function handler(req, res) {
-  res.setHeader('Cache-Control', 'no-store');
+  // guardado no CDN por 5 min (os dados do Instagram mudam de hora em hora): cada visita ao hub não chama a função de novo
+  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
   try {
     if (!token()) throw new Error('META_ACCESS_TOKEN não configurado');
     let D = await get(KEY);
