@@ -37,11 +37,12 @@ async function needRows(mk) {
     if (!NEEDS.test(String(r[9] || ''))) return;
     const row = r[26] ? +r[26] : i + 1, tab = mk === 'BR' ? (r[25] || '') : '';
     const link = String(r[20] || '');
-    const sid = (link.match(/\/b\/([0-9a-f]{8})/) || [])[1] || '';
+    const bm = link.match(/\/b\/((?:[a-z0-9-]*?-)?)([0-9a-f]{8})-[0-9a-f]{4}-/i);
+    const sid = bm ? bm[2].toLowerCase() : '';
     const sc = (link.match(/app\.air\.inc\/a\/([0-9a-z]{6,12})/i) || [])[1] || '';
     const air = (link.match(/https:\/\/app\.air\.inc\/[^\s,;]+/) || [])[0] || '';
     out.push({ k: mk + '|' + tab + '|' + row, mk, tab, row, st: String(r[9]).trim(), peca: str(r[1], 160), tipo: str(r[2], 60), obj: str(r[6], 40),
-      camp: mk === 'BR' ? str(r[10], 200) : '', date: str(r[22], 20), air, sid, ref: sid ? '/b/' + sid : sc ? '/a/' + sc : '', fp: fpOf(mk, r) });
+      camp: mk === 'BR' ? str(r[10], 200) : '', date: str(r[22], 20), air, sid, ref: bm ? '/b/' + bm[1] + bm[2] : sc ? '/a/' + sc : '', fp: fpOf(mk, r) });
   });
   return out;
 }
@@ -96,7 +97,7 @@ export default async function handler(req, res) {
     const row = parseInt(body.row, 10), tab = str(body.tab, 100), sid = str(body.sid, 8);
     const fp = str(body.fp, 60);
     // ref: o pedaço do link do Air que está na planilha ("/b/<id>" ou "/a/<código>"); o script confere antes de mudar
-    const ref = /^\/(b\/[0-9a-f]{8}|a\/[0-9a-z]{6,12})$/i.test(String(body.ref || '')) ? String(body.ref) : (/^[0-9a-f]{8}$/.test(sid) ? '/b/' + sid : '');
+    const ref = /^\/(b\/(?:[a-z0-9-]*-)?[0-9a-f]{8}|a\/[0-9a-z]{6,12})$/i.test(String(body.ref || '')) ? String(body.ref) : (/^[0-9a-f]{8}$/.test(sid) ? '/b/' + sid : '');
     if (!(row > 1) || !(ref || fp)) return res.status(400).json({ error: 'linha' });
     if (!NEEDS.test(String(body.st || ''))) return res.status(400).json({ error: 'status' });
     const dec = body.dec === 'no' ? 'no' : 'ok';

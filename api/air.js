@@ -86,7 +86,8 @@ async function sheetIndex(key) {
   const SC = await resolveShort(codes);
   doc.rows.forEach((r, i) => {
     const link = String(r[20] || '');
-    const refs = [...link.matchAll(/\/b\/([0-9a-f]{8})/g)].map(m => [m[1], '/b/' + m[1]]);
+    // link do board: ".../b/<uuid>" ou com o nome na frente, ".../b/sabine-<uuid>" (link copiado do Air novo)
+    const refs = [...link.matchAll(/\/b\/((?:[a-z0-9-]*?-)?)([0-9a-f]{8})-[0-9a-f]{4}-/gi)].map(m => [m[2].toLowerCase(), '/b/' + m[1] + m[2]]);
     for (const c of short(link)) if (SC[c]) refs.push([SC[c], '/a/' + c]);
     const row = r[26] ? +r[26] : i + 1, tab = r[25] || '';
     for (const [id, ref] of refs) idx[id] = { id, ref, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null };
