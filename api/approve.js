@@ -1,6 +1,7 @@
 // /api/approve — aprovar criativos do Entregas pelo hub.
 // GET                         → { items } aprovações recentes (o site mostra o card como Delivered na hora)
 // POST { password, mk, tab, row, sid, camp }  → entra na fila (senha do Banco de copy)
+// POST { ..., dec:'no', msg }                 → reprovar: o status vira "Needs to be edit" e o motivo (obrigatório) vira nota na célula de status
 // O Apps Script da Jess (a cada 1 min) busca a fila e muda só a coluna de status (J) para "Delivered",
 // conferindo antes que a linha ainda está "Needs approval" e que o link do Air é o mesmo.
 //   GET  ?queue=1  (token do Google do script)  → { items: pendentes }
@@ -63,10 +64,12 @@ export default async function handler(req, res) {
       if (q.queue) {
         if (!(await scriptEmail(req))) return res.status(401).json({ error: 'não autorizado' });
         const D = await load();
-        return res.status(200).json({ items: Object.values(D.items).filter(x => x.st === 'pending') });
+        // ?queue=2 = script novo (sabe reprovar). O script antigo (?queue=1) só recebe aprovações, para nunca marcar uma reprovação como Delivered.
+        const novo = String(q.queue) === '2';
+        return res.status(200).json({ items: Object.values(D.items).filter(x => x.st === 'pending' && (novo || x.dec !== 'no')) });
       }
       const D = await load();
-      const out = { items: Object.values(D.items).map(({ k, mk, st, at, msg }) => ({ k, mk, st, at, msg })) };
+      const out = { items: Object.values(D.items).map(({ k, mk, st, at, msg, dec, note }) => ({ k, mk, st, at, msg, dec: dec || 'ok', note: note || '' })) };
       // lista "Para aprovar": todas as linhas da planilha com status de aprovação, mesmo sem criativo achado no Air
       if (q.list) out.need = (await needRows('US')).concat(await needRows('BR'));
       return res.status(200).json(out);
@@ -96,9 +99,12 @@ export default async function handler(req, res) {
     const ref = /^\/(b\/[0-9a-f]{8}|a\/[0-9a-z]{6,12})$/i.test(String(body.ref || '')) ? String(body.ref) : (/^[0-9a-f]{8}$/.test(sid) ? '/b/' + sid : '');
     if (!(row > 1) || !(ref || fp)) return res.status(400).json({ error: 'linha' });
     if (!NEEDS.test(String(body.st || ''))) return res.status(400).json({ error: 'status' });
+    const dec = body.dec === 'no' ? 'no' : 'ok';
+    const note = dec === 'no' ? str(body.msg, 500).trim() : '';
+    if (dec === 'no' && !note) return res.status(400).json({ error: 'motivo' });
     const k = mk + '|' + tab + '|' + row;
     const D = prune(await load());
-    D.items[k] = { k, mk, tab, row, sid, ref, fp, camp: str(body.camp, 120), from: str(body.st, 60), st: 'pending', at: new Date().toISOString() };
+    D.items[k] = { k, mk, tab, row, sid, ref, fp, camp: str(body.camp, 120), from: str(body.st, 60), dec, to: dec === 'no' ? 'Needs to be edit' : 'Delivered', note, st: 'pending', at: new Date().toISOString() };
     await put(KEY, D);
     res.status(200).json({ ok: true, k });
   } catch (e) { res.status(502).json({ error: String(e.message || e).slice(0, 200) }) }
