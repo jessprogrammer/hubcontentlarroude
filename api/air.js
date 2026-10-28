@@ -79,6 +79,9 @@ async function sheetIndex(key) {
   const doc = await get(key);
   if (!doc) return {};
   const idx = {};
+  // todas as linhas de cada pasta, em ordem (várias linhas podem apontar para a mesma pasta do Air)
+  Object.defineProperty(idx, 'all', { value: {}, enumerable: false });
+  Object.defineProperty(idx, 'byRow', { value: {}, enumerable: false });
   const short = l => [...l.matchAll(/app\.air\.inc\/a\/([0-9a-z]{6,12})(?![0-9a-z\/]*\/b\/)/gi)].map(m => m[1]);
   // primeiro as linhas esperando aprovação, depois as mais novas (fim da planilha)
   const need = r => /needs approval|needs to approve/i.test(String(r[9] || ''));
@@ -90,7 +93,8 @@ async function sheetIndex(key) {
     const refs = [...link.matchAll(/\/b\/((?:[a-z0-9-]*?-)?)([0-9a-f]{8})-[0-9a-f]{4}-/gi)].map(m => [m[2].toLowerCase(), '/b/' + m[1] + m[2]]);
     for (const c of short(link)) if (SC[c]) refs.push([SC[c], '/a/' + c]);
     const row = r[26] ? +r[26] : i + 1, tab = r[25] || '';
-    for (const [id, ref] of refs) idx[id] = { id, ref, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null };
+    for (const [id, ref] of refs) (idx.all[id] = idx.all[id] || []).push(row);
+    for (const [id, ref] of refs) { idx[id] = { id, ref, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null }; idx.byRow[id + '|' + row] = idx[id] }
   });
   return idx;
 }
@@ -119,10 +123,33 @@ async function build() {
     sheetIndex('sheet:criativos').catch(() => ({})), sheetIndex('sheet:criativosBR').catch(() => ({})),
     ...US.concat(BR).map(f => crawl(f).catch(e => { console.error('air', f.name, e.message); return [] }))]);
   const items = [];
+  // Várias linhas da planilha com o link da MESMA pasta (ex.: a pasta "sabine" para 6 peças) e o mesmo número
+  // de subpastas no Air (STATIC / 01 … 06): liga por ordem — 1ª subpasta → 1ª linha, 2ª → 2ª…
+  const pick = new Map();
+  {
+    const groups = new Map();
+    for (const L of folders.flat()) {
+      const sheet = L.folder.mk === 'BR' ? sBR : sUS;
+      if (sheet[L.id.slice(0, 8)]) continue;
+      const a = L.anc.map(x => x.slice(0, 8)).find(x => sheet[x]);
+      if (!a) continue;
+      const g = L.folder.mk + '|' + a;
+      if (!groups.has(g)) groups.set(g, { a, sheet, leaves: [] });
+      groups.get(g).leaves.push(L);
+    }
+    const nat = (x, y) => x.path.join('/').localeCompare(y.path.join('/'), 'en', { numeric: true });
+    for (const { a, sheet, leaves } of groups.values()) {
+      const rows = (sheet.all && sheet.all[a]) || [];
+      if (rows.length < 2 || rows.length !== leaves.length || !sheet.byRow) continue;
+      const sorted = rows.slice().sort((x, y) => x - y);
+      leaves.slice().sort(nat).forEach((L, k) => { const s = sheet.byRow[a + '|' + sorted[k]]; if (s) pick.set(L, s) });
+    }
+  }
   for (const L of folders.flat()) {
     const mk = L.folder.mk, sheet = mk === 'BR' ? sBR : sUS;
     const id8 = L.id.slice(0, 8);
     let s = sheet[id8], inherited = false;
+    if (!s && pick.has(L)) { s = pick.get(L); inherited = true }
     if (!s) for (const a of L.anc) { if (sheet[a.slice(0, 8)]) { s = sheet[a.slice(0, 8)]; inherited = true; break } }
     // data: do nome do board ("ADS 09.30"); se o board não tem data, a data de entrega da planilha (BR)
     const date = parseDate(L.path[0] || '', L.folder) || (s && s.date) || null;
