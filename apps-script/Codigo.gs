@@ -2,7 +2,8 @@
  * Larroudé Content Hub — envia as planilhas para o site a cada 10 minutos.
  * Roda com a conta da Jess. Só lê as planilhas, com UMA exceção: quando alguém aprova um criativo
  * no hub, "aplicarAprovacoes" (a cada 1 min) muda a coluna J (status) daquela linha da
- * Creative Request de "Needs approval" / "Jess needs to approve" para "Delivered".
+ * Creative Request de "Needs approval" / "Jess needs to approve" para "Delivered" (aprovado) ou
+ * "Needs to be edit" (reprovado; o motivo vira nota na célula de status).
  * Antes de mudar, confere que a linha ainda tem esse status e o mesmo link do Air (ou o mesmo produto/campanha). Nada mais é alterado.
  *
  * Para começar: rode a função "instalar" uma vez (menu ▶ Executar) e autorize.
@@ -94,17 +95,19 @@ function enviar() {
     muteHttpExceptions: true,
   });
   console.log(r.getResponseCode() + ' ' + r.getContentText());
+  // mantém os dados da Meta do Entregas atualizados (o site não precisa esperar a Meta)
+  try { UrlFetchApp.fetch(SITE.replace('/ingest', '/ads') + '?refresh=1', { muteHttpExceptions: true }) } catch (e) { console.log('ads: ' + e) }
 }
 
 // Aprovações feitas no hub → coluna J da Creative Request vira "Delivered"
 function aplicarAprovacoes() {
   const auth = { Authorization: 'Bearer ' + ScriptApp.getIdentityToken() };
-  const r = UrlFetchApp.fetch(APROVA + '?queue=1', { headers: auth, muteHttpExceptions: true });
+  const r = UrlFetchApp.fetch(APROVA + '?queue=2', { headers: auth, muteHttpExceptions: true });
   if (r.getResponseCode() !== 200) { console.log('fila: ' + r.getResponseCode() + ' ' + r.getContentText().slice(0, 200)); return }
   const fila = JSON.parse(r.getContentText()).items || [];
   if (!fila.length) return;
   const id = FONTES.criativos.id;
-  let abaUS = null;
+  let abaUS = null, meta = null;
   const done = [];
   for (const a of fila) {
     try {
@@ -117,12 +120,20 @@ function aplicarAprovacoes() {
       const lin = Sheets.Spreadsheets.Values.get(id, "'" + aba + "'!A" + a.row + ':U' + a.row).values || [[]];
       const v = lin[0] || [];
       const status = String(v[9] || ''), link = String(v[20] || '');
-      if (!/needs approval|needs to approve/i.test(status)) { done.push({ k: a.k, ok: /delivered/i.test(status), msg: status ? 'status atual: ' + status : 'linha vazia' }); continue }
+      const novo = a.to === 'Needs to be edit' ? 'Needs to be edit' : 'Delivered';
+      if (!/needs approval|needs to approve/i.test(status)) { done.push({ k: a.k, ok: status.trim().toLowerCase() === novo.toLowerCase(), msg: status ? 'status atual: ' + status : 'linha vazia' }); continue }
       const ref = a.ref || (a.sid ? '/b/' + a.sid : '');
       const norm = s => String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
       const fpOk = a.fp && norm(a.mk === 'BR' ? (v[10] || v[1]) : v[1]).slice(0, 60) === a.fp;
       if (ref ? link.indexOf(ref) < 0 : !fpOk) { done.push({ k: a.k, ok: false, msg: 'a linha mudou de lugar na planilha' }); continue }
-      Sheets.Spreadsheets.Values.update({ values: [['Delivered']] }, id, "'" + aba + "'!J" + a.row, { valueInputOption: 'USER_ENTERED' });
+      Sheets.Spreadsheets.Values.update({ values: [[novo]] }, id, "'" + aba + "'!J" + a.row, { valueInputOption: 'USER_ENTERED' });
+      // reprovado: o motivo fica como nota na célula de status (J)
+      if (novo === 'Needs to be edit' && a.note) {
+        if (!meta) meta = Sheets.Spreadsheets.get(id, { fields: 'sheets.properties(sheetId,title)' }).sheets.map(s => s.properties);
+        const sh = meta.find(p => p.title === aba);
+        const quando = Utilities.formatDate(new Date(), 'America/Sao_Paulo', 'dd/MM HH:mm');
+        if (sh) Sheets.Spreadsheets.batchUpdate({ requests: [{ updateCells: { range: { sheetId: sh.sheetId, startRowIndex: a.row - 1, endRowIndex: a.row, startColumnIndex: 9, endColumnIndex: 10 }, rows: [{ values: [{ note: 'Reprovado no hub (' + quando + '): ' + String(a.note).slice(0, 500) }] }], fields: 'note' } }] }, id);
+      }
       done.push({ k: a.k, ok: true });
     } catch (e) { done.push({ k: a.k, ok: false, msg: String(e).slice(0, 150) }) }
   }
