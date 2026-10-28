@@ -1,6 +1,6 @@
 // /api/approve — aprovar criativos do Entregas pelo hub.
 // GET                         → { items } aprovações recentes (o site mostra o card como Delivered na hora)
-// POST { password, mk, tab, row, sid, camp }  → entra na fila (senha do Banco de copy)
+// POST { mk, tab, row, sid, camp }  → entra na fila (sem senha)
 // POST { ..., dec:'no', msg }                 → reprovar: o status vira "Needs to be edit" e o motivo (obrigatório) vira nota na célula de status
 // O Apps Script da Jess (a cada 1 min) busca a fila e muda só a coluna de status (J) para "Delivered",
 // conferindo antes que a linha ainda está "Needs approval" e que o link do Air é o mesmo.
@@ -90,9 +90,7 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
-    // aprovar: mesma senha do Banco de copy
-    const pass = process.env.COPY_PASSWORD || process.env.CAL_PASSWORD || process.env.TEAM_PASSWORD;
-    if (!pass || String(body.password || '') !== pass) { await new Promise(r => setTimeout(r, 600)); return res.status(401).json({ error: 'senha' }) }
+    // aprovar / reprovar: livre, sem senha (pedido da Jess — quem aprova não vai lembrar de senha)
     const mk = body.mk === 'BR' ? 'BR' : 'US';
     const row = parseInt(body.row, 10), tab = str(body.tab, 100), sid = str(body.sid, 8);
     const fp = str(body.fp, 60);
