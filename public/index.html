@@ -331,7 +331,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .st-delivered{background:var(--info-soft);color:var(--info)}
 .st-hold{background:var(--warn-soft);color:var(--warn)}
 .st-other{background:var(--soft);color:var(--muted)}
-.ap{margin:8px 0 2px}.ap-b{font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--accent);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}.ap-b:hover{filter:brightness(1.07)}
+.ap{margin:8px 0 2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ap .ap-f{flex:1 1 100%}.ap-rej{background:transparent!important;color:var(--late,#B3261E)!important;box-shadow:inset 0 0 0 1.5px currentColor}.ap-wf{display:flex;flex-direction:column;gap:6px}.ap-wf textarea{font:inherit;font-size:13px;width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--ink);resize:vertical}.ap-wb{display:flex;gap:6px;align-items:center}.ap-c{font:inherit;font-size:13px;background:none;border:0;color:var(--muted);cursor:pointer;padding:6px 8px}.ap-no{color:var(--late,#B3261E)}.ap-why{display:block;color:var(--muted);font-weight:400;margin-top:2px}.ap-b{font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--accent);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}.ap-b:hover{filter:brightness(1.07)}
 .ap-f{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.ap-f input{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);color:var(--ink);width:150px}
 .ap-n{font-size:12.5px;color:var(--ok);margin:6px 0 2px;font-weight:500}.ap-err{color:var(--late,#B3261E);font-size:12.5px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
@@ -2231,29 +2231,45 @@ const NEEDS=/needs approval|needs to approve/i;
 let APPR={};
 const apKey=x=>(x.mk||'US')+'|'+(x.tab||'')+'|'+x.row;
 function apOf(x){const a=APPR[apKey(x)];return a&&NEEDS.test(x.st||'')?a:null}
-function shownSt(x){const a=apOf(x);return a&&a.st!=='error'?'Delivered':x.st}
+function shownSt(x){const a=apOf(x);return a&&a.st!=='error'?(a.dec==='no'?'Needs to be edit':'Delivered'):x.st}
 function apprBox(x){
   const a=apOf(x);
+  if(a&&a.st!=='error'&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected · updating the sheet':'Reprovado · atualizando a planilha'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}</div>`;
   if(a&&a.st!=='error')return `<div class="ap-n">✓ ${EN?'Approved · updating the sheet':'Aprovado · atualizando a planilha'}</div>`;
   if(!NEEDS.test(x.st||'')||!x.row||!(x.ref||x.sid))return '';
   const err=a&&a.st==='error'?`<div class="ap-n ap-err">${EN?'Could not update the sheet':'Não deu para mudar na planilha'}${a.msg?': '+esc(a.msg):''}</div>`:'';
-  return err+`<div class="ap" data-k="${esc(apKey(x))}"><button class="ap-b" type="button" data-ap>${EN?'Approve':'Aprovar'}</button></div>`;
+  return err+`<div class="ap" data-k="${esc(apKey(x))}">${apBtns()}</div>`;
 }
+const apBtns=()=>`<button class="ap-b" type="button" data-ap>${EN?'Approve':'Aprovar'}</button><button class="ap-b ap-rej" type="button" data-rej>${EN?'Reject':'Reprovar'}</button>`;
 function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};(j.items||[]).forEach(a=>APPR[a.k]=a);render()}).catch(()=>{})}
-async function sendAppr(box,pw){
+// rej = { msg } quando é reprovação (motivo obrigatório)
+async function sendAppr(box,pw,rej){
   const x=DATA.find(y=>apKey(y)===box.dataset.k);if(!x)return;
-  box.innerHTML=`<span class="ap-n">${EN?'Approving…':'Aprovando…'}</span>`;
-  let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({password:pw,mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail})})}catch(e){r=null}
-  if(r&&r.ok){try{sessionStorage.setItem('cp-k',pw)}catch(e){}APPR[apKey(x)]={k:apKey(x),st:'pending'};render();return}
-  if(r&&r.status===401){try{sessionStorage.removeItem('cp-k')}catch(e){}askPw(box,EN?'Wrong password':'Senha errada');return}
-  box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`;
+  box.innerHTML=`<span class="ap-n">${rej?(EN?'Rejecting…':'Reprovando…'):(EN?'Approving…':'Aprovando…')}</span>`;
+  const body={password:pw,mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail};
+  if(rej){body.dec='no';body.msg=rej.msg}
+  let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})}catch(e){r=null}
+  if(r&&r.ok){try{sessionStorage.setItem('cp-k',pw)}catch(e){}APPR[apKey(x)]={k:apKey(x),st:'pending',dec:rej?'no':'ok',note:rej?rej.msg:''};render();return}
+  if(r&&r.status===401){try{sessionStorage.removeItem('cp-k')}catch(e){}askPw(box,EN?'Wrong password':'Senha errada',rej);return}
+  box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`+apBtns();
 }
-function askPw(box,err){
+function askPw(box,err,rej){
   box.innerHTML=`<form class="ap-f"><input type="password" autocomplete="current-password" placeholder="${EN?'Copy password':'Senha do Copy'}" aria-label="${EN?'Copy password':'Senha do Copy'}"><button class="ap-b" type="submit">OK</button>${err?`<span class="ap-err">${err}</span>`:''}</form>`;
   const f=box.querySelector('form');f.querySelector('input').focus();
-  f.addEventListener('submit',e=>{e.preventDefault();const v=f.querySelector('input').value;if(v)sendAppr(box,v)});
+  f.addEventListener('submit',e=>{e.preventDefault();const v=f.querySelector('input').value;if(v)sendAppr(box,v,rej)});
+}
+// reprovar: pede o motivo (obrigatório), que vira nota na célula de status da planilha
+function askWhy(box){
+  box.innerHTML=`<form class="ap-f ap-wf"><textarea rows="3" maxlength="500" required placeholder="${EN?'What needs to change? (required)':'O que precisa mudar? (obrigatório)'}" aria-label="${EN?'Reason for rejecting':'Motivo da reprovação'}"></textarea><span class="ap-wb"><button class="ap-b ap-rej" type="submit">${EN?'Reject':'Reprovar'}</button><button class="ap-c" type="button" data-cancel>${EN?'Cancel':'Cancelar'}</button></span><span class="ap-err" hidden></span></form>`;
+  const f=box.querySelector('form'),t=f.querySelector('textarea');t.focus();
+  f.querySelector('[data-cancel]').addEventListener('click',()=>{box.innerHTML=apBtns()});
+  f.addEventListener('submit',e=>{e.preventDefault();const msg=t.value.trim();
+    if(!msg){const er=f.querySelector('.ap-err');er.textContent=EN?'Write the reason to reject.':'Escreva o motivo para reprovar.';er.hidden=false;return}
+    let pw=null;try{pw=sessionStorage.getItem('cp-k')}catch(_){}
+    pw?sendAppr(box,pw,{msg}):askPw(box,'',{msg})});
 }
 document.getElementById('days').addEventListener('click',e=>{
+  const rj=e.target.closest('[data-rej]');if(rj){askWhy(rj.closest('.ap'));return}
   const b=e.target.closest('[data-ap]');if(!b)return;const box=b.closest('.ap');
   let pw=null;try{pw=sessionStorage.getItem('cp-k')}catch(_){}
   pw?sendAppr(box,pw):askPw(box);
