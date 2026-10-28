@@ -2246,11 +2246,10 @@ function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};(j.
 async function sendAppr(box,pw,rej){
   const x=DATA.find(y=>apKey(y)===box.dataset.k);if(!x)return;
   box.innerHTML=`<span class="ap-n">${rej?(EN?'Rejecting…':'Reprovando…'):(EN?'Approving…':'Aprovando…')}</span>`;
-  const body={password:pw,mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail};
+  const body={mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail};
   if(rej){body.dec='no';body.msg=rej.msg}
   let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})}catch(e){r=null}
-  if(r&&r.ok){try{sessionStorage.setItem('cp-k',pw)}catch(e){}APPR[apKey(x)]={k:apKey(x),st:'pending',dec:rej?'no':'ok',note:rej?rej.msg:''};render();return}
-  if(r&&r.status===401){try{sessionStorage.removeItem('cp-k')}catch(e){}askPw(box,EN?'Wrong password':'Senha errada',rej);return}
+  if(r&&r.ok){APPR[apKey(x)]={k:apKey(x),st:'pending',dec:rej?'no':'ok',note:rej?rej.msg:''};render();return}
   box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`+apBtns();
 }
 function askPw(box,err,rej){
@@ -2265,14 +2264,12 @@ function askWhy(box){
   f.querySelector('[data-cancel]').addEventListener('click',()=>{box.innerHTML=apBtns()});
   f.addEventListener('submit',e=>{e.preventDefault();const msg=t.value.trim();
     if(!msg){const er=f.querySelector('.ap-err');er.textContent=EN?'Write the reason to reject.':'Escreva o motivo para reprovar.';er.hidden=false;return}
-    let pw=null;try{pw=sessionStorage.getItem('cp-k')}catch(_){}
-    pw?sendAppr(box,pw,{msg}):askPw(box,'',{msg})});
+    sendAppr(box,'',{msg})});
 }
 document.getElementById('days').addEventListener('click',e=>{
   const rj=e.target.closest('[data-rej]');if(rj){askWhy(rj.closest('.ap'));return}
-  const b=e.target.closest('[data-ap]');if(!b)return;const box=b.closest('.ap');
-  let pw=null;try{pw=sessionStorage.getItem('cp-k')}catch(_){}
-  pw?sendAppr(box,pw):askPw(box);
+  const b=e.target.closest('[data-ap]');if(!b)return;
+  sendAppr(b.closest('.ap'),'');
 });
 function card(x){
   const objC=x.obj==='Branding'?'obj-branding':x.obj==='Conversion'?'obj-conversion':'obj-none';
