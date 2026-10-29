@@ -5,12 +5,14 @@
 // Para editar precisa da senha (env CAL_PASSWORD; se não existir, usa TEAM_PASSWORD).
 import { get, put } from '../lib/store.js';
 import oct2026 from '../data/cal-2026-10.js';
+import nov2026 from '../data/cal-2026-11.js';
 import socialCal, { insights } from '../lib/social-cal.js';
 import crmCal from '../lib/crm-cal.js';
 
-const SEEDS = { '2026-10': oct2026 };
+const SEEDS = { '2026-10': oct2026, '2026-11': nov2026 };
 const MN = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
-const FIELDS = oct2026.fields;
+// campos de cada dia: os de outubro + Oferta ativa e Envio (vieram com novembro)
+const FIELDS = nov2026.fields;
 const okMonth = m => /^\d{4}-(0[1-9]|1[0-2])$/.test(String(m || ''));
 
 async function months() {
