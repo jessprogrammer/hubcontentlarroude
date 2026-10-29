@@ -2625,7 +2625,7 @@ window.__S=function(IG,FOL){(function(){
   const PAL=[['promo','var(--accent)'],['drop','var(--info)'],['collab','var(--ink)'],['launch','var(--ink)'],['boot','var(--static)'],['founder','var(--gif)'],['holiday','var(--carousel)'],['seasonal','var(--carousel)'],['proof','var(--ok)'],['bestseller','var(--ok)']];
   const col=p=>{p=String(p||'').toLowerCase();for(const [k,c] of PAL)if(p.includes(k))return c;return 'var(--muted)'};
   const tag=p=>p?`<span class="ctag" style="--c:${col(p)}">${esc(p)}</span>`:'';
-  const LEN={priority:'Priority',campaign:'Campaign / Story',products:'Hero products',email:'Email subject / angle',sms:'SMS angle',audience:'Audience',cta:'CTA',rationale:'Rationale'};
+  const LEN={priority:'Priority',campaign:'Campaign / Story',products:'Hero products',email:'Email subject / angle',sms:'SMS angle',audience:'Audience',cta:'CTA',rationale:'Rationale',offer:'Active offer',sendto:'Send to'};
   const lab=f=>EN&&LEN[f.k]?LEN[f.k]:f.label;
   const title=m=>{const [y,mo]=m.split('-');return MN[+mo-1]+' '+y};
 
