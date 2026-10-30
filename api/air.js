@@ -140,9 +140,17 @@ async function build() {
     const nat = (x, y) => x.path.join('/').localeCompare(y.path.join('/'), 'en', { numeric: true });
     for (const { a, sheet, leaves } of groups.values()) {
       const rows = (sheet.all && sheet.all[a]) || [];
-      if (rows.length < 2 || rows.length !== leaves.length || !sheet.byRow) continue;
+      if (rows.length < 2 || !sheet.byRow) continue;
       const sorted = rows.slice().sort((x, y) => x - y);
-      leaves.slice().sort(nat).forEach((L, k) => { const s = sheet.byRow[a + '|' + sorted[k]]; if (s) pick.set(L, s) });
+      if (rows.length === leaves.length) {
+        leaves.slice().sort(nat).forEach((L, k) => { const s = sheet.byRow[a + '|' + sorted[k]]; if (s) pick.set(L, s) });
+        continue;
+      }
+      // quantidades diferentes (ex.: 6 linhas e a pasta 03 apagada no Air): usa o número da subpasta — "STATIC / 04" → 4ª linha
+      const num = L => { const m = String(L.path[L.path.length - 1] || '').match(/(\d{1,2})\s*$/); return m ? +m[1] : 0 };
+      const ns = leaves.map(num);
+      if (ns.every(n => n >= 1 && n <= sorted.length) && new Set(ns).size === ns.length)
+        leaves.forEach((L, k) => { const s = sheet.byRow[a + '|' + sorted[ns[k] - 1]]; if (s) pick.set(L, s) });
     }
   }
   for (const L of folders.flat()) {
