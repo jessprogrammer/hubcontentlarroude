@@ -47,6 +47,24 @@ async function needRows(mk) {
   return out;
 }
 
+// Aviso no Slack (canal #calendário-e-tarefas-content) com o que acabou de ser aplicado na planilha.
+// env SLACK_APROVACOES_WEBHOOK = link do fluxo do Workflow Builder, com uma variável de texto "mensagem".
+const HUB = 'https://hub-contentlarroude.vercel.app/#entregas';
+async function avisar(list) {
+  const hook = process.env.SLACK_APROVACOES_WEBHOOK;
+  if (!hook || !list.length) return 'off';
+  const nome = x => (String(x.camp || '').replace(/\s+/g, ' ').trim() || 'Criativo') + ' (linha ' + x.row + (x.mk === 'BR' ? ', BR' : '') + ')';
+  const ok = list.filter(x => x.dec !== 'no'), no = list.filter(x => x.dec === 'no');
+  const partes = [];
+  if (ok.length) partes.push('✅ Aprovados no hub · Entregas Meta\n' + ok.map(x => '• ' + nome(x)).join('\n') + '\nJá estão como Delivered na planilha.');
+  if (no.length) partes.push('❌ Reprovados no hub · Entregas Meta\n' + no.map(x => '• ' + nome(x) + ': ' + (x.note || 'sem motivo')).join('\n') + '\nJá estão como Needs to be edit na planilha, com o motivo na nota da célula de status.');
+  const mensagem = partes.join('\n\n') + '\n\nVer no hub: ' + HUB;
+  try {
+    const r = await fetch(hook, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ mensagem }) });
+    return r.ok ? 'ok' : 'erro ' + r.status;
+  } catch (e) { return 'erro' }
+}
+
 const load = async () => (await get(KEY)) || { items: {} };
 // guarda só os últimos 14 dias
 function prune(D) {
@@ -82,12 +100,14 @@ export default async function handler(req, res) {
     if (body.action === 'ack') {
       if (!(await scriptEmail(req))) return res.status(401).json({ error: 'não autorizado' });
       const D = await load();
+      const applied = [];
       for (const d of (Array.isArray(body.done) ? body.done : [])) {
         const x = D.items[str(d.k, 200)];
-        if (x && x.st === 'pending') { x.st = d.ok ? 'done' : 'error'; x.msg = str(d.msg, 200); x.doneAt = new Date().toISOString() }
+        if (x && x.st === 'pending') { x.st = d.ok ? 'done' : 'error'; x.msg = str(d.msg, 200); x.doneAt = new Date().toISOString(); if (d.ok) applied.push(x) }
       }
       await put(KEY, prune(D));
-      return res.status(200).json({ ok: true });
+      const slack = await avisar(applied);
+      return res.status(200).json({ ok: true, slack });
     }
 
     // aprovar / reprovar: livre, sem senha (pedido da Jess — quem aprova não vai lembrar de senha)
