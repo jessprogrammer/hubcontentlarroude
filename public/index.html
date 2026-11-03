@@ -2153,7 +2153,7 @@ const MNAME={'01':'Janeiro','02':'Fevereiro','03':'Março','04':'Abril','05':'Ma
 let months=[...new Set(DATA.map(x=>x.month))].sort();
 const state={month:months[months.length-1],week:'all',cat:'all',obj:'all'};
 try{const s=localStorage.getItem('mw-month'); if(s&&months.includes(s))state.month=s}catch(e){}
-const MKINFO={US:{k:'Larroudé · Meta Ads US',air:[['SEP 26','https://app.air.inc/a/b498bb608'],['OCT 26','https://app.air.inc/a/b2d250d79']],sheet:'US Request – Meta'},BR:{k:'Larroudé · Meta Ads Brasil',air:[['2026','https://app.air.inc/a/b8be3d913']],sheet:'Requisição BR'}};
+const MKINFO={US:{k:'Larroudé · Meta Ads US',air:[['SEP 26','https://app.air.inc/a/b498bb608'],['OCT 26','https://app.air.inc/a/b2d250d79'],['NOV 26','https://app.air.inc/a/b2a1b666d']],sheet:'US Request – Meta'},BR:{k:'Larroudé · Meta Ads Brasil',air:[['2026','https://app.air.inc/a/b8be3d913']],sheet:'Requisição BR'}};
 function renderMk(){
   const I=MKINFO[MK];document.getElementById('e-kicker').textContent=I.k;
   const links=I.air.map(([t,u])=>`<a href="${u}" target="_blank" rel="noopener">${t}</a>`).join(', ');
