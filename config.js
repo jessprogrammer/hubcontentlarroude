@@ -11,6 +11,11 @@ export default {
       "name": "OCT 26",
       "shortcode": "b2d250d79",
       "root": "7b2197c6-0e11-496b-96fa-682b3b4c74a6"
+    },
+    {
+      "name": "NOV 26",
+      "shortcode": "b2a1b666d",
+      "root": "3d2d8ab8-667c-488a-8e1f-03fd08c8e0c1"
     }
   ],
   "_commentBR": "Pastas mensais do Air do Brasil (link 2026: app.air.inc/a/b8be3d913). Para um mês novo, adicione uma linha.",
@@ -24,6 +29,11 @@ export default {
       "name": "OUTUBRO 26",
       "shortcode": "b8be3d913",
       "root": "41f6172f-4550-47aa-a61f-11907780fb43"
+    },
+    {
+      "name": "NOVEMBRO 26",
+      "shortcode": "b8be3d913",
+      "root": "94b38efe-8a9d-4ad6-90e0-80b755b674c1"
     }
   ],
   "instagramAccount": "17841433001140952",
