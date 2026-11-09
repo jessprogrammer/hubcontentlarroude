@@ -1000,6 +1000,13 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 .bh-msg{font-size:13.5px;color:var(--muted)}
 .bh-msg.err{color:var(--late)}
 .bh-empty{background:var(--soft);border-radius:14px;padding:28px;text-align:center;color:var(--muted);font-size:15px}
+.bh-past{font:inherit;font-size:12.5px;background:none;border:0;color:var(--muted);text-decoration:underline;cursor:pointer;margin-left:auto}
+.bh-hist{margin-top:28px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px 20px}
+.bh-hist summary{cursor:pointer;font-weight:600;font-size:15px}
+.bh-hist table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13.5px}
+.bh-hist td,.bh-hist th{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+.bh-hist th{font-family:var(--mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.bh-st{font-size:12px;font-weight:600;padding:2px 9px;border-radius:999px;white-space:nowrap}.bh-st.ok{background:var(--ok-soft);color:var(--ok)}.bh-st.no{background:var(--soft);color:var(--late)}
 @media (max-width:640px){.bh-row img,.bh-row video{height:150px}}
 </style>
 <div class="wrap">
@@ -1010,6 +1017,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   </header>
   <div class="bh-top"><label for="bh-by" id="bh-byl">Quem está avaliando</label><input id="bh-by" type="text" maxlength="60" placeholder="Seu nome" autocomplete="name"><button class="bh-b" id="bh-ref" type="button">Atualizar</button><span class="bh-meta" id="bh-upd"></span></div>
   <div class="bh-list" id="bh-list"><div class="ld"><i></i>Lendo as pastas do Air…</div></div>
+  <details class="bh-hist notr" id="bh-hist" hidden><summary id="bh-hist-t">Histórico de aprovações</summary><div style="overflow-x:auto"><table><thead><tr><th id="bh-h1">Campanha</th><th id="bh-h2">Decisão</th><th id="bh-h3">Quem</th><th id="bh-h4">Quando</th><th id="bh-h5">Comentário</th></tr></thead><tbody id="bh-hist-b"></tbody></table></div></details>
 </div>
 <script>
 (function(){
@@ -1029,23 +1037,32 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
     const prev=it.prev?`<div class="bh-prev"><b>${it.prev.st==='no'?T('Reprovada antes','Rejected before'):T('Aprovada antes','Approved before')}</b>${it.prev.by?T(' por ',' by ')+esc(it.prev.by):''} ${T('em','on')} ${esc(when(it.prev.at))}${it.prev.msg?': “'+esc(it.prev.msg)+'”':''}. ${T('O time subiu arquivos novos depois disso.','The team uploaded new files since then.')}</div>`:'';
     const blocks=it.blocks.map(b=>`<div class="bh-blk">${b.title?`<h3>${esc(b.title)}</h3>`:''}<div class="bh-row">${b.files.map(thumb).join('')}</div></div>`).join('');
     return `<article class="bh-card" id="bh-${esc(it.id)}"><div class="bh-head"><h2>${esc(it.title)}</h2><span class="bh-meta">${it.n} ${T('arquivos','files')} · ${T('atualizado','updated')} ${esc(when(it.upd))} · <a href="${esc(it.link)}" target="_blank" rel="noopener">${T('Abrir no Air','Open in Air')} ↗</a></span></div>${prev}${blocks}
-      <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">${T('Aprovar','Approve')}</button><button class="bh-b no" type="button" data-a="no">${T('Reprovar','Reject')}</button><span class="bh-msg" role="status"></span>
+      <div class="bh-acts"><button class="bh-b ok" type="button" data-a="ok">${T('Aprovar','Approve')}</button><button class="bh-b no" type="button" data-a="no">${T('Reprovar','Reject')}</button><span class="bh-msg" role="status"></span><button class="bh-past" type="button" data-a="past" title="${T('Já foi aprovado em outro lugar (Slack, reunião). Só registra no histórico, sem avisar ninguém.','Already approved elsewhere (Slack, meeting). Only records it in the history, no notification.')}">${T('Já estava aprovado (só registrar)','Already approved (just record)')}</button>
       <form class="bh-form" hidden><label class="bh-msg" for="bh-c-${esc(it.id)}">${T('Motivo da reprovação (obrigatório): o que precisa mudar?','Reason for rejection (required): what needs to change?')}</label><textarea id="bh-c-${esc(it.id)}" maxlength="1500" minlength="3" required></textarea><div style="display:flex;gap:10px"><button class="bh-b send" type="submit">${T('Enviar reprovação','Send rejection')}</button><button class="bh-b" type="button" data-a="cancel">${T('Cancelar','Cancel')}</button></div></form></div></article>`}
-  async function decide(el,id,st,msg){
+  async function decide(el,id,st,msg,silent){
     const info=el.querySelector('.bh-acts>.bh-msg');el.querySelectorAll('button').forEach(b=>b.disabled=true);info.className='bh-msg';info.textContent=T('Salvando…','Saving…');
-    try{const r=await fetch('/api/approve?src=banners',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'decide',id,st,msg,by:by.value.trim()})});const j=await r.json();
+    try{const r=await fetch('/api/approve?src=banners',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({action:'decide',id,st,msg,by:by.value.trim(),silent:!!silent})});const j=await r.json();
       if(!r.ok)throw new Error(j.error||r.status);
       info.textContent=(st==='ok'?T('Aprovada ✓ ','Approved ✓ '):T('Reprovada. ','Rejected. '))+(j.slack==='ok'?T('A Jess e a Monique foram avisadas no Slack.','Jess and Monique were notified on Slack.'):(st==='ok'?'':T('Comentário registrado.','Comment saved.')));
       el.classList.add('done');el.querySelector('.bh-form').hidden=true;
       setTimeout(()=>{el.remove();if(!document.querySelector('#bh-list .bh-card'))empty()},2500);
     }catch(e){info.className='bh-msg err';info.textContent=T('Não consegui salvar (','Could not save (')+String(e.message||e).replace(/[<>&]/g,'')+T('). Tente de novo.','). Try again.');el.querySelectorAll('button').forEach(b=>b.disabled=false)}}
+  // histórico: tudo o que já foi decidido no hub, mais novo primeiro
+  function hist(H){
+    $('bh-hist').hidden=!H.length;if(!H.length)return;
+    $('bh-hist-t').textContent=T('Histórico de aprovações','Approval history')+' ('+H.length+')';
+    [['bh-h1','Campanha','Campaign'],['bh-h2','Decisão','Decision'],['bh-h3','Quem','Who'],['bh-h4','Quando','When'],['bh-h5','Comentário','Comment']].forEach(([i,p,e])=>$(i).textContent=T(p,e));
+    $('bh-hist-b').innerHTML=H.map(h=>`<tr><td>${esc(h.title)}</td><td><span class="bh-st ${h.st==='no'?'no':'ok'}">${h.st==='no'?T('Reprovado','Rejected'):T('Aprovado','Approved')}</span></td><td>${esc(h.by)||'—'}</td><td style="white-space:nowrap">${esc(when(h.at))}</td><td>${esc(h.msg)||'—'}</td></tr>`).join('');
+  }
   function empty(){$('bh-list').innerHTML='<div class="bh-empty">'+T('Nenhum banner aguardando aprovação.','No banners waiting for approval.')+'</div>'}
   function render(j){
     $('bh-upd').textContent=j.updated?T('Air lido em ','Air read on ')+when(j.updated):'';
+    hist(j.hist||[]);
     if(!j.items.length)return empty();
     $('bh-list').innerHTML=j.items.map(card).join('');
     j.items.forEach(it=>{const el=$('bh-'+it.id);const f=el.querySelector('.bh-form');
       el.querySelector('[data-a=ok]').onclick=()=>decide(el,it.id,'ok','');
+      el.querySelector('[data-a=past]').onclick=()=>decide(el,it.id,'ok',T('Já estava aprovado (registrado depois no hub)','Already approved (recorded later in the hub)'),true);
       el.querySelector('[data-a=no]').onclick=()=>{f.hidden=false;f.querySelector('textarea').focus()};
       el.querySelector('[data-a=cancel]').onclick=()=>{f.hidden=true};
       f.onsubmit=e=>{e.preventDefault();const t=f.querySelector('textarea'),m=t.value.trim();if(m.length<3){t.focus();t.setCustomValidity(T('Escreva o motivo da reprovação','Write the reason for rejection'));t.reportValidity();setTimeout(()=>t.setCustomValidity(''),2000);return}decide(el,it.id,'no',m)};
