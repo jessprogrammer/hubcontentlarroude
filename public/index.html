@@ -1013,7 +1013,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
   <header>
     <div class="lbl" id="bh-kick">Larroudé · Air · Banners Home</div>
     <h1>Banners Home</h1>
-    <p class="sub" id="bh-sub">Banners da home aguardando aprovação. Quando a campanha tem subpastas (por exemplo Hero / V1 e Collection / V2), cada uma aparece separada para você aprovar ou reprovar uma por uma; ao reprovar, deixe um comentário dizendo o que precisa mudar. Banners com data no título que já passou saem da lista.</p>
+    <p class="sub" id="bh-sub">Banners da home aguardando aprovação. Quando a campanha tem subpastas (por exemplo Hero / V1 e Collection / V2) ou várias opções no nome dos arquivos (V1, V2…, com desktop e mobile juntos), cada uma aparece separada para você aprovar ou reprovar uma por uma; ao reprovar, deixe um comentário dizendo o que precisa mudar. Banners com data no título que já passou saem da lista.</p>
   </header>
   <div class="bh-top"><label for="bh-by" id="bh-byl">Quem está avaliando</label><input id="bh-by" type="text" maxlength="60" placeholder="Seu nome" autocomplete="name"><button class="bh-b" id="bh-ref" type="button">Atualizar</button><span class="bh-meta" id="bh-upd"></span></div>
   <div class="bh-list" id="bh-list"><div class="ld"><i></i>Lendo as pastas do Air…</div></div>
@@ -1023,7 +1023,7 @@ footer{font-size:13px;color:var(--muted);border-top:1px solid var(--line);paddin
 (function(){
   const $=id=>document.getElementById(id);
   const EN=window.LANG==='en',T=(pt,en)=>EN?en:pt;
-  if(EN){$('bh-sub').textContent='Home banners waiting for approval. When a campaign has subfolders (e.g. Hero / V1 and Collection / V2), each one shows up separately so you can approve or reject them one by one; when rejecting, leave a comment saying what needs to change. Banners whose title date has passed leave the list.';$('bh-byl').textContent='Who is reviewing';$('bh-by').placeholder='Your name';$('bh-ref').textContent='Refresh';}
+  if(EN){$('bh-sub').textContent='Home banners waiting for approval. When a campaign has subfolders (e.g. Hero / V1 and Collection / V2) or several options in the file names (V1, V2…, desktop and mobile together), each one shows up separately so you can approve or reject them one by one; when rejecting, leave a comment saying what needs to change. Banners whose title date has passed leave the list.';$('bh-byl').textContent='Who is reviewing';$('bh-by').placeholder='Your name';$('bh-ref').textContent='Refresh';}
   const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const when=s=>s?new Date(s).toLocaleString(window.LOC||'pt-BR',{dateStyle:'short',timeStyle:'short'}):'';
   const by=$('bh-by');
