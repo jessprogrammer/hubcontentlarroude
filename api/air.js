@@ -94,7 +94,7 @@ async function sheetIndex(key) {
     for (const c of short(link)) if (SC[c]) refs.push([SC[c], '/a/' + c]);
     const row = r[26] ? +r[26] : i + 1, tab = r[25] || '';
     for (const [id, ref] of refs) (idx.all[id] = idx.all[id] || []).push(row);
-    for (const [id, ref] of refs) { idx[id] = { id, ref, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null }; idx.byRow[id + '|' + row] = idx[id] }
+    for (const [id, ref] of refs) { idx[id] = { id, ref, row, tab, atype: (r[1] || '').trim(), obj: (r[6] || '').trim(), fun: (r[7] || '').trim(), st: (r[9] || '').trim(), nm: String(r[10] || '').trim().slice(0, 120), date: key === 'sheet:criativosBR' ? sheetDate(r[22]) : null }; idx.byRow[id + '|' + row] = idx[id] }
   });
   return idx;
 }
@@ -168,6 +168,48 @@ async function build() {
     const dated = !!parseDate(L.path[0] || '', L.folder);
     // sem data no nome: o primeiro nível já é a campanha
     const path = dated ? L.path : ['', ...L.path];
+    // UMA pasta (sem subpastas) ligada a VÁRIAS linhas, uma por produto (ex.: "Branding UGC Elevador" com 5 linhas:
+    // Georgia, Sabine, Patti…): separa os arquivos pelo SKU no nome ("l360-geor-blac-3031_static_…") e liga
+    // cada grupo à linha cujo produto (coluna K) tem a abreviação do SKU ("geor" → Georgia)
+    const rowsHere = (!inherited && s && sheet.all && sheet.all[id8]) || [];
+    if (rowsHere.length > 1 && sheet.byRow) {
+      const nrm = t => String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '');
+      const groups = new Map();
+      for (const c of L.clips) {
+        const m = normName(c.importedName || c.title || c.displayName).match(/^[a-z]\d{3}-([a-z]{3,5})-[a-z0-9-]+/);
+        const g = m ? m[0] : ''; if (!groups.has(g)) groups.set(g, { ab: m ? m[1] : '', clips: [] }); groups.get(g).clips.push(c);
+      }
+      const cand = rowsHere.map(r => sheet.byRow[id8 + '|' + r]).filter(Boolean);
+      const used = new Set(), plan = [];
+      const pairs = [];
+      for (const [g, G] of groups) for (const x of cand) {
+        if (!G.ab) continue;
+        const t = nrm(String(x.nm).split(/\s[–—-]\s/).pop()), i = t.indexOf(G.ab);
+        if (i >= 0) pairs.push({ g, x, i });
+      }
+      pairs.sort((a, b) => a.i - b.i);
+      for (const p of pairs) if (!used.has(p.x.row) && !plan.some(q => q.g === p.g)) { used.add(p.x.row); plan.push(p) }
+      if (groups.size > 1 && plan.length === groups.size) {
+        for (const { g, x } of plan) {
+          const C = groups.get(g).clips, e2 = [...new Set(C.map(c => c.ext))];
+          const q = C.find(c => c.width === c.height) || C[0];
+          const prod = String(x.nm).split(/\s[–—-]\s/).pop();
+          items.push({
+            mk, date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
+            week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
+            camp: path.length > 2 ? path[1] : '—', detail: (path.length > 2 ? path.slice(2).join(' / ') : (path[1] || '')) + ' / ' + prod,
+            cat: category(L.path, C.length, e2, x), obj: x.obj || obj, om: false,
+            fun: x.fun, st: x.st, row: x.row, tab: x.tab, sid: x.id, ref: x.ref,
+            n: C.length, dur: Math.round(Math.max(0, ...C.map(c => c.duration || 0))),
+            link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
+            img: q && q.assets && q.assets.image ? q.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : '',
+            files: C.map(c => normName(c.importedName || c.title || c.displayName)).filter(Boolean),
+            fx: e2
+          });
+        }
+        continue;
+      }
+    }
     items.push({
       mk, date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
       week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
@@ -189,7 +231,7 @@ async function build() {
 export default async function handler(req, res) {
   if (req.query && req.query.src === 'library') return library(req, res);
   try {
-    const data = await cached('air5', 5 * 60e3, build);
+    const data = await cached('air6', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=120');
     res.status(200).json(data);
   } catch (e) {
