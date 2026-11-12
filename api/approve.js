@@ -70,6 +70,41 @@ const load = async () => (await get(KEY)) || { items: {} };
 function prune(D) {
   const lim = Date.now() - 14 * 864e5;
   for (const [k, x] of Object.entries(D.items)) if (x.st !== 'pending' && Date.parse(x.at) < lim) delete D.items[k];
+  for (const [k, g] of Object.entries(D.units || {})) if (Date.parse(g.at) < lim && !(D.items[k] && D.items[k].st === 'pending')) delete D.units[k];
+  return D;
+}
+
+// Uma linha da planilha com vários criativos (subpastas no Air, ex.: "Anne Boot / Creative 1" e "Creative 2"):
+// cada criativo é decidido no hub separado (D.units[linha].d[subpasta]). A planilha só muda quando TODOS
+// os criativos da linha foram decididos: todos aprovados → Delivered; algum reprovado → Needs to be edit,
+// com a nota dizendo qual criativo e o motivo.
+function closeUnits(D, k) {
+  const g = D.units && D.units[k];
+  if (!g || g.exp.some(u => !g.d[u])) return false;
+  const L = g.exp.map(u => g.d[u]);
+  const no = L.filter(x => x.dec === 'no'), ok = L.filter(x => x.dec !== 'no');
+  const lab = x => x.label || 'Criativo';
+  const note = no.length ? no.map(x => lab(x) + ': ' + x.note).concat(ok.length ? ['Aprovados: ' + ok.map(lab).join(', ')] : []).join('\n').slice(0, 500) : '';
+  D.items[k] = { k, mk: g.mk, tab: g.tab, row: g.row, sid: g.sid, ref: g.ref, fp: g.fp, camp: g.camp, from: g.from, dec: no.length ? 'no' : 'ok',
+    to: no.length ? 'Needs to be edit' : 'Delivered', note, units: g.exp.length, st: 'pending', at: new Date().toISOString() };
+  return true;
+}
+
+// a linha voltou para "Needs approval" na planilha DEPOIS que a decisão foi aplicada (alguém reabriu):
+// a decisão antiga deixa de valer e os criativos aparecem de novo para aprovar
+async function reopen(D) {
+  const ups = {}, need = new Set();
+  for (const mk of ['US', 'BR']) {
+    const doc = await get(mk === 'BR' ? 'sheet:criativosBR' : 'sheet:criativos');
+    ups[mk] = doc ? Date.parse(doc.updated) || 0 : 0;
+    (await needRows(mk)).forEach(x => need.add(x.k));
+  }
+  let ch = false;
+  for (const [k, x] of Object.entries(D.items)) {
+    if (x.st !== 'done' || !need.has(k)) continue;
+    if (ups[x.mk || 'US'] > Date.parse(x.doneAt || x.at) + 3 * 60e3) { delete D.items[k]; if (D.units) delete D.units[k]; ch = true }
+  }
+  if (ch) await put(KEY, D);
   return D;
 }
 
@@ -87,8 +122,11 @@ export default async function handler(req, res) {
         const novo = String(q.queue) === '2';
         return res.status(200).json({ items: Object.values(D.items).filter(x => x.st === 'pending' && (novo || x.dec !== 'no')) });
       }
-      const D = await load();
+      const D = await reopen(await load());
       const out = { items: Object.values(D.items).map(({ k, mk, st, at, msg, dec, note }) => ({ k, mk, st, at, msg, dec: dec || 'ok', note: note || '' })) };
+      // decisões por criativo (linhas com vários criativos), k = "<linha>#<subpasta>"
+      out.units = [];
+      for (const g of Object.values(D.units || {})) for (const [u, x] of Object.entries(g.d)) out.units.push({ k: g.k + '#' + u, dec: x.dec, note: x.note || '', at: x.at, left: g.exp.filter(v => !g.d[v]).length });
       // lista "Para aprovar": todas as linhas da planilha com status de aprovação, mesmo sem criativo achado no Air
       if (q.list) out.need = (await needRows('US')).concat(await needRows('BR'));
       return res.status(200).json(out);
@@ -123,6 +161,20 @@ export default async function handler(req, res) {
     if (dec === 'no' && !note) return res.status(400).json({ error: 'motivo' });
     const k = mk + '|' + tab + '|' + row;
     const D = prune(await load());
+    const unit = /^[0-9a-f]{8}$/i.test(String(body.unit || '')) ? String(body.unit).toLowerCase() : '';
+    const units = [...new Set((Array.isArray(body.units) ? body.units : []).map(u => String(u).toLowerCase()).filter(u => /^[0-9a-f]{8}$/.test(u)))].slice(0, 40);
+    if (unit && units.length > 1 && units.includes(unit)) {
+      if (D.items[k] && D.items[k].st === 'pending') return res.status(409).json({ error: 'linha já decidida' });
+      D.units = D.units || {};
+      const now = new Date().toISOString();
+      const g = D.units[k] = D.units[k] || { k, mk, tab, row, sid, ref, fp, camp: str(body.camp, 120), from: str(body.st, 60), exp: [], d: {}, at: now };
+      g.exp = [...new Set(g.exp.concat(units))].slice(0, 40);
+      g.d[unit] = { dec, note, label: str(body.label, 80), at: now };
+      g.at = now;
+      const fechou = closeUnits(D, k);
+      await put(KEY, D);
+      return res.status(200).json({ ok: true, k, unit, closed: fechou, left: g.exp.filter(u => !g.d[u]).length });
+    }
     D.items[k] = { k, mk, tab, row, sid, ref, fp, camp: str(body.camp, 120), from: str(body.st, 60), dec, to: dec === 'no' ? 'Needs to be edit' : 'Delivered', note, st: 'pending', at: new Date().toISOString() };
     await put(KEY, D);
     res.status(200).json({ ok: true, k });
