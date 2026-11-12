@@ -189,11 +189,16 @@ async function build() {
       }
       pairs.sort((a, b) => a.i - b.i);
       for (const p of pairs) if (!used.has(p.x.row) && !plan.some(q => q.g === p.g)) { used.add(p.x.row); plan.push(p) }
+      // a planilha US não manda a coluna K (produto) para o site: liga pela ordem (1º SKU dos arquivos → 1ª linha…)
+      if (!plan.length && [...groups.keys()].every(Boolean) && groups.size === cand.length) {
+        const rs = cand.slice().sort((p, q) => p.row - q.row);
+        [...groups.keys()].forEach((g, k) => plan.push({ g, x: rs[k] }));
+      }
       if (groups.size > 1 && plan.length === groups.size) {
         for (const { g, x } of plan) {
           const C = groups.get(g).clips, e2 = [...new Set(C.map(c => c.ext))];
           const q = C.find(c => c.width === c.height) || C[0];
-          const prod = String(x.nm).split(/\s[–—-]\s/).pop();
+          const prod = x.nm ? String(x.nm).split(/\s[–—-]\s/).pop() : g.split('-').slice(0, 3).join('-').toUpperCase();
           items.push({
             mk, date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
             week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
@@ -231,7 +236,7 @@ async function build() {
 export default async function handler(req, res) {
   if (req.query && req.query.src === 'library') return library(req, res);
   try {
-    const data = await cached('air6', 5 * 60e3, build);
+    const data = await cached('air7', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=120');
     res.status(200).json(data);
   } catch (e) {
