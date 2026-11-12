@@ -2222,6 +2222,13 @@ window.keyOf = n => {
   if (!num) num = '1';
   return 'k:' + p[0] + '|' + p[ai].replace(/[^a-z]/g, '') + '|' + ang.join('').replace(/[^a-z0-9]/g, '') + '|' + num;
 };
+// o MESMO arquivo já está num anúncio da Meta (vínculo exato, não o "≈ parecido"): já foi aprovado na prática
+function metaExact(x){
+  const A=window.ADS;if(x.mk==='BR'||!A||A.failed)return 0;
+  const ids=new Set();(x.files||[]).forEach(n=>{(A.names[n]||[]).forEach(i=>ids.add(i));const k=keyOf(n);if(k)(A.names[k]||[]).forEach(i=>ids.add(i))});
+  return ids.size;
+}
+const adsWait=x=>x.mk!=='BR'&&!window.ADS;
 function perf(x){
   if(x.mk==='BR')return '';
   const A=window.ADS;if(!A)return `<div class="pf pf-load"><span class="mono">Meta…</span></div>`;
@@ -2241,7 +2248,7 @@ function perf(x){
   const sum=(k,f)=>L.reduce((s,a)=>s+((a[k]&&a[k][f])||0),0);
   const sp=sum('t','sp'),im=sum('t','im'),cl=sum('t','cl'),pu=sum('t','pu'),rv=sum('t','rv'),sp7=sum('w','sp'),rv7=sum('w','rv');
   const loc=window.LOC||'pt-BR',money=v=>'$'+Math.round(v).toLocaleString(loc),pc=v=>(v*100).toLocaleString(loc,{maximumFractionDigits:2})+'%',rx=(a,b)=>b?(a/b).toLocaleString(loc,{maximumFractionDigits:2})+'x':'—';
-  const stl=live?`<span class="pfs on">● Rodando · ${live} anúncio${live>1?'s':''}</span>`:`<span class="pfs off">Pausado · ${L.length} anúncio${L.length>1?'s':''}</span>`;
+  const stl=approx&&PEND()?`<span class="pfs off">${EN?'This creative is not on Meta yet':'Este criativo ainda não está na Meta'}</span>`:live?`<span class="pfs on">● Rodando · ${live} anúncio${live>1?'s':''}</span>`:`<span class="pfs off">Pausado · ${L.length} anúncio${L.length>1?'s':''}</span>`;
   return `<div class="pf${approx?' pf-approx':''}">${stl}${approx?'<span class="pfa">≈ anúncios do mesmo produto e formato</span>':''}<div class="pfm"><span>Gasto <b>${money(sp)}</b></span><span>ROAS <b>${rx(rv,sp)}</b></span><span>CTR <b>${im?pc(cl/im):'—'}</b></span><span>Compras <b>${Math.round(pu).toLocaleString(loc)}</b></span></div><div class="pf7 mono">7 dias: ${money(sp7)} · ROAS ${rx(rv7,sp7)}</div></div>`;
 }
 // aprovar pelo hub: "Needs approval" / "Jess needs to approve" → a planilha muda para Delivered (Apps Script, ~1 min)
@@ -2251,7 +2258,7 @@ const apKey=x=>(x.mk||'US')+'|'+(x.tab||'')+'|'+x.row;
 // vários criativos na mesma linha da planilha (subpastas no Air): cada um é decidido separado
 const bidOf=x=>((String(x.link||'').match(/\/b\/([0-9a-f]{8})/i)||[])[1]||'').toLowerCase();
 const uKey=x=>apKey(x)+'#'+bidOf(x);
-function sibs(x){if(!x.row)return[x];const k=apKey(x);return ALL.filter(y=>y.row&&apKey(y)===k&&NEEDS.test(y.st||'')&&bidOf(y))}
+function sibs(x){if(!x.row)return[x];const k=apKey(x);return ALL.filter(y=>y.row&&apKey(y)===k&&NEEDS.test(y.st||'')&&bidOf(y)&&!metaExact(y))}
 const multi=x=>!!bidOf(x)&&sibs(x).length>1;
 function apOf(x){if(!NEEDS.test(x.st||''))return null;const a=APPR[apKey(x)];if(a)return a;if(multi(x)){const u=UNITS[uKey(x)];if(u)return Object.assign({st:'pending',unit:true},u)}return null}
 function shownSt(x){const a=apOf(x);return a&&!a.unit&&a.st!=='error'?(a.dec==='no'?'Needs to be edit':'Delivered'):x.st}
@@ -2263,6 +2270,8 @@ function apprBox(x){
   if(a&&a.st!=='error'&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected · updating the sheet':'Reprovado · atualizando a planilha'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}</div>`;
   if(a&&a.st!=='error')return `<div class="ap-n">✓ ${EN?'Approved · updating the sheet':'Aprovado · atualizando a planilha'}</div>`;
   if(!NEEDS.test(x.st||'')||!x.row||!(x.ref||x.sid))return '';
+  if(adsWait(x))return `<div class="ap-n ap-multi">${EN?'Checking Meta…':'Conferindo a Meta…'}</div>`;
+  if(metaExact(x))return `<div class="ap-n">✓ ${EN?'Already on Meta (same file in an ad)':'Já está na Meta (o mesmo arquivo está num anúncio)'}<span class="ap-why">${EN?'The sheet still says “Needs approval”.':'A planilha ainda diz “Needs approval”.'}</span></div>`;
   const err=a&&a.st==='error'?`<div class="ap-n ap-err">${EN?'Could not update the sheet':'Não deu para mudar na planilha'}${a.msg?': '+esc(a.msg):''}</div>`:'';
   const n=multi(x)?sibs(x).length:0;
   const hint=n?`<div class="ap-n ap-multi">${EN?`This sheet row has ${n} creatives: approve or reject each one`:`Esta linha da planilha tem ${n} criativos: aprove ou reprove cada um`}</div>`:'';
@@ -2327,14 +2336,14 @@ const JUST=new Set();
 function renderPend(){
   // some daqui o que já foi aprovado/reprovado no hub, mesmo antes da planilha voltar para o hub (leva alguns minutos);
   // os que a pessoa decidiu agora nesta tela ficam à vista com o "✓ Aprovado" até ela sair da aba
-  const all=DATA.filter(x=>NEEDS.test(x.st||'')&&!(apOf(x)&&apOf(x).st!=='error'&&!JUST.has(apKey(x))&&!JUST.has(uKey(x)))),f=all.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
+  const all=DATA.filter(x=>NEEDS.test(x.st||'')&&!metaExact(x)&&!(apOf(x)&&apOf(x).st!=='error'&&!JUST.has(apKey(x))&&!JUST.has(uKey(x)))),f=all.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
   ['months','weeks','summary'].forEach(id=>{const e=document.getElementById(id);e.innerHTML='';e.hidden=true});
   document.getElementById('h-month').textContent=EN?'waiting for approval':'esperando aprovação';
   renderDays(f);
   const em=document.getElementById('empty');em.textContent=all.length?(EN?'No pending creatives with these filters.':'Nenhum criativo pendente com esses filtros.'):(EN?'Nothing waiting for approval right now.':'Nada esperando aprovação agora.');
 }
 function tabs(){
-  const p=PEND(),n=DATA.filter(x=>NEEDS.test(x.st||'')&&!(apOf(x)&&apOf(x).st!=='error')).length;
+  const p=PEND(),n=DATA.filter(x=>NEEDS.test(x.st||'')&&!metaExact(x)&&!(apOf(x)&&apOf(x).st!=='error')).length;
   const a=document.getElementById('et-all'),b=document.getElementById('et-pend');
   if(p){b.setAttribute('aria-current','page');a.removeAttribute('aria-current')}else{a.setAttribute('aria-current','page');b.removeAttribute('aria-current')}
   b.firstChild.textContent=EN?'To approve ':'Para aprovar ';document.getElementById('et-n').textContent=n||'';
