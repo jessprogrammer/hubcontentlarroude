@@ -333,7 +333,7 @@ h1 em{font-style:italic;color:var(--accent)}
 .st-other{background:var(--soft);color:var(--muted)}
 .ap{margin:8px 0 2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}.ap .ap-f{flex:1 1 100%}.ap-rej{background:transparent!important;color:var(--late,#B3261E)!important;box-shadow:inset 0 0 0 1.5px currentColor}.ap-wf{display:flex;flex-direction:column;gap:6px}.ap-wf textarea{font:inherit;font-size:13px;width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface);color:var(--ink);resize:vertical}.ap-wb{display:flex;gap:6px;align-items:center}.ap-c{font:inherit;font-size:13px;background:none;border:0;color:var(--muted);cursor:pointer;padding:6px 8px}.ap-no{color:var(--late,#B3261E)}.ap-why{display:block;color:var(--muted);font-weight:400;margin-top:2px}.ap-b{font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--accent);border:0;border-radius:999px;padding:6px 16px;cursor:pointer}.ap-b:hover{filter:brightness(1.07)}
 .ap-f{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.ap-f input{font:inherit;font-size:13px;border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--surface);color:var(--ink);width:150px}
-.ap-n{font-size:12.5px;color:var(--ok);margin:6px 0 2px;font-weight:500}.ap-err{color:var(--late,#B3261E);font-size:12.5px}
+.ap-n{font-size:12.5px;color:var(--ok);margin:6px 0 2px;font-weight:500}.ap-n.ap-multi{color:var(--muted);font-weight:400}.ap-err{color:var(--late,#B3261E);font-size:12.5px}
 .foot{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px;flex-wrap:wrap}
 .foot a{font-size:13px;font-weight:600;color:var(--accent);text-decoration:none}
 .foot .mono{font-size:11px;color:var(--muted)}
@@ -2246,27 +2246,42 @@ function perf(x){
 }
 // aprovar pelo hub: "Needs approval" / "Jess needs to approve" → a planilha muda para Delivered (Apps Script, ~1 min)
 const NEEDS=/needs approval|needs to approve/i;
-let APPR={};
+let APPR={},UNITS={};
 const apKey=x=>(x.mk||'US')+'|'+(x.tab||'')+'|'+x.row;
-function apOf(x){const a=APPR[apKey(x)];return a&&NEEDS.test(x.st||'')?a:null}
-function shownSt(x){const a=apOf(x);return a&&a.st!=='error'?(a.dec==='no'?'Needs to be edit':'Delivered'):x.st}
+// vários criativos na mesma linha da planilha (subpastas no Air): cada um é decidido separado
+const bidOf=x=>((String(x.link||'').match(/\/b\/([0-9a-f]{8})/i)||[])[1]||'').toLowerCase();
+const uKey=x=>apKey(x)+'#'+bidOf(x);
+function sibs(x){if(!x.row)return[x];const k=apKey(x);return ALL.filter(y=>y.row&&apKey(y)===k&&NEEDS.test(y.st||'')&&bidOf(y))}
+const multi=x=>!!bidOf(x)&&sibs(x).length>1;
+function apOf(x){if(!NEEDS.test(x.st||''))return null;const a=APPR[apKey(x)];if(a)return a;if(multi(x)){const u=UNITS[uKey(x)];if(u)return Object.assign({st:'pending',unit:true},u)}return null}
+function shownSt(x){const a=apOf(x);return a&&!a.unit&&a.st!=='error'?(a.dec==='no'?'Needs to be edit':'Delivered'):x.st}
 function apprBox(x){
   const a=apOf(x);
+  const wait=a&&a.unit&&a.left?`<span class="ap-why">${EN?`Waiting for the other ${a.left>1?a.left+' creatives':'creative'} in this sheet row`:`Esperando ${a.left>1?'os outros '+a.left+' criativos':'o outro criativo'} desta linha da planilha`}</span>`:'';
+  if(a&&a.unit&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected':'Reprovado'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}${wait}</div>`;
+  if(a&&a.unit)return `<div class="ap-n">✓ ${EN?'Approved':'Aprovado'}${wait}</div>`;
   if(a&&a.st!=='error'&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected · updating the sheet':'Reprovado · atualizando a planilha'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}</div>`;
   if(a&&a.st!=='error')return `<div class="ap-n">✓ ${EN?'Approved · updating the sheet':'Aprovado · atualizando a planilha'}</div>`;
   if(!NEEDS.test(x.st||'')||!x.row||!(x.ref||x.sid))return '';
   const err=a&&a.st==='error'?`<div class="ap-n ap-err">${EN?'Could not update the sheet':'Não deu para mudar na planilha'}${a.msg?': '+esc(a.msg):''}</div>`:'';
-  return err+`<div class="ap" data-k="${esc(apKey(x))}">${apBtns()}</div>`;
+  const n=multi(x)?sibs(x).length:0;
+  const hint=n?`<div class="ap-n ap-multi">${EN?`This sheet row has ${n} creatives: approve or reject each one`:`Esta linha da planilha tem ${n} criativos: aprove ou reprove cada um`}</div>`:'';
+  return err+hint+`<div class="ap" data-k="${esc(apKey(x))}" data-u="${esc(bidOf(x))}">${apBtns()}</div>`;
 }
 const apBtns=()=>`<button class="ap-b" type="button" data-ap>${EN?'Approve':'Aprovar'}</button><button class="ap-b ap-rej" type="button" data-rej>${EN?'Reject':'Reprovar'}</button>`;
-function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};(j.items||[]).forEach(a=>APPR[a.k]=a);render()}).catch(()=>{})}
+function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};UNITS={};(j.items||[]).forEach(a=>APPR[a.k]=a);(j.units||[]).forEach(u=>UNITS[u.k]=u);render()}).catch(()=>{})}
 // rej = { msg } quando é reprovação (motivo obrigatório)
 async function sendAppr(box,pw,rej){
-  const x=DATA.find(y=>apKey(y)===box.dataset.k);if(!x)return;
+  const x=DATA.find(y=>apKey(y)===box.dataset.k&&(!box.dataset.u||bidOf(y)===box.dataset.u));if(!x)return;
+  const mu=multi(x),S=mu?sibs(x):[];
   box.innerHTML=`<span class="ap-n">${rej?(EN?'Rejecting…':'Reprovando…'):(EN?'Approving…':'Aprovando…')}</span>`;
   const body={mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail};
   if(rej){body.dec='no';body.msg=rej.msg}
+  if(mu){body.unit=bidOf(x);body.units=S.map(bidOf);body.label=String(x.detail||'').slice(0,80)}
   let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})}catch(e){r=null}
+  if(r&&r.ok&&mu){const j=await r.json().catch(()=>({}));JUST.add(uKey(x));UNITS[uKey(x)]={k:uKey(x),dec:rej?'no':'ok',note:rej?rej.msg:'',left:j.left||0};
+    S.forEach(y=>{const u=UNITS[uKey(y)];if(u)u.left=j.left||0});if(j.closed)loadAppr();else render();return}
+  if(r&&r.status===409&&mu){loadAppr();return}
   if(r&&r.ok){JUST.add(apKey(x));APPR[apKey(x)]={k:apKey(x),st:'pending',dec:rej?'no':'ok',note:rej?rej.msg:''};render();return}
   box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`+apBtns();
 }
@@ -2312,7 +2327,7 @@ const JUST=new Set();
 function renderPend(){
   // some daqui o que já foi aprovado/reprovado no hub, mesmo antes da planilha voltar para o hub (leva alguns minutos);
   // os que a pessoa decidiu agora nesta tela ficam à vista com o "✓ Aprovado" até ela sair da aba
-  const all=DATA.filter(x=>NEEDS.test(x.st||'')&&!(apOf(x)&&apOf(x).st!=='error'&&!JUST.has(apKey(x)))),f=all.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
+  const all=DATA.filter(x=>NEEDS.test(x.st||'')&&!(apOf(x)&&apOf(x).st!=='error'&&!JUST.has(apKey(x))&&!JUST.has(uKey(x)))),f=all.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
   ['months','weeks','summary'].forEach(id=>{const e=document.getElementById(id);e.innerHTML='';e.hidden=true});
   document.getElementById('h-month').textContent=EN?'waiting for approval':'esperando aprovação';
   renderDays(f);
