@@ -2243,6 +2243,8 @@ function perf(x){
     approx=ids.size>0;
   }
   if(!ids.size){return `<div class="pf pf-none"><span class="pfs">Não encontrado na Meta</span></div>`}
+  // em "Para aprovar": sem números de anúncios parecidos (são de OUTROS arquivos, confundem)
+  if(approx&&PEND())return `<div class="pf pf-none"><span class="pfs">${EN?'This creative is not on Meta yet':'Este criativo ainda não está na Meta'}</span></div>`;
   const L=[...ids].map(i=>A.ads[i]).filter(Boolean);
   const live=L.filter(a=>a.st==='ACTIVE').length;
   const sum=(k,f)=>L.reduce((s,a)=>s+((a[k]&&a[k][f])||0),0);
