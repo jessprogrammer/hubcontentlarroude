@@ -2269,8 +2269,8 @@ function apprBox(x){
   const wait=a&&a.unit&&a.left?`<span class="ap-why">${EN?`Waiting for the other ${a.left>1?a.left+' creatives':'creative'} in this sheet row`:`Esperando ${a.left>1?'os outros '+a.left+' criativos':'o outro criativo'} desta linha da planilha`}</span>`:'';
   if(a&&a.unit&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected':'Reprovado'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}${wait}</div>`;
   if(a&&a.unit)return `<div class="ap-n">✓ ${EN?'Approved':'Aprovado'}${wait}</div>`;
-  if(a&&a.st!=='error'&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${EN?'Rejected · updating the sheet':'Reprovado · atualizando a planilha'}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}</div>`;
-  if(a&&a.st!=='error')return `<div class="ap-n">✓ ${EN?'Approved · updating the sheet':'Aprovado · atualizando a planilha'}</div>`;
+  if(a&&a.st!=='error'&&a.dec==='no')return `<div class="ap-n ap-no">✕ ${a.st==='done'?(EN?'Rejected · sheet updated':'Reprovado · planilha já atualizada'):(EN?'Rejected · updating the sheet (up to 1 min)':'Reprovado · atualizando a planilha (até 1 min)')}${a.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(a.note)}</span>`:''}</div>`;
+  if(a&&a.st!=='error')return `<div class="ap-n">✓ ${a.st==='done'?(EN?'Approved · sheet updated (Delivered)':'Aprovado · planilha já atualizada (Delivered)'):(EN?'Approved · updating the sheet (up to 1 min)':'Aprovado · atualizando a planilha (até 1 min)')}</div>`;
   if(!NEEDS.test(x.st||'')||!x.row||!(x.ref||x.sid))return '';
   if(adsWait(x))return `<div class="ap-n ap-multi">${EN?'Checking Meta…':'Conferindo a Meta…'}</div>`;
   if(metaExact(x))return `<div class="ap-n">✓ ${EN?'Already on Meta (same file in an ad)':'Já está na Meta (o mesmo arquivo está num anúncio)'}<span class="ap-why">${EN?'The sheet still says “Needs approval”.':'A planilha ainda diz “Needs approval”.'}</span></div>`;
@@ -2363,6 +2363,7 @@ function render(){
 }
 document.querySelectorAll('.f').forEach(b=>b.addEventListener('click',()=>{state[b.dataset.g]=b.dataset.v;render()}));
 render();window.__Er=render;loadAppr();
+setInterval(()=>{if(Object.values(APPR).some(x=>x.st==='pending'))loadAppr()},30000);
 window.addEventListener('hashchange',()=>{if(location.hash==='#aprovar'||location.hash==='#entregas'||location.hash===''){JUST.clear();render()}});
 };
 </script>
