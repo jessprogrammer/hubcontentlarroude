@@ -176,6 +176,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true, k, unit, closed: fechou, left: g.exp.filter(u => !g.d[u]).length });
     }
     D.items[k] = { k, mk, tab, row, sid, ref, fp, camp: str(body.camp, 120), from: str(body.st, 60), dec, to: dec === 'no' ? 'Needs to be edit' : 'Delivered', note, st: 'pending', at: new Date().toISOString() };
+    // a mesma pasta do Air vale para outras linhas da planilha (card com xrows): a decisão vai para todas
+    const extra = [...new Set((Array.isArray(body.rows) ? body.rows : []).map(r => parseInt(r, 10)).filter(r => r > 1 && r !== row))].slice(0, 40);
+    for (const r of extra) {
+      const k2 = mk + '|' + tab + '|' + r;
+      if (D.items[k2] && D.items[k2].st === 'pending') continue;
+      D.items[k2] = { ...D.items[k], k: k2, row: r, fp: '' };
+    }
     await put(KEY, D);
     res.status(200).json({ ok: true, k });
   } catch (e) { res.status(502).json({ error: String(e.message || e).slice(0, 200) }) }

@@ -215,11 +215,19 @@ async function build() {
         continue;
       }
     }
+    // a mesma pasta ligada a várias linhas e sem dar para separar os arquivos (ex.: "Pinterest", 5 linhas BR):
+    // o card fica com a 1ª linha ainda esperando aprovação e leva as outras (xrows) — aprovar/reprovar vale para todas
+    let xrows = [];
+    if (rowsHere.length > 1 && sheet.byRow) {
+      const R = [...new Set(rowsHere)].sort((p, q) => p - q).map(r => sheet.byRow[id8 + '|' + r]).filter(Boolean);
+      const pend = R.filter(x => /needs approval|needs to approve/i.test(x.st || ''));
+      if (pend.length) { s = pend[0]; xrows = pend.slice(1).map(x => x.row) }
+    }
     items.push({
       mk, date: iso(date), dd: iso(date).slice(8) + '/' + iso(date).slice(5, 7), wd: WD[(date.getUTCDay() + 6) % 7],
       week: iso(mondayOf(date)), month: iso(date).slice(0, 7),
       camp: path.length > 2 ? path[1] : '—', detail: path.length > 2 ? path.slice(2).join(' / ') : (path[1] || ''),
-      cat: category(L.path, L.clips.length, exts, inherited ? null : s), obj, om: !s?.obj && !!overrides.obj[id8],
+      cat: category(L.path, L.clips.length, exts, inherited ? null : s), xrows, obj, om: !s?.obj && !!overrides.obj[id8],
       fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null, tab: s ? s.tab : '', sid: s ? s.id : '', ref: s ? s.ref : '',
       n: L.clips.length, dur: Math.round(Math.max(0, ...L.clips.map(c => c.duration || 0))),
       link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
@@ -236,7 +244,7 @@ async function build() {
 export default async function handler(req, res) {
   if (req.query && req.query.src === 'library') return library(req, res);
   try {
-    const data = await cached('air7', 5 * 60e3, build);
+    const data = await cached('air8', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=120');
     res.status(200).json(data);
   } catch (e) {
