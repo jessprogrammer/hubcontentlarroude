@@ -2276,7 +2276,8 @@ function apprBox(x){
   if(metaExact(x))return `<div class="ap-n">✓ ${EN?'Already on Meta (same file in an ad)':'Já está na Meta (o mesmo arquivo está num anúncio)'}<span class="ap-why">${EN?'The sheet still says “Needs approval”.':'A planilha ainda diz “Needs approval”.'}</span></div>`;
   const err=a&&a.st==='error'?`<div class="ap-n ap-err">${EN?'Could not update the sheet':'Não deu para mudar na planilha'}${a.msg?': '+esc(a.msg):''}</div>`:'';
   const n=multi(x)?sibs(x).length:0;
-  const hint=n?`<div class="ap-n ap-multi">${EN?`This sheet row has ${n} creatives: approve or reject each one`:`Esta linha da planilha tem ${n} criativos: aprove ou reprove cada um`}</div>`:'';
+  const xr=(x.xrows||[]).length?`<div class="ap-n ap-multi">${EN?`This Air folder is used by ${x.xrows.length+1} sheet rows (${[x.row,...x.xrows].join(', ')}): approving or rejecting changes all of them`:`Esta pasta do Air vale para ${x.xrows.length+1} linhas da planilha (${[x.row,...x.xrows].join(', ')}): aprovar ou reprovar muda todas`}</div>`:'';
+  const hint=xr+(n?`<div class="ap-n ap-multi">${EN?`This sheet row has ${n} creatives: approve or reject each one`:`Esta linha da planilha tem ${n} criativos: aprove ou reprove cada um`}</div>`:'');
   return err+hint+`<div class="ap" data-k="${esc(apKey(x))}" data-u="${esc(bidOf(x))}">${apBtns()}</div>`;
 }
 const apBtns=()=>`<button class="ap-b" type="button" data-ap>${EN?'Approve':'Aprovar'}</button><button class="ap-b ap-rej" type="button" data-rej>${EN?'Reject':'Reprovar'}</button>`;
@@ -2289,6 +2290,7 @@ async function sendAppr(box,pw,rej){
   const body={mk:x.mk||'US',tab:x.tab||'',row:x.row,sid:x.sid,ref:x.ref||'',st:x.st,camp:x.camp+' '+x.detail};
   if(rej){body.dec='no';body.msg=rej.msg}
   if(mu){body.unit=bidOf(x);body.units=S.map(bidOf);body.label=String(x.detail||'').slice(0,80)}
+  else if(x.xrows&&x.xrows.length)body.rows=x.xrows;
   let r;try{r=await fetch('/api/approve',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})}catch(e){r=null}
   if(r&&r.ok&&mu){const j=await r.json().catch(()=>({}));JUST.add(uKey(x));UNITS[uKey(x)]={k:uKey(x),dec:rej?'no':'ok',note:rej?rej.msg:'',left:j.left||0};
     S.forEach(y=>{const u=UNITS[uKey(y)];if(u)u.left=j.left||0});if(j.closed)loadAppr();else render();return}
