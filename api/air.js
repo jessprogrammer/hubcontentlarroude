@@ -120,7 +120,8 @@ export function category(path, n, exts, own) {
 async function build() {
   const US = config.airFolders.map(f => ({ ...f, mk: 'US' })), BR = (config.airFoldersBR || []).map(f => ({ ...f, mk: 'BR' }));
   const [sUS, sBR, ...folders] = await Promise.all([
-    sheetIndex('sheet:criativos').catch(() => ({})), sheetIndex('sheet:criativosBR').catch(() => ({})),
+    // a Creative Request foi abolida (23/11/2026): status e aprovação vêm do Asana (lib/ads-asana.js)
+    Promise.resolve({}), Promise.resolve({}),
     ...US.concat(BR).map(f => crawl(f).catch(e => { console.error('air', f.name, e.message); return [] }))]);
   const items = [];
   // Várias linhas da planilha com o link da MESMA pasta (ex.: a pasta "sabine" para 6 peças) e o mesmo número
@@ -153,6 +154,9 @@ async function build() {
         leaves.forEach((L, k) => { const s = sheet.byRow[a + '|' + sorted[ns[k] - 1]]; if (s) pick.set(L, s) });
     }
   }
+  // tarefas de ADS do Asana com o link da pasta comentado: data da entrega, status e link da tarefa
+  const AQ = (await get('adsq:v2').catch(() => null)) || { items: [] };
+  const aq = new Map((AQ.items || []).map(x => [x.bid, x]));
   for (const L of folders.flat()) {
     const mk = L.folder.mk, sheet = mk === 'BR' ? sBR : sUS;
     const id8 = L.id.slice(0, 8);
@@ -160,7 +164,8 @@ async function build() {
     if (!s && pick.has(L)) { s = pick.get(L); inherited = true }
     if (!s) for (const a of L.anc) { if (sheet[a.slice(0, 8)]) { s = sheet[a.slice(0, 8)]; inherited = true; break } }
     // data: do nome do board ("ADS 09.30"); se o board não tem data, a data de entrega da planilha (BR)
-    const date = parseDate(L.path[0] || '', L.folder) || (s && s.date) || null;
+    const A = aq.get(id8) || (L.anc || []).map(a => aq.get(String(a).slice(0, 8))).find(Boolean);
+    const date = parseDate(L.path[0] || '', L.folder) || (s && s.date) || (A ? new Date(A.date + 'T12:00:00Z') : null);
     if (!date) continue;
     const exts = [...new Set(L.clips.map(c => c.ext))];
     const sq = L.clips.find(c => c.width === c.height) || L.clips[0];
@@ -229,6 +234,7 @@ async function build() {
       camp: path.length > 2 ? path[1] : '—', detail: path.length > 2 ? path.slice(2).join(' / ') : (path[1] || ''),
       cat: category(L.path, L.clips.length, exts, inherited ? null : s), xrows, obj, om: !s?.obj && !!overrides.obj[id8],
       fun: s ? s.fun : '', st: s ? s.st : '', row: s ? s.row : null, tab: s ? s.tab : '', sid: s ? s.id : '', ref: s ? s.ref : '',
+      aUrl: A ? A.taskUrl : '', aTask: A ? A.taskName : '', aDec: A ? A.dec : '', aSt: A ? A.status : '', aBy: A ? A.by : '',
       n: L.clips.length, dur: Math.round(Math.max(0, ...L.clips.map(c => c.duration || 0))),
       link: `https://app.air.inc/a/${L.shortcode}/b/${L.id}`,
       img: sq && sq.assets && sq.assets.image ? sq.assets.image + '?w=440&h=440&fit=crop&auto=format&q=75' : '',
@@ -244,7 +250,7 @@ async function build() {
 export default async function handler(req, res) {
   if (req.query && req.query.src === 'library') return library(req, res);
   try {
-    const data = await cached('air8', 5 * 60e3, build);
+    const data = await cached('air9', 5 * 60e3, build);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=120');
     res.status(200).json(data);
   } catch (e) {
