@@ -2284,6 +2284,7 @@ const apBtns=()=>`<button class="ap-b" type="button" data-ap>${EN?'Approve':'Apr
 function loadAppr(){fetch('/api/approve').then(r=>r.json()).then(j=>{APPR={};UNITS={};(j.items||[]).forEach(a=>APPR[a.k]=a);(j.units||[]).forEach(u=>UNITS[u.k]=u);render()}).catch(()=>{})}
 // rej = { msg } quando é reprovação (motivo obrigatório)
 async function sendAppr(box,pw,rej){
+  if(box.dataset.q)return sendQ(box,rej);
   const x=DATA.find(y=>apKey(y)===box.dataset.k&&(!box.dataset.u||bidOf(y)===box.dataset.u));if(!x)return;
   const mu=multi(x),S=mu?sibs(x):[];
   box.innerHTML=`<span class="ap-n">${rej?(EN?'Rejecting…':'Reprovando…'):(EN?'Approving…':'Aprovando…')}</span>`;
@@ -2313,6 +2314,7 @@ function askWhy(box){
     sendAppr(box,'',{msg})});
 }
 document.getElementById('days').addEventListener('click',e=>{
+  const w=e.target.closest('[data-who]');if(w){e.preventDefault();WHO='';try{localStorage.removeItem('hub-who')}catch(err){}render();return}
   const rj=e.target.closest('[data-rej]');if(rj){askWhy(rj.closest('.ap'));return}
   const b=e.target.closest('[data-ap]');if(!b)return;
   sendAppr(b.closest('.ap'),'');
@@ -2337,17 +2339,58 @@ function renderDays(list){
 // aba "Para aprovar": só os criativos com status de aprovação na planilha, de todos os meses
 const PEND=()=>location.hash==='#aprovar';
 const JUST=new Set();
+// "Para aprovar" agora vem do ASANA (tarefas de ADS com o link da pasta do Air comentado), não mais da Creative Request.
+// Aprovar/reprovar comenta na tarefa do Asana e, quando a entrega inteira foi decidida, muda o campo Status (Aprovado/Reprovado).
+let ASQ=null;
+function loadQ(refresh){fetch('/api/approve?src=asana'+(refresh?'&refresh=1':'')).then(r=>r.json()).then(j=>{ASQ=j&&j.items?j:{items:[],error:(j&&j.error)||'erro'};render()}).catch(()=>{ASQ={items:[],error:'rede'};render()})}
+const qMk=x=>x.mk==='US-BR'||x.mk===MK;
+const qKey=x=>x.task+'#'+x.bid;
+function qList(){return ((ASQ&&ASQ.items)||[]).filter(x=>qMk(x)&&!metaExact(x)&&(!x.dec||JUST.has(qKey(x))))}
+const qOpen=()=>qList().filter(x=>!x.dec);
+let WHO='';try{WHO=localStorage.getItem('hub-who')||''}catch(e){}
+function cardQ(x){
+  const k=qKey(x),dur=x.dur?` · ${x.dur}s`:'';
+  const box=x.dec?`<div class="ap-n${x.dec==='no'?' ap-no':''}">${x.dec==='no'?'✕ '+(EN?'Rejected':'Reprovado'):'✓ '+(EN?'Approved':'Aprovado')} · ${EN?'posted in Asana':'comentado no Asana'}${x.by?' ('+esc(x.by)+')':''}${x.note?`<span class="ap-why">${EN?'Reason':'Motivo'}: ${esc(x.note)}</span>`:''}</div>`
+    :`<div class="ap" data-q="${esc(k)}">${apBtns()}</div>${WHO?`<div class="ap-n ap-multi">${EN?'Approving as':'Aprovando como'} ${esc(WHO)} · <a href="#" data-who>${EN?'change':'trocar'}</a></div>`:''}`;
+  return `<article class="card"><a class="thumb" href="${x.link}" target="_blank" rel="noopener" aria-label="${EN?'Open in Air':'Abrir no Air'}">${x.img?`<img src="${x.img}" alt="${esc(x.camp+' '+x.detail)}" loading="lazy">`:''}<span class="badge" style="--c:${CAT_C[x.cat]||'var(--muted)'}">${x.cat}</span><span class="count">${x.n} ${EN?'file':'arquivo'}${x.n>1?'s':''}${dur}</span></a>
+  <div class="meta"><h3>${esc(x.camp)}</h3><div class="det">${esc(x.detail)}</div>
+  <div class="chips"><span class="chip obj-none">${esc(x.mk==='US-BR'?'US + BR':x.mk)}</span>${x.kind?`<span class="fun">${esc(x.kind)}</span>`:''}${x.status?`<span class="st">${esc(x.status)}</span>`:''}</div>
+  ${box}${perf(x)}
+  <div class="foot"><a href="${x.link}" target="_blank" rel="noopener">${EN?'Open in Air':'Abrir no Air'} ↗</a><a href="${x.taskUrl}" target="_blank" rel="noopener">Asana ↗</a></div></div></article>`;
+}
 function renderPend(){
-  // some daqui o que já foi aprovado/reprovado no hub, mesmo antes da planilha voltar para o hub (leva alguns minutos);
-  // os que a pessoa decidiu agora nesta tela ficam à vista com o "✓ Aprovado" até ela sair da aba
-  const all=DATA.filter(x=>NEEDS.test(x.st||'')&&!metaExact(x)&&!(apOf(x)&&apOf(x).st!=='error'&&!JUST.has(apKey(x))&&!JUST.has(uKey(x)))),f=all.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
   ['months','weeks','summary'].forEach(id=>{const e=document.getElementById(id);e.innerHTML='';e.hidden=true});
-  document.getElementById('h-month').textContent=EN?'waiting for approval':'esperando aprovação';
-  renderDays(f);
-  const em=document.getElementById('empty');em.textContent=all.length?(EN?'No pending creatives with these filters.':'Nenhum criativo pendente com esses filtros.'):(EN?'Nothing waiting for approval right now.':'Nada esperando aprovação agora.');
+  document.getElementById('h-month').textContent=EN?'waiting for approval · from Asana':'esperando aprovação · do Asana';
+  const em=document.getElementById('empty');
+  if(!ASQ){document.getElementById('days').innerHTML=`<p class="mono">${EN?'Reading Asana…':'Lendo o Asana…'}</p>`;em.hidden=true;return}
+  const all=qList(),f=all.filter(x=>state.cat==='all'||x.cat===state.cat);
+  const byDay={};f.forEach(x=>(byDay[x.date]=byDay[x.date]||[]).push(x));
+  const keys=Object.keys(byDay).sort().reverse();
+  document.getElementById('days').innerHTML=keys.map(k=>{const L=byDay[k],x=L[0];
+    return `<section class="day"><div class="dayh"><h2>${x.wd} ${x.dd}</h2><span class="mono">${L.length} ${EN?'creative':'criativo'}${L.length>1?'s':''}</span></div><div class="grid">${L.map(cardQ).join('')}</div></section>`}).join('');
+  em.hidden=f.length>0;
+  em.textContent=ASQ.error?(EN?'Could not read Asana: ':'Não deu para ler o Asana: ')+ASQ.error:all.length?(EN?'No pending creatives with these filters.':'Nenhum criativo pendente com esses filtros.'):(EN?'Nothing waiting for approval right now.':'Nada esperando aprovação agora.');
+}
+// quem está aprovando (sem senha; fica guardado neste navegador e vai no comentário do Asana)
+function askWho(box){return new Promise(res=>{
+  box.innerHTML=`<form class="ap-f ap-wf"><span class="mono">${EN?'Who is approving?':'Quem está aprovando?'}</span><select aria-label="${EN?'Who':'Quem'}"><option>Marina</option><option>Jess</option><option>Monique</option><option value="__o">${EN?'Other…':'Outra pessoa…'}</option></select><input type="text" maxlength="40" placeholder="${EN?'Name':'Nome'}" hidden><span class="ap-wb"><button class="ap-b" type="submit">OK</button><button class="ap-c" type="button" data-cancel>${EN?'Cancel':'Cancelar'}</button></span></form>`;
+  const f=box.querySelector('form'),sel=f.querySelector('select'),inp=f.querySelector('input');
+  sel.onchange=()=>{inp.hidden=sel.value!=='__o';if(!inp.hidden)inp.focus()};
+  f.querySelector('[data-cancel]').onclick=()=>res('');
+  f.onsubmit=e=>{e.preventDefault();const v=(sel.value==='__o'?inp.value:sel.value).trim();if(!v)return;WHO=v;try{localStorage.setItem('hub-who',v)}catch(e){}res(v)};
+})}
+async function sendQ(box,rej){
+  const x=((ASQ&&ASQ.items)||[]).find(y=>qKey(y)===box.dataset.q);if(!x)return;
+  const who=WHO||await askWho(box);if(!who){box.innerHTML=apBtns();return}
+  box.innerHTML=`<span class="ap-n">${rej?(EN?'Rejecting…':'Reprovando…'):(EN?'Approving…':'Aprovando…')}</span>`;
+  const units=ASQ.items.filter(y=>y.task===x.task&&y.linkAt===x.linkAt).map(y=>y.bid);
+  const body={task:x.task,unit:x.bid,units,label:(x.camp+' / '+x.detail).slice(0,120),dec:rej?'no':'ok',msg:rej?rej.msg:'',who};
+  let r;try{r=await fetch('/api/approve?src=asana',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)})}catch(e){r=null}
+  if(r&&r.ok){JUST.add(qKey(x));Object.assign(x,{dec:rej?'no':'ok',by:who,note:rej?rej.msg:''});render();return}
+  box.innerHTML=`<span class="ap-n ap-err">${EN?'Something went wrong. Try again.':'Não deu certo. Tente de novo.'}</span>`+apBtns();
 }
 function tabs(){
-  const p=PEND(),n=DATA.filter(x=>NEEDS.test(x.st||'')&&!metaExact(x)&&!(apOf(x)&&apOf(x).st!=='error')).length;
+  const p=PEND(),n=ASQ?qOpen().length:0;
   const a=document.getElementById('et-all'),b=document.getElementById('et-pend');
   if(p){b.setAttribute('aria-current','page');a.removeAttribute('aria-current')}else{a.setAttribute('aria-current','page');b.removeAttribute('aria-current')}
   b.firstChild.textContent=EN?'To approve ':'Para aprovar ';document.getElementById('et-n').textContent=n||'';
@@ -2364,7 +2407,8 @@ function render(){
 document.querySelectorAll('.f').forEach(b=>b.addEventListener('click',()=>{state[b.dataset.g]=b.dataset.v;render()}));
 render();window.__Er=render;loadAppr();
 setInterval(()=>{if(Object.values(APPR).some(x=>x.st==='pending'))loadAppr()},30000);
-window.addEventListener('hashchange',()=>{if(location.hash==='#aprovar'||location.hash==='#entregas'||location.hash===''){JUST.clear();render()}});
+loadQ();setInterval(()=>{if(PEND())loadQ()},90000);
+window.addEventListener('hashchange',()=>{if(location.hash==='#aprovar'||location.hash==='#entregas'||location.hash===''){JUST.clear();if(location.hash==='#aprovar')loadQ();render()}});
 };
 </script>
 
