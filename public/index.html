@@ -2326,7 +2326,7 @@ function card(x){
   <div class="meta"><h3>${esc(x.camp==='—'?x.detail:x.camp)}</h3>${x.camp!=='—'?`<div class="det">${esc(x.detail)}</div>`:''}
   <div class="chips"><span class="chip ${objC}">${x.obj||'Sem tipo'}</span>${x.fun?`<span class="fun">${x.fun}</span>`:''}${(()=>{const st=shownSt(x);return st?`<span class="st ${stClass(st)}">${esc(st)}</span>`:''})()}</div>
   ${apprBox(x)}${perf(x)}
-  <div class="foot"><a href="${x.link}" target="_blank" rel="noopener">Abrir no Air ↗</a><span class="mono">${x.row?'linha '+x.row:'fora da planilha'}</span></div></div></article>`;
+  <div class="foot"><a href="${x.link}" target="_blank" rel="noopener">Abrir no Air ↗</a>${x.aUrl?`<a href="${x.aUrl}" target="_blank" rel="noopener" title="${esc(x.aTask||'')}">Asana${x.aDec==='ok'&&!/antes da troca/.test(x.aBy||'')?' · '+(EN?'approved':'aprovado'):x.aDec==='no'?' · '+(EN?'rejected':'reprovado'):!x.aDec?' · '+(EN?'to approve':'para aprovar'):''} ↗</a>`:''}</div></div></article>`;
 }
 function renderDays(list){
   const f=list.filter(x=>(state.cat==='all'||x.cat===state.cat)&&(state.obj==='all'||x.obj===state.obj));
