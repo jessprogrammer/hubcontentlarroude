@@ -9,6 +9,7 @@
 import config from '../config.js';
 import { get, put } from '../lib/store.js';
 import banners from '../lib/banners.js';
+import adsAsana from '../lib/ads-asana.js';
 
 const KEY = 'appr:v1';
 const NEEDS = /needs approval|needs to approve/i;
@@ -111,6 +112,8 @@ async function reopen(D) {
 export default async function handler(req, res) {
   // Banners Home (aprovação livre da Marina), no mesmo endpoint por causa do limite de 12 funções
   if (req.query && req.query.src === 'banners') return banners(req, res);
+  // ADS pelo Asana (substitui a Creative Request)
+  if (req.query && req.query.src === 'asana') return adsAsana(req, res);
   res.setHeader('Cache-Control', 'no-store');
   try {
     const q = req.query || {};

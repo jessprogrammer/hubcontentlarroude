@@ -18,7 +18,7 @@ async function kids(sc, id) {
   } while (cursor);
   return out;
 }
-async function clips(sc, id) {
+export async function clips(sc, id) {
   let out = [], cursor = null;
   do {
     const body = { filters: { board: { is: id } }, limit: 100 };
@@ -31,7 +31,7 @@ async function clips(sc, id) {
 }
 
 // percorre a árvore em largura, com várias requisições em paralelo
-async function crawl(folder) {
+export async function crawl(folder) {
   const leaves = [];
   let level = [{ id: folder.root, path: [], anc: [] }];
   while (level.length) {
@@ -107,7 +107,7 @@ function sheetDate(v) {
   return new Date(Date.UTC(y, +m[2] - 1, +m[1]));
 }
 
-function category(path, n, exts, own) {
+export function category(path, n, exts, own) {
   if (own && own.atype) { const t = own.atype.toUpperCase(); if (/CAROUSEL|CARROUSEL|CARROSS?EL/.test(t)) return 'Carousel'; if (/GIF/.test(t)) return 'GIF'; if (/VIDEO/.test(t)) return 'Video'; if (/STATIC/.test(t)) return 'Static'; }
   const up = path.join('/').toUpperCase();
   if (/CARROUSEL|CAROUSEL|CARROSS?EL/.test(up)) return 'Carousel';
