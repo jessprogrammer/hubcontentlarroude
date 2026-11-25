@@ -155,7 +155,7 @@ async function build() {
     }
   }
   // tarefas de ADS do Asana com o link da pasta comentado: data da entrega, status e link da tarefa
-  const AQ = (await get('adsq:v2').catch(() => null)) || { items: [] };
+  const AQ = (await get('adsq:v3').catch(() => null)) || { items: [] };
   const aq = new Map((AQ.items || []).map(x => [x.bid, x]));
   for (const L of folders.flat()) {
     const mk = L.folder.mk, sheet = mk === 'BR' ? sBR : sUS;
